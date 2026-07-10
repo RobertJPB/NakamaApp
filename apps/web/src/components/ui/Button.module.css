@@ -1,0 +1,39 @@
+.btn {
+  display:         inline-flex;
+  align-items:     center;
+  gap:             var(--space-2);
+  border-radius:   var(--radius-md);
+  font-weight:     600;
+  font-size:       var(--text-sm);
+  transition:      background var(--transition-fast), transform var(--transition-fast), opacity var(--transition-fast);
+  white-space:     nowrap;
+}
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn:not(:disabled):active { transform: scale(0.97); }
+
+/* Variantes */
+.primario   { background: var(--color-acento); color: #1f2124; }
+.primario:not(:disabled):hover { background: var(--color-acento-hover); }
+
+.secundario { background: var(--color-surface-2); color: var(--color-texto); border: 1px solid var(--color-borde); }
+.secundario:not(:disabled):hover { background: var(--color-surface-3); }
+
+.fantasma   { background: transparent; color: var(--color-texto-suave); }
+.fantasma:not(:disabled):hover { background: var(--color-surface-2); color: var(--color-texto); }
+
+.peligro    { background: var(--color-error); color: white; }
+.peligro:not(:disabled):hover { opacity: 0.85; }
+
+/* Tamaños */
+.sm { padding: var(--space-1) var(--space-3); font-size: var(--text-xs); }
+.md { padding: var(--space-2) var(--space-5); }
+.lg { padding: var(--space-3) var(--space-8); font-size: var(--text-base); }
+
+.spinner {
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }

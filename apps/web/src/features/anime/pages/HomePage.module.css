@@ -1,0 +1,772 @@
+/* ════════════════════════════════════════════════════════
+   Nakama — HomePage
+   Estilo: catálogo social tipo Letterboxd / AniList
+   ════════════════════════════════════════════════════════ */
+
+.home {
+  min-height: 100vh;
+  width: 100%;
+  background: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* ════════════════════════════════════════════════════════
+   HERO — Pantalla completa
+   ════════════════════════════════════════════════════════ */
+
+.hero {
+  position: relative;
+  width: 100%;
+  height: 44vh;
+  min-height: 380px;
+  overflow: hidden;
+  background: var(--color-bg);
+}
+
+.heroBg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center 25%;
+  background-repeat: no-repeat;
+  transition: opacity 0.28s ease;
+}
+
+.heroBgFade { opacity: 0; }
+
+.heroOverlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      110deg,
+      rgba(11, 13, 16, 0.93) 0%,
+      rgba(11, 13, 16, 0.78) 42%,
+      rgba(11, 13, 16, 0.32) 62%,
+      rgba(11, 13, 16, 0.68) 100%
+    ),
+    linear-gradient(
+      to bottom,
+      transparent 55%,
+      #0b0d10 100%
+    );
+  z-index: 1;
+}
+
+.heroOverlayColor {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  transition: background 0.4s ease;
+  mix-blend-mode: multiply;
+}
+
+.heroContent {
+  position: relative;
+  z-index: 2;
+  height: auto;
+  min-height: 100%;
+  display: grid;
+  grid-template-columns: 1fr 290px;
+  gap: 1.5rem;
+  align-items: flex-end;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 2.5rem;
+  padding-top: var(--navbar-height);
+  padding-bottom: 2.5rem;
+}
+
+/* ── Texto del hero ────────────────────────────────────── */
+.heroTexto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  max-width: 560px;
+  animation: slideUp 0.55s ease both;
+}
+
+.heroFade { opacity: 0; transform: translateY(10px); transition: opacity 0.28s, transform 0.28s; }
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.heroBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: rgba(245, 168, 0, 0.14);
+  border: 1px solid rgba(245, 168, 0, 0.32);
+  color: var(--color-acento);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  padding: 0.28rem 0.75rem;
+  border-radius: var(--radius-full);
+  width: fit-content;
+}
+
+.heroBadgeDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-acento);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.55; transform: scale(1.5); }
+}
+
+.heroTitulo {
+  font-size: clamp(2rem, 4vw, 3.4rem);
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.05;
+  letter-spacing: -1.5px;
+  text-shadow: 0 4px 28px rgba(0, 0, 0, 0.5);
+}
+
+.heroSubtitulo {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-top: -0.4rem;
+}
+
+.heroMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.68);
+  flex-wrap: wrap;
+}
+
+.heroPunto { color: var(--color-acento); font-weight: 900; }
+
+.heroPuntuacion {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.estrellas {
+  color: var(--color-acento);
+  font-size: 0.88rem;
+  letter-spacing: 2px;
+}
+
+.heroPuntuacionNum {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.heroDescripcion {
+  font-size: 0.87rem;
+  color: rgba(255, 255, 255, 0.72);
+  line-height: 1.55;
+  max-width: 490px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── Botones del hero — estilo catálogo, no streaming ──── */
+.heroAcciones {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  margin-top: 0.3rem;
+}
+
+.heroBtnPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.78rem 1.5rem;
+  background: var(--color-acento);
+  color: #111;
+  font-weight: 800;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: transform 0.18s ease, background 0.18s ease;
+}
+
+.heroBtnPrimary:hover {
+  background: var(--color-acento-hover);
+  transform: translateY(-2px);
+}
+
+.heroBtnSecondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.78rem 1.5rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: rgba(255, 255, 255, 0.92);
+  font-weight: 700;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: transform 0.18s ease, background 0.18s ease;
+  backdrop-filter: blur(8px);
+}
+
+.heroBtnSecondary:hover {
+  background: rgba(255, 255, 255, 0.16);
+  transform: translateY(-2px);
+}
+
+/* ── Sidebar del hero — reseñas recientes ──────────────── */
+.heroLista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  background: rgba(10, 12, 16, 0.75);
+  border: 1px solid rgba(245, 168, 0, 0.15);
+  border-radius: 8px;
+  padding: 1rem 0.9rem;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  height: fit-content;
+  max-height: 290px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.heroLista::-webkit-scrollbar { display: none; }
+
+.heroListaTitulo {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--color-acento);
+  margin-bottom: 0.5rem;
+}
+
+.resenaItem {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.resenaItem:last-of-type { border-bottom: none; }
+
+.resenaAvatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-acento);
+  color: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.7rem;
+  flex-shrink: 0;
+}
+
+.resenaInfo { flex: 1; min-width: 0; }
+
+.resenaUsuario {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.resenaAnime {
+  font-size: 0.68rem;
+  color: var(--color-acento);
+  margin-bottom: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.resenaTexto {
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-style: italic;
+  line-height: 1.35;
+  margin-top: 1px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.heroListaVerTodo {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--color-acento);
+  font-weight: 600;
+  text-align: center;
+  padding-top: 0.5rem;
+  margin-top: 0.25rem;
+  border-top: 1px solid rgba(245, 168, 0, 0.12);
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+.heroListaVerTodo:hover { opacity: 0.75; }
+
+/* ── Navegación del hero ───────────────────────────────── */
+.heroDots {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex;
+  gap: 0.45rem;
+}
+
+.heroDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  border: none;
+  cursor: pointer;
+  transition: width 0.28s, background 0.28s;
+}
+
+.heroDotActivo {
+  width: 26px;
+  border-radius: 4px;
+  background: var(--color-acento);
+}
+
+.heroArrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(11, 13, 16, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-size: 1.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s, transform 0.18s;
+  backdrop-filter: blur(8px);
+  line-height: 1;
+  padding-bottom: 2px;
+}
+
+.heroArrow:hover {
+  background: var(--color-acento);
+  border-color: var(--color-acento);
+  color: #111;
+  transform: translateY(-50%) scale(1.06);
+}
+
+.heroArrowLeft  { left: 1.25rem; }
+.heroArrowRight { right: 1.25rem; }
+
+
+
+/* ════════════════════════════════════════════════════════
+   SECCIÓN — Descubre esta semana
+   ════════════════════════════════════════════════════════ */
+
+.seccion {
+  width: 100%;
+  padding: 1.5rem 0 3rem;
+}
+
+.seccionInner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+}
+
+.seccionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.seccionTitulo {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 0.2rem;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 3px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.tab {
+  padding: 0.36rem 0.9rem;
+  border-radius: 4px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+}
+
+.tabActivo {
+  background: var(--color-acento);
+  color: #111;
+}
+
+/* ── Layout: grid de animes + sidebar ─────────────────── */
+.gridLayout {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 2rem;
+  align-items: start;
+}
+
+/* ── Grid de anime cards ───────────────────────────────── */
+.animeGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1rem;
+}
+
+/* Card individual */
+.animeCard {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.animeCard:hover { transform: translateY(-4px); }
+
+.cardPoster {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2/3;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 0.5rem;
+  background: rgba(255,255,255,0.04);
+}
+
+.cardPosterImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.animeCard:hover .cardPosterImg {
+  transform: scale(1.04);
+}
+
+/* Overlay de botones sobre el poster */
+.cardOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,0.92) 0%,
+    rgba(0,0,0,0.45) 45%,
+    transparent 100%
+  );
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0.7rem 0.6rem;
+  gap: 0.4rem;
+  opacity: 0;
+  transition: opacity 0.22s ease;
+}
+
+.animeCard:hover .cardOverlay {
+  opacity: 1;
+}
+
+.cardAcciones {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.cardBtnLista {
+  flex: 1;
+  font-size: 0.67rem;
+  font-weight: 800;
+  padding: 5px 8px;
+  border-radius: 5px;
+  background: var(--color-acento);
+  border: none;
+  color: #111;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+  text-align: center;
+  white-space: nowrap;
+}
+.cardBtnLista:hover {
+  background: var(--color-acento-hover);
+  transform: translateY(-1px);
+}
+
+.cardBtnFicha {
+  flex: 1;
+  font-size: 0.67rem;
+  font-weight: 700;
+  padding: 5px 8px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.92);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s, transform 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  backdrop-filter: blur(6px);
+}
+.cardBtnFicha:hover {
+  background: rgba(255, 255, 255, 0.24);
+  transform: translateY(-1px);
+}
+
+.cardInfo { padding: 0.15rem 0.1rem 0; }
+
+.cardRating {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.1rem 0;
+}
+
+.cardRatingScore {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-acento);
+}
+
+.cardTitulo {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cardMeta {
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.42);
+  margin-top: 2px;
+}
+
+/* ── Sidebar ranking ───────────────────────────────────── */
+.rankingSidebar {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  padding: 1.25rem;
+  position: sticky;
+  top: calc(var(--navbar-height) + 1.5rem);
+}
+
+.sidebarTitulo {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.acento { color: var(--color-acento); }
+
+.rankingLista {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.rankingItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  transition: background 0.15s;
+  border-radius: 8px;
+  padding-left: 0.3rem;
+}
+.rankingItem:hover { background: rgba(245, 168, 0, 0.06); }
+.rankingItem:last-of-type { border-bottom: none; }
+
+.rankingNum {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.07);
+  min-width: 2rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.rankingInfo { flex: 1; min-width: 0; }
+
+.rankingTitulo {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rankingGenero {
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 1px;
+}
+
+.rankingScore {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--color-acento);
+  flex-shrink: 0;
+}
+
+.verTodo {
+  display: block;
+  margin-top: 0.8rem;
+  font-size: 0.75rem;
+  color: var(--color-acento);
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+.verTodo:hover { opacity: 0.72; }
+
+/* ════════════════════════════════════════════════════════
+   CTA — Únete a Nakama
+   ════════════════════════════════════════════════════════ */
+
+.ctaSection {
+  width: 100%;
+  padding: 4.5rem 2.5rem;
+  background: radial-gradient(ellipse 80% 60% at 50% 50%, rgba(245, 168, 0, 0.07) 0%, transparent 70%);
+  border-top: 1px solid rgba(245, 168, 0, 0.09);
+  margin-top: 1rem;
+}
+
+.ctaInner {
+  max-width: 560px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+}
+
+.ctaLogo {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-7px); }
+}
+
+.ctaTitulo {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: -0.5px;
+}
+
+.ctaDesc {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.65;
+  max-width: 380px;
+}
+
+.ctaAcciones {
+  display: flex;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 0.4rem;
+}
+
+/* ════════════════════════════════════════════════════════
+   RESPONSIVE
+   ════════════════════════════════════════════════════════ */
+
+@media (max-width: 1100px) {
+  .animeGrid { grid-template-columns: repeat(4, 1fr); }
+  .gridLayout { grid-template-columns: 1fr 230px; }
+}
+
+@media (max-width: 900px) {
+  .heroContent {
+    grid-template-columns: 1fr;
+    align-items: flex-end;
+    padding-bottom: 4.5rem;
+    padding-top: var(--navbar-height);
+  }
+  .heroLista { display: none; }
+  .heroTitulo { font-size: clamp(2.2rem, 7vw, 3.5rem); }
+
+  .gridLayout { grid-template-columns: 1fr; }
+  .rankingSidebar { position: static; }
+  .animeGrid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 620px) {
+  .animeGrid { grid-template-columns: repeat(2, 1fr); }
+  .seccionInner { padding: 0 1.25rem; }
+  .seccion { padding: 2rem 0; }
+  .heroAcciones { flex-direction: column; }
+  .heroBtnPrimary, .heroBtnSecondary { width: 100%; justify-content: center; }
+  .heroArrow { display: none; }
+  .ctaSection { padding: 3rem 1.5rem; }
+  .ctaTitulo { font-size: 1.4rem; }
+}

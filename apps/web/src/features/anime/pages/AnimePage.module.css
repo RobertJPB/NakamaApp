@@ -1,0 +1,121 @@
+.cargando {
+  display: flex; align-items: center; justify-content: center;
+  height: 60vh; color: var(--color-texto-suave);
+}
+
+/* ── Hero ── */
+.hero { position: relative; }
+
+.banner {
+  position: absolute; inset: 0; height: 380px; z-index: 0;
+  overflow: hidden;
+}
+.banner img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+.bannerOverlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, rgba(31,33,36,0.5) 0%, rgba(31,33,36,1) 100%);
+}
+
+.heroContenido {
+  position: relative; z-index: 1;
+  max-width: var(--content-max-width); margin: 0 auto;
+  padding: var(--space-12) var(--space-6) var(--space-8);
+  display: flex; gap: var(--space-8); align-items: flex-start;
+}
+
+.posterWrap {
+  flex-shrink: 0; width: 200px;
+  display: flex; flex-direction: column; gap: var(--space-3);
+}
+.poster {
+  width: 100%; border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  border: 2px solid var(--color-borde);
+}
+
+.info { flex: 1; display: flex; flex-direction: column; gap: var(--space-4); padding-top: var(--space-8); }
+
+.meta { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+.metaTag {
+  background: var(--color-surface-2); color: var(--color-texto-suave);
+  font-size: var(--text-xs); font-weight: 600;
+  padding: 3px 10px; border-radius: var(--radius-full);
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.emision { background: rgba(67,181,129,0.15); color: #43b581; }
+
+.titulo { font-size: var(--text-3xl); font-weight: 800; line-height: 1.1; }
+.tituloJp { font-size: var(--text-base); color: var(--color-texto-suave); }
+
+/* Rating estilo Letterboxd */
+.rating { display: flex; align-items: center; gap: var(--space-4); }
+.ratingNumero { display: flex; align-items: baseline; gap: 2px; }
+.ratingValor { font-size: var(--text-4xl); font-weight: 800; color: var(--color-acento); }
+.ratingBase  { font-size: var(--text-lg); color: var(--color-texto-muted); }
+.ratingInfo  { display: flex; flex-direction: column; gap: 2px; }
+.estrellas   { color: var(--color-acento); font-size: var(--text-lg); letter-spacing: 2px; }
+.totalResenas { font-size: var(--text-xs); color: var(--color-texto-muted); }
+
+.datos { display: flex; gap: var(--space-6); flex-wrap: wrap; }
+.dato  { display: flex; flex-direction: column; gap: 2px; }
+.dato span   { font-size: var(--text-xs); color: var(--color-texto-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.dato strong { font-size: var(--text-sm); color: var(--color-texto); }
+
+.generos { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+.genero  {
+  background: var(--color-acento-soft); color: var(--color-acento);
+  border: 1px solid rgba(245,168,0,0.3);
+  font-size: var(--text-xs); font-weight: 600;
+  padding: 2px 10px; border-radius: var(--radius-full);
+  transition: background var(--transition-fast);
+}
+.genero:hover { background: rgba(245,168,0,0.2); }
+
+.sinopsis {
+  font-size: var(--text-sm); color: var(--color-texto-suave);
+  line-height: 1.8; max-width: 600px;
+}
+
+/* ── Tabs ── */
+.tabs {
+  display: flex; gap: 0;
+  border-bottom: 1px solid var(--color-borde);
+  max-width: var(--content-max-width); margin: 0 auto;
+  padding: 0 var(--space-6);
+}
+.tab {
+  padding: var(--space-3) var(--space-5);
+  font-size: var(--text-sm); font-weight: 600;
+  color: var(--color-texto-muted);
+  border-bottom: 2px solid transparent;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+  text-transform: capitalize;
+}
+.tab:hover { color: var(--color-texto); }
+.tabActiva { color: var(--color-acento) !important; border-bottom-color: var(--color-acento) !important; }
+
+/* ── Contenido tabs ── */
+.contenido {
+  max-width: var(--content-max-width); margin: 0 auto;
+  padding: var(--space-8) var(--space-6) var(--space-16);
+}
+
+.resenasLayout { display: grid; grid-template-columns: 320px 1fr; gap: var(--space-8); align-items: start; }
+.formWrap      { position: sticky; top: calc(var(--navbar-height) + var(--space-4)); }
+.listaResenas  { display: flex; flex-direction: column; gap: var(--space-4); }
+.vacio         { color: var(--color-texto-muted); font-size: var(--text-sm); padding: var(--space-8) 0; }
+
+.personajesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--space-4);
+}
+
+.infoDetalle { display: flex; flex-direction: column; gap: 0; max-width: 500px; }
+.infoFila {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: var(--space-3) 0; border-bottom: 1px solid var(--color-borde-suave);
+  font-size: var(--text-sm);
+}
+.infoFila span   { color: var(--color-texto-muted); }
+.infoFila strong { color: var(--color-texto); }

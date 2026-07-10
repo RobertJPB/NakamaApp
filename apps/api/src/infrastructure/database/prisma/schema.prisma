@@ -1,0 +1,481 @@
+// ============================================================
+// NAKAMA — Prisma Schema
+// PostgreSQL + Supabase
+// ============================================================
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+  schemas   = ["catalogo", "social", "contenido", "comunidad", "sistema"]
+}
+
+// ============================================================
+// ENUMS
+// ============================================================
+
+enum EstadoLista {
+  viendo
+  completado
+  pendiente
+  en_pausa
+  abandonado
+  @@schema("social")
+}
+
+enum EstadoSolicitud {
+  pendiente
+  aceptado
+  rechazado
+  @@schema("social")
+}
+
+enum TipoNotificacion {
+  nuevo_seguidor
+  like_resena
+  comentario_publicacion
+  actividad_seguido
+  nuevo_episodio
+  @@schema("sistema")
+}
+
+enum TipoReaccion {
+  like
+  love
+  fire
+  @@schema("contenido")
+}
+
+enum RolMiembro {
+  admin
+  moderador
+  miembro
+  @@schema("comunidad")
+}
+
+enum TipoComunidad {
+  anime
+  genero
+  temporada
+  @@schema("comunidad")
+}
+
+enum RolPersonaje {
+  MAIN
+  SUPPORTING
+  BACKGROUND
+  @@schema("catalogo")
+}
+
+// ============================================================
+// SCHEMA: catalogo
+// ============================================================
+
+model Anime {
+  id                   String   @id @default(uuid())
+  anilistId            Int      @unique @map("anilist_id")
+  titulo               String   @db.VarChar(255)
+  tituloJapones        String?  @map("titulo_japones") @db.VarChar(255)
+  tituloRomaji         String?  @map("titulo_romaji")  @db.VarChar(255)
+  imagenUrl            String?  @map("imagen_url")
+  bannerUrl            String?  @map("banner_url")
+  sinopsis             String?
+  estadoEmision        String?  @map("estado_emision") @db.VarChar(50)
+  episodios            Int?
+  duracionMin          Int?     @map("duracion_min")
+  temporada            String?  @db.VarChar(20)
+  anio                 Int?
+  tipo                 String?  @db.VarChar(20)
+  estudio              String?  @db.VarChar(150)
+  calificacionPromedio Decimal  @default(0) @map("calificacion_promedio") @db.Decimal(4, 2)
+  totalResenas         Int      @default(0) @map("total_resenas")
+  totalEnListas        Int      @default(0) @map("total_en_listas")
+  creadoEn             DateTime @default(now()) @map("creado_en")
+  actualizadoEn        DateTime @updatedAt       @map("actualizado_en")
+
+  // Relaciones
+  generos       AnimeGenero[]
+  demografias   AnimeDemografia[]
+  personajes    Personaje[]
+  listaUsuarios ListaUsuario[]
+  resenas       Resena[]
+  colecciones   ColeccionAnime[]
+
+  @@map("animes")
+  @@schema("catalogo")
+}
+
+model Genero {
+  id     String @id @default(uuid())
+  nombre String @unique @db.VarChar(100)
+
+  animes AnimeGenero[]
+
+  @@map("generos")
+  @@schema("catalogo")
+}
+
+model AnimeGenero {
+  animeId   String @map("anime_id")
+  generoId  String @map("genero_id")
+
+  anime  Anime  @relation(fields: [animeId],  references: [id], onDelete: Cascade)
+  genero Genero @relation(fields: [generoId], references: [id], onDelete: Cascade)
+
+  @@id([animeId, generoId])
+  @@map("anime_generos")
+  @@schema("catalogo")
+}
+
+model Demografia {
+  id     String @id @default(uuid())
+  nombre String @unique @db.VarChar(100)
+
+  animes AnimeDemografia[]
+
+  @@map("demografias")
+  @@schema("catalogo")
+}
+
+model AnimeDemografia {
+  animeId      String @map("anime_id")
+  demografiaId String @map("demografia_id")
+
+  anime      Anime      @relation(fields: [animeId],      references: [id], onDelete: Cascade)
+  demografia Demografia @relation(fields: [demografiaId], references: [id], onDelete: Cascade)
+
+  @@id([animeId, demografiaId])
+  @@map("anime_demografias")
+  @@schema("catalogo")
+}
+
+model Personaje {
+  id                 String  @id @default(uuid())
+  anilistPersonajeId Int     @unique @map("anilist_personaje_id")
+  animeId            String  @map("anime_id")
+  nombre             String  @db.VarChar(255)
+  nombreNativo       String? @map("nombre_nativo") @db.VarChar(255)
+  imagenUrl          String? @map("imagen_url")
+  descripcion        String?
+  rol                RolPersonaje?
+
+  anime              Anime  @relation(fields: [animeId], references: [id], onDelete: Cascade)
+  calificaciones     CalificacionPersonaje[]
+
+  @@map("personajes")
+  @@schema("catalogo")
+}
+
+// ============================================================
+// SCHEMA: social
+// ============================================================
+
+model Usuario {
+  id               String    @id  // UUID de Supabase Auth
+  email            String    @unique @db.VarChar(255)
+  username         String    @unique @db.VarChar(50)
+  nombreDisplay    String    @map("nombre_display") @db.VarChar(100)
+  avatarUrl        String?   @map("avatar_url")
+  bannerUrl        String?   @map("banner_url")
+  bio              String?   @db.VarChar(500)
+  sitioWeb         String?   @map("sitio_web") @db.VarChar(255)
+  perfilPrivado    Boolean   @default(false) @map("perfil_privado")
+  resenasPublicas  Boolean   @default(true)  @map("resenas_publicas")
+  listasPublicas   Boolean   @default(true)  @map("listas_publicas")
+  creadoEn         DateTime  @default(now()) @map("creado_en")
+  actualizadoEn    DateTime  @updatedAt      @map("actualizado_en")
+  ultimoAcceso     DateTime? @map("ultimo_acceso")
+
+  // Relaciones
+  seguidores          Seguidor[]             @relation("Seguido")
+  siguiendo           Seguidor[]             @relation("Seguidor")
+  lista               ListaUsuario[]
+  resenas             Resena[]
+  reaccionesResena    ReaccionResena[]
+  colecciones         Coleccion[]
+  comunidadesCreadas  Comunidad[]
+  membresias          Miembro[]
+  publicaciones       Publicacion[]
+  comentarios         Comentario[]
+  reaccionesPub       ReaccionPublicacion[]
+  reaccionesComent    ReaccionComentario[]
+  calificacionPersonajes CalificacionPersonaje[]
+  notificacionesRecibidas Notificacion[]     @relation("NotificacionUsuario")
+  notificacionesEnviadas  Notificacion[]     @relation("NotificacionActor")
+  feedEntradas        Feed[]                 @relation("FeedUsuario")
+  feedAcciones        Feed[]                 @relation("FeedActor")
+
+  @@map("usuarios")
+  @@schema("social")
+}
+
+model Seguidor {
+  seguidorId String          @map("seguidor_id")
+  seguidoId  String          @map("seguido_id")
+  estado     EstadoSolicitud @default(aceptado)
+  creadoEn   DateTime        @default(now()) @map("creado_en")
+
+  seguidor Usuario @relation("Seguidor", fields: [seguidorId], references: [id], onDelete: Cascade)
+  seguido  Usuario @relation("Seguido",  fields: [seguidoId],  references: [id], onDelete: Cascade)
+
+  @@id([seguidorId, seguidoId])
+  @@map("seguidores")
+  @@schema("social")
+}
+
+model ListaUsuario {
+  id              String      @id @default(uuid())
+  usuarioId       String      @map("usuario_id")
+  animeId         String      @map("anime_id")
+  estado          EstadoLista
+  episodiosVistos Int         @default(0) @map("episodios_vistos")
+  esFavorito      Boolean     @default(false) @map("es_favorito")
+  esPrivada       Boolean     @default(false) @map("es_privada")
+  notasPrivadas   String?     @map("notas_privadas")
+  creadoEn        DateTime    @default(now()) @map("creado_en")
+  actualizadoEn   DateTime    @updatedAt      @map("actualizado_en")
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  anime   Anime   @relation(fields: [animeId],   references: [id], onDelete: Cascade)
+
+  @@unique([usuarioId, animeId])
+  @@map("lista_usuario")
+  @@schema("social")
+}
+
+model CalificacionPersonaje {
+  id           String   @id @default(uuid())
+  usuarioId    String   @map("usuario_id")
+  personajeId  String   @map("personaje_id")
+  posicion     Int
+  creadoEn     DateTime @default(now()) @map("creado_en")
+
+  usuario   Usuario   @relation(fields: [usuarioId],   references: [id], onDelete: Cascade)
+  personaje Personaje @relation(fields: [personajeId], references: [id], onDelete: Cascade)
+
+  @@unique([usuarioId, personajeId])
+  @@unique([usuarioId, posicion])
+  @@map("calificacion_personajes")
+  @@schema("social")
+}
+
+// ============================================================
+// SCHEMA: contenido
+// ============================================================
+
+model Resena {
+  id              String   @id @default(uuid())
+  usuarioId       String   @map("usuario_id")
+  animeId         String   @map("anime_id")
+  calificacion    Int
+  contenido       String?
+  contieneSpoiler Boolean  @default(false) @map("contiene_spoiler")
+  esPublica       Boolean  @default(true)  @map("es_publica")
+  totalLikes      Int      @default(0)     @map("total_likes")
+  creadoEn        DateTime @default(now()) @map("creado_en")
+  editadoEn       DateTime? @map("editado_en")
+
+  usuario   Usuario          @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  anime     Anime            @relation(fields: [animeId],   references: [id], onDelete: Cascade)
+  reacciones ReaccionResena[]
+
+  @@unique([usuarioId, animeId])
+  @@map("resenas")
+  @@schema("contenido")
+}
+
+model ReaccionResena {
+  id        String       @id @default(uuid())
+  usuarioId String       @map("usuario_id")
+  resenaId  String       @map("resena_id")
+  tipo      TipoReaccion @default(like)
+  creadoEn  DateTime     @default(now()) @map("creado_en")
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  resena  Resena  @relation(fields: [resenaId],  references: [id], onDelete: Cascade)
+
+  @@unique([usuarioId, resenaId])
+  @@map("reacciones_resena")
+  @@schema("contenido")
+}
+
+model Coleccion {
+  id            String   @id @default(uuid())
+  usuarioId     String?  @map("usuario_id")
+  titulo        String   @db.VarChar(255)
+  descripcion   String?
+  imagenUrl     String?  @map("imagen_url")
+  esEditorial   Boolean  @default(false) @map("es_editorial")
+  esPublica     Boolean  @default(true)  @map("es_publica")
+  totalAnimes   Int      @default(0)     @map("total_animes")
+  creadoEn      DateTime @default(now()) @map("creado_en")
+  actualizadoEn DateTime @updatedAt      @map("actualizado_en")
+
+  usuario Usuario?         @relation(fields: [usuarioId], references: [id], onDelete: SetNull)
+  animes  ColeccionAnime[]
+
+  @@map("colecciones")
+  @@schema("contenido")
+}
+
+model ColeccionAnime {
+  coleccionId String   @map("coleccion_id")
+  animeId     String   @map("anime_id")
+  posicion    Int
+  nota        String?
+  agregadoEn  DateTime @default(now()) @map("agregado_en")
+
+  coleccion Coleccion @relation(fields: [coleccionId], references: [id], onDelete: Cascade)
+  anime     Anime     @relation(fields: [animeId],     references: [id], onDelete: Cascade)
+
+  @@id([coleccionId, animeId])
+  @@map("coleccion_animes")
+  @@schema("contenido")
+}
+
+// ============================================================
+// SCHEMA: comunidad
+// ============================================================
+
+model Comunidad {
+  id            String        @id @default(uuid())
+  nombre        String        @unique @db.VarChar(150)
+  descripcion   String?
+  imagenUrl     String?       @map("imagen_url")
+  bannerUrl     String?       @map("banner_url")
+  tipo          TipoComunidad
+  referenciaId  String?       @map("referencia_id")
+  esOficial     Boolean       @default(false) @map("es_oficial")
+  totalMiembros Int           @default(0)     @map("total_miembros")
+  creadoPor     String?       @map("creado_por")
+  creadoEn      DateTime      @default(now()) @map("creado_en")
+
+  creador      Usuario?      @relation(fields: [creadoPor], references: [id], onDelete: SetNull)
+  miembros     Miembro[]
+  publicaciones Publicacion[]
+
+  @@map("comunidades")
+  @@schema("comunidad")
+}
+
+model Miembro {
+  usuarioId    String     @map("usuario_id")
+  comunidadId  String     @map("comunidad_id")
+  rol          RolMiembro @default(miembro)
+  unidoEn      DateTime   @default(now()) @map("unido_en")
+
+  usuario   Usuario   @relation(fields: [usuarioId],   references: [id], onDelete: Cascade)
+  comunidad Comunidad @relation(fields: [comunidadId], references: [id], onDelete: Cascade)
+
+  @@id([usuarioId, comunidadId])
+  @@map("miembros")
+  @@schema("comunidad")
+}
+
+model Publicacion {
+  id               String   @id @default(uuid())
+  comunidadId      String   @map("comunidad_id")
+  usuarioId        String   @map("usuario_id")
+  titulo           String?  @db.VarChar(300)
+  contenido        String
+  imagenUrl        String?  @map("imagen_url")
+  totalLikes       Int      @default(0) @map("total_likes")
+  totalComentarios Int      @default(0) @map("total_comentarios")
+  creadoEn         DateTime @default(now()) @map("creado_en")
+  editadoEn        DateTime? @map("editado_en")
+
+  comunidad  Comunidad           @relation(fields: [comunidadId], references: [id], onDelete: Cascade)
+  usuario    Usuario             @relation(fields: [usuarioId],   references: [id], onDelete: Cascade)
+  comentarios Comentario[]
+  reacciones  ReaccionPublicacion[]
+
+  @@map("publicaciones")
+  @@schema("comunidad")
+}
+
+model Comentario {
+  id             String    @id @default(uuid())
+  publicacionId  String    @map("publicacion_id")
+  usuarioId      String    @map("usuario_id")
+  padreId        String?   @map("padre_id")
+  contenido      String
+  totalLikes     Int       @default(0) @map("total_likes")
+  creadoEn       DateTime  @default(now()) @map("creado_en")
+  editadoEn      DateTime? @map("editado_en")
+
+  publicacion Publicacion  @relation(fields: [publicacionId], references: [id], onDelete: Cascade)
+  usuario     Usuario      @relation(fields: [usuarioId],     references: [id], onDelete: Cascade)
+  padre       Comentario?  @relation("Respuestas", fields: [padreId], references: [id], onDelete: Cascade)
+  respuestas  Comentario[] @relation("Respuestas")
+  reacciones  ReaccionComentario[]
+
+  @@map("comentarios")
+  @@schema("comunidad")
+}
+
+model ReaccionPublicacion {
+  usuarioId     String   @map("usuario_id")
+  publicacionId String   @map("publicacion_id")
+  creadoEn      DateTime @default(now()) @map("creado_en")
+
+  usuario    Usuario    @relation(fields: [usuarioId],     references: [id], onDelete: Cascade)
+  publicacion Publicacion @relation(fields: [publicacionId], references: [id], onDelete: Cascade)
+
+  @@id([usuarioId, publicacionId])
+  @@map("reacciones_publicacion")
+  @@schema("comunidad")
+}
+
+model ReaccionComentario {
+  usuarioId    String   @map("usuario_id")
+  comentarioId String   @map("comentario_id")
+  creadoEn     DateTime @default(now()) @map("creado_en")
+
+  usuario    Usuario    @relation(fields: [usuarioId],    references: [id], onDelete: Cascade)
+  comentario Comentario @relation(fields: [comentarioId], references: [id], onDelete: Cascade)
+
+  @@id([usuarioId, comentarioId])
+  @@map("reacciones_comentario")
+  @@schema("comunidad")
+}
+
+// ============================================================
+// SCHEMA: sistema
+// ============================================================
+
+model Notificacion {
+  id           String           @id @default(uuid())
+  usuarioId    String           @map("usuario_id")
+  tipo         TipoNotificacion
+  actorId      String?          @map("actor_id")
+  referenciaId String?          @map("referencia_id")
+  mensaje      String?
+  leida        Boolean          @default(false)
+  creadoEn     DateTime         @default(now()) @map("creado_en")
+
+  usuario Usuario  @relation("NotificacionUsuario", fields: [usuarioId], references: [id], onDelete: Cascade)
+  actor   Usuario? @relation("NotificacionActor",   fields: [actorId],   references: [id], onDelete: Cascade)
+
+  @@map("notificaciones")
+  @@schema("sistema")
+}
+
+model Feed {
+  id           String   @id @default(uuid())
+  usuarioId    String   @map("usuario_id")
+  actorId      String   @map("actor_id")
+  tipo         String   @db.VarChar(50)
+  referenciaId String   @map("referencia_id")
+  creadoEn     DateTime @default(now()) @map("creado_en")
+
+  usuario Usuario @relation("FeedUsuario", fields: [usuarioId], references: [id], onDelete: Cascade)
+  actor   Usuario @relation("FeedActor",   fields: [actorId],   references: [id], onDelete: Cascade)
+
+  @@map("feed")
+  @@schema("sistema")
+}

@@ -1,0 +1,24 @@
+<svg viewBox="0 0 120 108" xmlns="http://www.w3.org/2000/svg" fill="none">
+  <!-- Left ear -->
+  <ellipse cx="32" cy="26" rx="18" ry="20" fill="#f5a800"/>
+  <!-- Right ear -->
+  <ellipse cx="88" cy="26" rx="18" ry="20" fill="#f5a800"/>
+  <!-- Face base -->
+  <ellipse cx="60" cy="66" rx="52" ry="44" fill="#f5a800"/>
+  <!-- Left eye socket -->
+  <rect x="32" y="52" width="18" height="22" rx="3" fill="#0b0d10"/>
+  <!-- Left eye lightning notch -->
+  <path d="M42 52 L37 62 L41 62 L36 74 L44 59 L40 59 Z" fill="#2c2f33" opacity="0.6"/>
+  <!-- Right eye socket -->
+  <rect x="70" y="52" width="18" height="22" rx="3" fill="#0b0d10"/>
+  <!-- Right eye lightning notch -->
+  <path d="M80 52 L75 62 L79 62 L74 74 L82 59 L78 59 Z" fill="#2c2f33" opacity="0.6"/>
+  <!-- Stitched X scar - bottom left of face -->
+  <line x1="33" y1="79" x2="44" y2="91" stroke="#0b0d10" stroke-width="2.8" stroke-linecap="round"/>
+  <line x1="44" y1="79" x2="33" y2="91" stroke="#0b0d10" stroke-width="2.8" stroke-linecap="round"/>
+  <!-- Stitch tick marks on X -->
+  <line x1="34" y1="82" x2="30" y2="80" stroke="#0b0d10" stroke-width="2" stroke-linecap="round"/>
+  <line x1="43" y1="88" x2="47" y2="90" stroke="#0b0d10" stroke-width="2" stroke-linecap="round"/>
+  <line x1="43" y1="82" x2="47" y2="80" stroke="#0b0d10" stroke-width="2" stroke-linecap="round"/>
+  <line x1="34" y1="88" x2="30" y2="90" stroke="#0b0d10" stroke-width="2" stroke-linecap="round"/>
+</svg>

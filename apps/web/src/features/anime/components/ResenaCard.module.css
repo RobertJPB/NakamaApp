@@ -1,0 +1,46 @@
+.card {
+  background: var(--color-surface); border-radius: var(--radius-lg);
+  padding: var(--space-5); display: flex; flex-direction: column;
+  gap: var(--space-4); border: 1px solid var(--color-borde-suave);
+  transition: border-color var(--transition-fast);
+}
+.card:hover { border-color: var(--color-borde); }
+
+.header { display: flex; justify-content: space-between; align-items: center; }
+
+.usuario { display: flex; align-items: center; gap: var(--space-3); }
+.avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--color-acento); overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; color: #1f2124; font-size: var(--text-sm);
+  flex-shrink: 0;
+}
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+.nombre  { font-size: var(--text-sm); font-weight: 600; color: var(--color-texto); }
+.username { font-size: var(--text-xs); color: var(--color-texto-muted); }
+
+.rating    { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.estrellas { color: var(--color-acento); font-size: var(--text-base); letter-spacing: 1px; }
+.numero    { font-size: var(--text-xs); color: var(--color-texto-muted); }
+
+.cuerpo { }
+.texto  { font-size: var(--text-sm); color: var(--color-texto-suave); line-height: 1.8; }
+
+.spoilerWrap { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-2); }
+.spoilerAviso { font-size: var(--text-xs); color: var(--color-texto-muted); }
+.spoilerBtn {
+  font-size: var(--text-xs); color: var(--color-acento);
+  text-decoration: underline; background: none; border: none; cursor: pointer;
+}
+
+.footer { display: flex; align-items: center; gap: var(--space-3); }
+.fecha  { font-size: var(--text-xs); color: var(--color-texto-muted); flex: 1; }
+.editado { font-size: var(--text-xs); color: var(--color-texto-muted); font-style: italic; }
+.btnLike {
+  font-size: var(--text-xs); color: var(--color-texto-muted);
+  transition: color var(--transition-fast); padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+}
+.btnLike:hover { color: #f04747; }
+.liked { color: #f04747 !important; }

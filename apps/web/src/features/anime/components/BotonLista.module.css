@@ -1,0 +1,27 @@
+.wrap { position: relative; }
+
+.btn {
+  width: 100%; padding: var(--space-3);
+  background: var(--color-surface-2); border: 1px solid var(--color-borde);
+  border-radius: var(--radius-md); color: var(--color-texto);
+  font-size: var(--text-sm); font-weight: 600;
+  transition: all var(--transition-fast); text-align: center;
+}
+.btn:hover { border-color: var(--color-acento); color: var(--color-acento); }
+.btnActivo { background: var(--color-acento-soft); border-color: var(--color-acento); color: var(--color-acento); }
+
+.dropdown {
+  position: absolute; top: calc(100% + var(--space-2)); left: 0; right: 0;
+  background: var(--color-surface-2); border: 1px solid var(--color-borde);
+  border-radius: var(--radius-md); overflow: hidden; z-index: 50;
+  box-shadow: var(--shadow-lg);
+}
+.opcion {
+  width: 100%; padding: var(--space-3) var(--space-4);
+  display: flex; align-items: center; gap: var(--space-2);
+  font-size: var(--text-sm); color: var(--color-texto-suave);
+  transition: background var(--transition-fast), color var(--transition-fast);
+  text-align: left;
+}
+.opcion:hover { background: var(--color-surface-3); color: var(--color-texto); }
+.opcionActiva { color: var(--color-acento) !important; }

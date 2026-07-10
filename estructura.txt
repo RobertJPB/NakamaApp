@@ -1,0 +1,169 @@
+nakama/
+├── apps/
+│   ├── web/                          # React + TypeScript
+│   └── api/                          # Node.js + Express + TypeScript
+├── packages/
+│   └── shared/                       # Tipos compartidos entre web y api
+└── package.json                      # Monorepo root (pnpm workspaces)
+
+apps/web/
+├── public/
+├── src/
+│   ├── assets/                       # Imágenes, fuentes, íconos
+│   ├── components/                   # Componentes reutilizables
+│   │   ├── ui/                       # Botones, inputs, modales, cards
+│   │   └── shared/                   # Navbar, Sidebar, Footer
+│   ├── features/                     # Módulos por funcionalidad
+│   │   ├── auth/
+│   │   │   ├── components/
+│   │   │   ├── hooks/
+│   │   │   └── pages/
+│   │   ├── anime/
+│   │   │   ├── components/
+│   │   │   ├── hooks/
+│   │   │   └── pages/
+│   │   ├── perfil/
+│   │   │   ├── components/
+│   │   │   ├── hooks/
+│   │   │   └── pages/
+│   │   ├── biblioteca/
+│   │   │   ├── components/
+│   │   │   ├── hooks/
+│   │   │   └── pages/
+│   │   ├── feed/
+│   │   │   ├── components/
+│   │   │   ├── hooks/
+│   │   │   └── pages/
+│   │   ├── comunidad/
+│   │   │   ├── components/
+│   │   │   ├── hooks/
+│   │   │   └── pages/
+│   │   ├── colecciones/
+│   │   │   ├── components/
+│   │   │   ├── hooks/
+│   │   │   └── pages/
+│   │   ├── ranking/
+│   │   │   ├── components/
+│   │   │   ├── hooks/
+│   │   │   └── pages/
+│   │   └── ruleta/
+│   │       ├── components/
+│   │       └── hooks/
+│   ├── hooks/                        # Hooks globales
+│   ├── lib/                          # Configuraciones (axios, supabase client)
+│   ├── router/                       # React Router
+│   ├── store/                        # Estado global (Zustand)
+│   ├── styles/                       # CSS global, variables, tema
+│   ├── types/                        # Tipos locales del frontend
+│   └── utils/                        # Helpers globales
+├── .env
+├── index.html
+├── tsconfig.json
+└── vite.config.ts
+
+apps/api/
+├── src/
+│   ├── domain/                       # Núcleo — sin dependencias externas
+│   │   ├── entities/                 # Clases de dominio
+│   │   │   ├── Anime.ts
+│   │   │   ├── Usuario.ts
+│   │   │   ├── Resena.ts
+│   │   │   ├── Comunidad.ts
+│   │   │   └── Coleccion.ts
+│   │   ├── value-objects/
+│   │   │   ├── Calificacion.ts       # Valida 1-10
+│   │   │   ├── Username.ts           # Valida formato
+│   │   │   └── EstadoLista.ts        # Enum tipado
+│   │   └── repositories/             # Interfaces (contratos)
+│   │       ├── IAnimeRepository.ts
+│   │       ├── IUsuarioRepository.ts
+│   │       ├── IResenaRepository.ts
+│   │       ├── IListaRepository.ts
+│   │       ├── IComunidadRepository.ts
+│   │       └── IColeccionRepository.ts
+│   │
+│   ├── application/                  # Casos de uso
+│   │   ├── anime/
+│   │   │   ├── BuscarAnimes.ts
+│   │   │   ├── ObtenerDetalleAnime.ts
+│   │   │   └── SincronizarDesdeAniList.ts
+│   │   ├── usuario/
+│   │   │   ├── RegistrarUsuario.ts
+│   │   │   ├── ActualizarPerfil.ts
+│   │   │   └── ToggleSeguir.ts
+│   │   ├── biblioteca/
+│   │   │   ├── AgregarALista.ts
+│   │   │   ├── ActualizarEstadoLista.ts
+│   │   │   └── EliminarDeLista.ts
+│   │   ├── resena/
+│   │   │   ├── CrearResena.ts
+│   │   │   ├── EditarResena.ts
+│   │   │   └── EliminarResena.ts
+│   │   ├── comunidad/
+│   │   │   ├── CrearComunidad.ts
+│   │   │   ├── UnirseAComunidad.ts
+│   │   │   └── CrearPublicacion.ts
+│   │   ├── coleccion/
+│   │   │   ├── CrearColeccion.ts
+│   │   │   └── AgregarAnimeAColeccion.ts
+│   │   └── feed/
+│   │       └── ObtenerFeed.ts
+│   │
+│   ├── infrastructure/               # Implementaciones concretas
+│   │   ├── database/
+│   │   │   ├── prisma/
+│   │   │   │   ├── schema.prisma     # Schema de Prisma
+│   │   │   │   └── migrations/
+│   │   │   └── repositories/         # Implementan interfaces del domain
+│   │   │       ├── PrismaAnimeRepository.ts
+│   │   │       ├── PrismaUsuarioRepository.ts
+│   │   │       ├── PrismaResenaRepository.ts
+│   │   │       ├── PrismaListaRepository.ts
+│   │   │       ├── PrismaComunidadRepository.ts
+│   │   │       └── PrismaColeccionRepository.ts
+│   │   ├── external/
+│   │   │   └── anilist/
+│   │   │       ├── AniListClient.ts  # Cliente GraphQL
+│   │   │       ├── AniListQueries.ts # Queries GraphQL
+│   │   │       └── AniListMapper.ts  # Mapea respuesta → dominio
+│   │   └── auth/
+│   │       └── SupabaseAuthMiddleware.ts
+│   │
+│   └── presentation/                 # Capa HTTP (Express)
+│       ├── routes/
+│       │   ├── anime.routes.ts
+│       │   ├── usuario.routes.ts
+│       │   ├── biblioteca.routes.ts
+│       │   ├── resena.routes.ts
+│       │   ├── comunidad.routes.ts
+│       │   ├── coleccion.routes.ts
+│       │   ├── feed.routes.ts
+│       │   └── ranking.routes.ts
+│       ├── controllers/
+│       │   ├── AnimeController.ts
+│       │   ├── UsuarioController.ts
+│       │   ├── BibliotecaController.ts
+│       │   ├── ResenaController.ts
+│       │   ├── ComunidadController.ts
+│       │   ├── ColeccionController.ts
+│       │   ├── FeedController.ts
+│       │   └── RankingController.ts
+│       ├── middlewares/
+│       │   ├── auth.middleware.ts    # Verifica JWT de Supabase
+│       │   ├── error.middleware.ts   # Manejo global de errores
+│       │   └── validate.middleware.ts # Validación con Zod
+│       └── app.ts                    # Setup Express
+├── .env
+├── tsconfig.json
+└── package.json
+
+packages/shared/
+├── src/
+│   ├── types/
+│   │   ├── anime.types.ts
+│   │   ├── usuario.types.ts
+│   │   ├── resena.types.ts
+│   │   ├── comunidad.types.ts
+│   │   └── api.types.ts              # Tipos de request/response
+│   └── index.ts
+└── package.json

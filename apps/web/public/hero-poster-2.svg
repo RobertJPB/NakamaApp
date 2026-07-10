@@ -1,0 +1,18 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#08111F"/>
+      <stop offset="100%" stop-color="#0F1F37"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#bg2)"/>
+  <circle cx="340" cy="340" r="220" fill="rgba(255,255,255,0.08)"/>
+  <circle cx="880" cy="240" r="140" fill="rgba(255,255,255,0.06)"/>
+  <path d="M180 600 Q400 420 620 600 T1060 600" fill="rgba(255,255,255,0.05)"/>
+  <path d="M220 120 C360 80 460 300 620 260" stroke="#F8B500" stroke-width="16" fill="none" stroke-linecap="round"/>
+  <circle cx="560" cy="460" r="110" fill="rgba(248,181,0,0.16)"/>
+  <text x="120" y="160" fill="#fff" font-size="56" font-family="Inter, sans-serif" font-weight="800">TOP ANIME</text>
+  <text x="120" y="240" fill="#fff" font-size="28" font-family="Inter, sans-serif" font-weight="600">Mira lo más comentado de hoy</text>
+  <rect x="120" y="520" width="360" height="120" rx="30" fill="#fff" opacity="0.9"/>
+  <text x="170" y="595" fill="#111" font-size="30" font-family="Inter, sans-serif" font-weight="700">Play</text>
+</svg>

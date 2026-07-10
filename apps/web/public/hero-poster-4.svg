@@ -1,0 +1,16 @@
+<svg width="800" height="500" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg4" cx="50%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#8B4EFF"/>
+      <stop offset="100%" stop-color="#0B112B"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#bg4)"/>
+  <circle cx="660" cy="120" r="140" fill="rgba(255,255,255,0.09)"/>
+  <circle cx="220" cy="320" r="100" fill="rgba(255,255,255,0.06)"/>
+  <rect x="100" y="110" width="520" height="240" rx="30" fill="rgba(255,255,255,0.08)"/>
+  <text x="140" y="190" fill="#fff" font-size="40" font-family="Inter, sans-serif" font-weight="800">Fan Picks</text>
+  <text x="140" y="250" fill="rgba(255,255,255,0.75)" font-size="20" font-family="Inter, sans-serif">Lo que recomiendan tus compañeros</text>
+  <path d="M120 420 L600 420" stroke="#fff" stroke-width="4" opacity="0.3"/>
+  <text x="120" y="460" fill="#fff" font-size="22" font-family="Inter, sans-serif">Ver comunidad →</text>
+</svg>

@@ -1,0 +1,20 @@
+{
+  "name": "nakama",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --parallel -r dev",
+    "build": "pnpm --parallel -r build",
+    "lint": "pnpm --parallel -r lint"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "onlyBuiltDependencies": [
+    "@prisma/client",
+    "@prisma/engines",
+    "esbuild",
+    "prisma"
+  ]
+}

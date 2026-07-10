@@ -1,0 +1,20 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="jujuBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#08112c"/>
+      <stop offset="100%" stop-color="#31123f"/>
+    </linearGradient>
+    <linearGradient id="jujuAccent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#80e4ff"/>
+      <stop offset="100%" stop-color="#b866ff"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#jujuBg)"/>
+  <circle cx="320" cy="210" r="160" fill="rgba(255,255,255,0.06)"/>
+  <circle cx="860" cy="240" r="130" fill="rgba(255,255,255,0.05)"/>
+  <path d="M180 560 C340 380 540 720 760 560" stroke="url(#jujuAccent)" stroke-width="34" fill="none" stroke-linecap="round"/>
+  <text x="120" y="190" fill="#fff" font-size="72" font-family="Inter, sans-serif" font-weight="800">JUJUTSU KAISEN</text>
+  <text x="120" y="270" fill="#80e4ff" font-size="32" font-family="Inter, sans-serif" font-weight="700">Magia, maldiciones y batallas épicas</text>
+  <rect x="120" y="470" width="480" height="150" rx="34" fill="rgba(255,255,255,0.12)"/>
+  <text x="140" y="560" fill="#fff" font-size="28" font-family="Inter, sans-serif">Únete a la nueva generación de hechiceros</text>
+</svg>
