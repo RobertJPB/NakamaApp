@@ -8,12 +8,20 @@ dist/
 build/
 .next/
 out/
+coverage/
+.turbo/
+.pnpm-store/
 
 # Entorno
 .env
 .env.local
 .env.*.local
 !.env.example
+
+# Bases de datos locales
+*.sqlite
+*.db
+*.sqlite3
 
 # Prisma
 apps/api/src/infrastructure/database/prisma/migrations/
