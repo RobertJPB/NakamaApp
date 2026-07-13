@@ -5,7 +5,7 @@ import styles              from './ResenaCard.module.css'
 interface ResenaCardProps { resena: any }
 
 export const ResenaCard: React.FC<ResenaCardProps> = ({ resena }) => {
-  const [likes,   setLikes]   = useState(resena.totalLikes ?? 0)
+  const [likes,   setLikes]   = useState<number>(resena.totalLikes ?? 0)
   const [liked,   setLiked]   = useState(false)
   const [spoiler, setSpoiler] = useState(false)
 

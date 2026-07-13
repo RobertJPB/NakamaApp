@@ -34,7 +34,7 @@ export function useAuth() {
           access_type: 'offline',
           prompt: 'consent'
         }
-      }
+      } as any
     })
 
     if (error) {

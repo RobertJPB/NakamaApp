@@ -22,6 +22,7 @@ import { EditarResena }        from '../application/usecases/resena/EditarResena
 import { EliminarResena }      from '../application/usecases/resena/EliminarResena'
 import { ToggleLikeResena }    from '../application/usecases/resena/ToggleLikeResena'
 import { ObtenerRanking }      from '../application/usecases/ranking/ObtenerRanking'
+import { ObtenerFeed }         from '../application/usecases/feed/ObtenerFeed'
 
 // Repositorios instanciados una sola vez (singleton)
 const animeRepo     = new PrismaAnimeRepository()
@@ -58,4 +59,5 @@ export const container = {
 
   // Ranking
   obtenerRanking:      new ObtenerRanking(animeRepo),
+  obtenerFeed:         new ObtenerFeed(usuarioRepo),
 }
