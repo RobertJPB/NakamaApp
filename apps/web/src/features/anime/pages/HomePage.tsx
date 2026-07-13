@@ -30,7 +30,7 @@ const FEATURED = [
     episodios: '24 eps',
     genero: 'Acción · Oscuro',
     puntuacion: '8.8',
-    imagen: '/hero-jujutsu.jpg',
+    imagen: 'https://static0.colliderimages.com/wordpress/wp-content/uploads/2023/10/jujutsu-kaisen-poster.jpg?q=50&fit=crop&w=1232&h=693&dpr=1.5',
     color: 'rgba(18, 70, 160, 0.3)',
     slug: 'jujutsu-kaisen',
   },
@@ -62,24 +62,29 @@ const RESENAS_RECIENTES = [
 /* ─── Grid de animes (sección principal) ────────────────────────── */
 const GRID_ANIMES = [
   { id: 1, titulo: 'Demon Slayer',        anio: 2019, eps: 26,  nota: '9.0', imagen: '/hero-kimetsu.jpg' },
-  { id: 2, titulo: 'Jujutsu Kaisen',      anio: 2020, eps: 24,  nota: '8.8', imagen: '/hero-jujutsu.jpg' },
+  { id: 2, titulo: 'Jujutsu Kaisen',      anio: 2020, eps: 24,  nota: '8.8', imagen: 'https://static0.colliderimages.com/wordpress/wp-content/uploads/2023/10/jujutsu-kaisen-poster.jpg?q=50&fit=crop&w=1232&h=693&dpr=1.5' },
   { id: 3, titulo: 'One Piece',           anio: 1999, eps: 1000,nota: '8.7', imagen: '/hero-onepiece.jpg' },
   { id: 4, titulo: 'Attack on Titan',     anio: 2013, eps: 87,  nota: '9.0', imagen: '/hero-anime.jpg' },
-  { id: 5, titulo: 'Jujutsu Kaisen 2',    anio: 2023, eps: 23,  nota: '8.9', imagen: '/hero-jujutsu.jpg' },
+  { id: 5, titulo: 'Jujutsu Kaisen 2',    anio: 2023, eps: 23,  nota: '8.9', imagen: 'https://static0.colliderimages.com/wordpress/wp-content/uploads/2023/10/jujutsu-kaisen-poster.jpg?q=50&fit=crop&w=1232&h=693&dpr=1.5' },
   { id: 6, titulo: 'Demon Slayer S2',     anio: 2021, eps: 18,  nota: '8.7', imagen: '/hero-kimetsu.jpg' },
   { id: 7, titulo: 'One Piece Wano',      anio: 2019, eps: 190, nota: '8.8', imagen: '/hero-onepiece.jpg' },
   { id: 8, titulo: 'Attack on Titan S4',  anio: 2020, eps: 28,  nota: '9.1', imagen: '/hero-anime.jpg' },
-  { id: 9, titulo: 'Jujutsu Kaisen Movie',anio: 2021, eps: 1,   nota: '8.5', imagen: '/hero-jujutsu.jpg' },
+  { id: 9, titulo: 'Jujutsu Kaisen Movie',anio: 2021, eps: 1,   nota: '8.5', imagen: 'https://static0.colliderimages.com/wordpress/wp-content/uploads/2023/10/jujutsu-kaisen-poster.jpg?q=50&fit=crop&w=1232&h=693&dpr=1.5' },
   { id: 10,titulo: 'Demon Slayer Movie',  anio: 2020, eps: 1,   nota: '8.9', imagen: '/hero-kimetsu.jpg' },
 ]
 
 /* ─── Populares (ranking lateral) ───────────────────────────────── */
 const POPULARES = [
-  { id: 1, titulo: 'Fullmetal Alchemist: Brotherhood', genero: 'Acción · Aventura',    nota: '9.2' },
-  { id: 2, titulo: 'Steins;Gate',                      genero: 'Sci-Fi · Thriller',     nota: '9.1' },
-  { id: 3, titulo: 'Kimetsu no Yaiba',                 genero: 'Acción · Sobrenatural', nota: '9.0' },
-  { id: 4, titulo: 'Hunter x Hunter (2011)',            genero: 'Aventura · Fantasía',   nota: '8.9' },
-  { id: 5, titulo: 'Frieren',                          genero: 'Fantasía · Drama',      nota: '9.1' },
+  { id: 1,  titulo: 'Fullmetal Alchemist: Brotherhood', genero: 'Acción · Aventura',    nota: '9.2' },
+  { id: 2,  titulo: 'Steins;Gate',                      genero: 'Sci-Fi · Thriller',     nota: '9.1' },
+  { id: 3,  titulo: 'Kimetsu no Yaiba',                 genero: 'Acción · Sobrenatural', nota: '9.0' },
+  { id: 4,  titulo: 'Hunter x Hunter (2011)',            genero: 'Aventura · Fantasía',   nota: '8.9' },
+  { id: 5,  titulo: 'Frieren',                          genero: 'Fantasía · Drama',      nota: '9.1' },
+  { id: 6,  titulo: 'Vinland Saga',                     genero: 'Historia · Acción',     nota: '8.8' },
+  { id: 7,  titulo: 'Attack on Titan',                  genero: 'Acción · Drama',        nota: '9.0' },
+  { id: 8,  titulo: 'One Piece',                        genero: 'Aventura · Comedia',    nota: '8.7' },
+  { id: 9,  titulo: 'Jujutsu Kaisen',                   genero: 'Acción · Sobrenatural', nota: '8.8' },
+  { id: 10, titulo: 'Spy x Family',                     genero: 'Comedia · Acción',      nota: '8.6' },
 ]
 
 /* ─── Helpers ────────────────────────────────────────────────────── */
@@ -91,6 +96,7 @@ export const HomePage: React.FC = () => {
   const [featuredIdx, setFeaturedIdx] = useState(0)
   const [animando,    setAnimando]    = useState(false)
   const [tabActivo,   setTabActivo]   = useState<'hoy' | 'semana' | 'mes'>('hoy')
+  const [resenasColapsadas, setResenasColapsadas] = useState(false)
   const featured = FEATURED[featuredIdx]
 
   useEffect(() => {
@@ -152,24 +158,52 @@ export const HomePage: React.FC = () => {
           </div>
 
           {/* ── Sidebar derecha — Reseñas recientes ── */}
-          <aside className={styles.heroLista}>
-            <p className={styles.heroListaTitulo}>Reseñas recientes</p>
-            {RESENAS_RECIENTES.map((r, i) => (
-              <div key={i} className={styles.resenaItem}>
-                <div className={styles.resenaAvatar}>
-                  {r.usuario[0].toUpperCase()}
-                </div>
-                <div className={styles.resenaInfo}>
-                  <p className={styles.resenaUsuario}>{r.usuario}</p>
-                  <p className={styles.resenaAnime}>{r.anime}</p>
-                  <Estrellas n={r.stars} />
-                  <p className={styles.resenaTexto}>"{r.texto}"</p>
-                </div>
-              </div>
-            ))}
-            <a href="/auth" className={styles.heroListaVerTodo}>
-              Ver toda la actividad →
-            </a>
+          <aside className={`${styles.heroLista} ${resenasColapsadas ? styles.heroListaColapsada : ''}`}>
+            <div className={styles.heroListaHeader}>
+              {!resenasColapsadas && <p className={styles.heroListaTitulo}>Reseñas recientes</p>}
+              <button 
+                className={styles.btnColapsar} 
+                onClick={() => setResenasColapsadas(!resenasColapsadas)}
+                title={resenasColapsadas ? "Desplegar reseñas" : "Minimizar reseñas"}
+              >
+                <svg 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="3.5" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                  className={styles.chevronIcon}
+                >
+                  {resenasColapsadas ? (
+                    <polyline points="4 9 12 17 20 9" />
+                  ) : (
+                    <polyline points="4 15 12 7 20 15" />
+                  )}
+                </svg>
+              </button>
+            </div>
+            
+            {!resenasColapsadas && (
+              <>
+                {RESENAS_RECIENTES.map((r, i) => (
+                  <div key={i} className={styles.resenaItem}>
+                    <div className={styles.resenaAvatar}>
+                      {r.usuario[0].toUpperCase()}
+                    </div>
+                    <div className={styles.resenaInfo}>
+                      <p className={styles.resenaUsuario}>{r.usuario}</p>
+                      <p className={styles.resenaAnime}>{r.anime}</p>
+                      <Estrellas n={r.stars} />
+                      <p className={styles.resenaTexto}>"{r.texto}"</p>
+                    </div>
+                  </div>
+                ))}
+                <a href="/auth" className={styles.heroListaVerTodo}>
+                  Ver toda la actividad →
+                </a>
+              </>
+            )}
           </aside>
         </div>
 
