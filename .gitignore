@@ -46,3 +46,11 @@ Thumbs.db
 
 # TypeScript
 *.tsbuildinfo
+
+# Markdown
+*.md
+
+# pnpm
+pnpm-lock.yaml
+pnpm-workspace.yaml
+.npmrc
