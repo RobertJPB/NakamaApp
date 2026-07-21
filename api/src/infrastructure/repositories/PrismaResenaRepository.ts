@@ -14,8 +14,12 @@ export class PrismaResenaRepository implements IResenaRepository {
       contieneSpoiler: raw.contieneSpoiler,
       esPublica:       raw.esPublica,
       totalLikes:      raw.totalLikes,
+      fechaVisto:      raw.fechaVisto ?? undefined,
+      etiquetas:       raw.etiquetas ?? [],
       creadoEn:        raw.creadoEn,
       editadoEn:       raw.editadoEn   ?? undefined,
+      usuario:         raw.usuario,
+      anime:           raw.anime,
     }
   }
 
@@ -58,6 +62,8 @@ export class PrismaResenaRepository implements IResenaRepository {
       contenido:       data.contenido,
       contieneSpoiler: data.contieneSpoiler ?? false,
       esPublica:       data.esPublica       ?? true,
+      fechaVisto:      data.fechaVisto,
+      etiquetas:       data.etiquetas ?? [],
       editadoEn:       data.editadoEn ? new Date() : undefined,
     }
     const raw = await prisma.resena.upsert({
@@ -86,5 +92,66 @@ export class PrismaResenaRepository implements IResenaRepository {
 
     await prisma.reaccionResena.create({ data: { usuarioId, resenaId } })
     return { accion: 'liked' as const }
+  }
+
+  async findFeedByUsuario(usuarioId: string, page: number, limit: number): Promise<any[]> {
+    const seguidos = await prisma.seguidor.findMany({
+      where: { seguidorId: usuarioId },
+      select: { seguidoId: true }
+    });
+    
+    const misMembresias = await prisma.miembro.findMany({
+      where: { usuarioId },
+      select: { comunidadId: true }
+    });
+    const comunidadIds = misMembresias.map(m => m.comunidadId);
+    
+    const miembrosComunidad = await prisma.miembro.findMany({
+      where: { comunidadId: { in: comunidadIds } },
+      select: { usuarioId: true }
+    });
+
+    const usuariosIds = [
+      usuarioId,
+      ...seguidos.map(s => s.seguidoId),
+      ...miembrosComunidad.map(m => m.usuarioId)
+    ];
+
+    const uniqueIds = Array.from(new Set(usuariosIds));
+
+    const resenas = await prisma.resena.findMany({
+      where: {
+        usuarioId: { in: uniqueIds },
+        esPublica: true
+      },
+      skip: (page - 1) * limit,
+      take: limit,
+      orderBy: { creadoEn: 'desc' },
+      include: {
+        usuario: { select: { username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true } },
+        anime: { select: { titulo: true, anilistId: true, imagenUrl: true } },
+        reacciones: { where: { usuarioId } }
+      }
+    });
+
+    return resenas.map(r => ({
+      id: r.id,
+      tipo: 'resena',
+      actorUsername: r.usuario.username,
+      actorNombre: r.usuario.nombreDisplay,
+      actorAvatar: r.usuario.avatarUrl,
+      actorMarco: r.usuario.marcoUrl,
+      animeTitulo: r.anime.titulo,
+      animeAnilistId: r.anime.anilistId,
+      animeImagen: r.anime.imagenUrl,
+      calificacion: r.calificacion,
+      contenido: r.contenido,
+      etiquetas: r.etiquetas,
+      fechaVisto: r.fechaVisto ? r.fechaVisto.toISOString() : null,
+      creadoEn: r.creadoEn.toISOString(),
+      totalLikes: r.totalLikes,
+      totalComentarios: r.totalComentarios,
+      hasLiked: r.reacciones.length > 0
+    }));
   }
 }

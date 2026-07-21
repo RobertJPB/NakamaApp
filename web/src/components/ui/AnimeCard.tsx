@@ -24,9 +24,7 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({
         </span>
       )}
       {estado && <span className={styles.estado}>{estado}</span>}
-      <div className={styles.overlay}>
-        <span className={styles.verMas}>Ver detalle</span>
-      </div>
+      <div className={styles.overlay} />
     </div>
     <div className={styles.info}>
       <h3 className={styles.titulo}>{titulo}</h3>

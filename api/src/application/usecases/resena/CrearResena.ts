@@ -10,6 +10,8 @@ export interface CrearResenaInput {
   contenido?:       string
   contieneSpoiler:  boolean
   esPublica:        boolean
+  fechaVisto?:      Date | string
+  etiquetas?:       string[]
 }
 
 export class CrearResena implements IUseCase<CrearResenaInput, any> {
@@ -31,6 +33,8 @@ export class CrearResena implements IUseCase<CrearResenaInput, any> {
       contenido:       input.contenido,
       contieneSpoiler: input.contieneSpoiler,
       esPublica:       input.esPublica,
+      fechaVisto:      input.fechaVisto ? new Date(input.fechaVisto) : undefined,
+      etiquetas:       input.etiquetas ?? [],
     })
   }
 }

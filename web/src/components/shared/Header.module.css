@@ -1,0 +1,354 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  margin: 0 -40px 0 -40px;
+  padding: 12px 40px;
+  background-color: rgba(13, 13, 13, 0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.searchBarWrapper {
+  position: relative;
+  width: 100%;
+  max-width: 450px;
+}
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  background-color: #0d0c15;
+  border: 1px solid rgba(255, 184, 0, 0.3);
+  padding: 8px 16px;
+  border-radius: 12px;
+  width: 100%;
+  gap: 12px;
+  transition: border-color 0.2s ease;
+}
+
+.searchBar:focus-within {
+  border-color: #ffc107;
+}
+
+.searchIcon {
+  font-size: 14px;
+}
+
+.searchBar input {
+  background: none;
+  border: none;
+  color: #ffffff;
+  outline: none;
+  width: 100%;
+  font-size: 13px;
+}
+
+.searchDropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: #1f2124;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  margin-top: 8px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  overflow: hidden;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+}
+
+.searchLoading {
+  padding: 15px;
+  text-align: center;
+  color: #747d8c;
+  font-size: 13px;
+}
+
+.searchResultItem {
+  display: flex;
+  gap: 12px;
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background 0.2s;
+  align-items: center;
+}
+.searchResultItem:hover {
+  background: rgba(255,255,255,0.05);
+}
+
+.searchResultImg {
+  width: 35px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.searchResultInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.searchResultTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.searchResultYear {
+  font-size: 12px;
+  color: #9ab;
+}
+
+.searchVerTodos {
+  padding: 12px;
+  text-align: center;
+  color: var(--color-acento);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  background: rgba(255, 193, 7, 0.05);
+  transition: background 0.2s;
+}
+.searchVerTodos:hover {
+  background: rgba(255, 193, 7, 0.1);
+}
+
+.filterBtn {
+  background: none;
+  border: none;
+  color: #747d8c;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+}
+
+.filterBtn:hover {
+  color: #ffffff;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.headerActionBtn {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: #a4b0be;
+  font-size: 16px;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.headerActionBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffc107;
+  transform: translateY(-2px);
+}
+
+.authButtons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btnLogin {
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 16px;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.btnLogin:hover {
+  color: #ffc107;
+}
+
+.btnRegister {
+  background-color: #ffc107;
+  color: #0b0d12;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.btnRegister:hover {
+  transform: translateY(-1px);
+  background-color: #e0b300;
+}
+
+.badgeCount {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background-color: #ff4757;
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 10px;
+}
+
+.profileWidget {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 12px 4px 4px;
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.06);
+  border: none;
+  transition: background 0.2s;
+}
+
+.profileWidgetBtn {
+  text-decoration: none;
+  cursor: pointer;
+  display: inline-flex;
+}
+
+.profileWidgetBtn:hover .profileWidget {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.profileAvatar {
+  width: 38px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 16px;
+  color: #ffffff;
+  flex-shrink: 0;
+  border: 2px solid rgba(255,255,255,0.15);
+  position: relative;
+}
+
+.profileAvatarFallback {
+  background: linear-gradient(135deg, #ffc107, #ff8000);
+}
+
+.profileMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+}
+
+.profileName {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0;
+  color: #ffffff;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.avatarImg {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.marcoOverlayNav {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  left: auto;
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.6));
+  z-index: 5;
+}
+
+.profileWidgetContainer {
+  position: relative;
+  display: inline-flex;
+}
+
+.profileDropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 200px;
+  background-color: #121212;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 8px 0;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 100;
+}
+
+.profileWidgetContainer:hover .profileDropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdownItem {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  text-align: left;
+  background: none;
+  border: none;
+  color: #e0e0e0;
+  font-size: 14px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.dropdownItem:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+}
+
+.dropdownDivider {
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.1);
+  margin: 6px 0;
+}
+
+.dropdownItemDanger {
+  color: #ff4757;
+}
+
+.dropdownItemDanger:hover {
+  background-color: rgba(255, 71, 87, 0.1);
+  color: #ff4757;
+}

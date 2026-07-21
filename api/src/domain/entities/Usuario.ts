@@ -5,6 +5,7 @@ export interface Usuario {
   nombreDisplay:   string
   avatarUrl?:      string
   bannerUrl?:      string
+  marcoUrl?:       string
   bio?:            string
   sitioWeb?:       string
   perfilPrivado:   boolean

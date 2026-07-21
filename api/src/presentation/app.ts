@@ -11,6 +11,7 @@ import coleccionRoutes    from './routes/coleccion.routes'
 import feedRoutes         from './routes/feed.routes'
 import rankingRoutes      from './routes/ranking.routes'
 import notificacionRoutes from './routes/notificacion.routes'
+import noticiasRoutes     from './routes/noticias.routes'
 
 const app = express()
 
@@ -29,6 +30,7 @@ app.use('/api/colecciones',    coleccionRoutes)
 app.use('/api/feed',           feedRoutes)
 app.use('/api/ranking',        rankingRoutes)
 app.use('/api/notificaciones', notificacionRoutes)
+app.use('/api/noticias',       noticiasRoutes)
 
 app.use(errorMiddleware)
 

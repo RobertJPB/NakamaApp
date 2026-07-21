@@ -6,7 +6,7 @@ import styles from './PublicacionCard.module.css'
 interface Props { publicacion: any; onComentado?: () => void }
 
 export const PublicacionCard: React.FC<Props> = ({ publicacion, onComentado }) => {
-  const { estaAutenticado } = useAuth()
+  const { estaAutenticado, usuario } = useAuth()
   const [abierto,   setAbierto]   = useState(false)
   const [comentario,setComentario]= useState('')
   const [likes,     setLikes]     = useState(publicacion.totalLikes ?? 0)
@@ -99,7 +99,26 @@ export const PublicacionCard: React.FC<Props> = ({ publicacion, onComentado }) =
                 {c.usuario?.username?.[0]?.toUpperCase()}
               </div>
               <div className={styles.comentCuerpo}>
-                <span className={styles.comentNombre}>{c.usuario?.nombreDisplay}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span className={styles.comentNombre}>{c.usuario?.nombreDisplay}</span>
+                  {c.usuario?.id === usuario?.id && (
+                    <button
+                      className={styles.deleteCommentBtn}
+                      onClick={async () => {
+                        if (!window.confirm('¿Eliminar comentario?')) return
+                        try {
+                          await api.delete(`/api/feed/publicacion/${publicacion.id}/comentarios/${c.id}`)
+                          onComentado?.()
+                        } catch (err) {
+                          console.error(err)
+                        }
+                      }}
+                      title="Eliminar comentario"
+                    >
+                      <span style={{ fontSize: '12px' }}>✖</span>
+                    </button>
+                  )}
+                </div>
                 <p className={styles.comentTexto}>{c.contenido}</p>
               </div>
             </div>

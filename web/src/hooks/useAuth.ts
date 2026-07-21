@@ -10,7 +10,16 @@ export function useAuth() {
   }
 
   const signUp = async (email: string, password: string, username: string, nombre: string) => {
-    const { data, error } = await supabase.auth.signUp({ email, password })
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          username,
+          nombre,
+        }
+      }
+    })
     if (error) throw new Error(error.message)
     if (data.user) {
       // Registrar en nuestra base de datos

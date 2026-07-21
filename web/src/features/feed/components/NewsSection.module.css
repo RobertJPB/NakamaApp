@@ -1,0 +1,138 @@
+.newsContainer {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  container-type: inline-size;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 0.5rem;
+}
+
+.newsList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-auto-flow: dense;
+  gap: 1.5rem;
+}
+
+.compactList {
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.compactCard .newsImageWrapper {
+  height: 120px;
+}
+
+.compactCard .newsTitle {
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+@container (min-width: 768px) {
+  .newsCard:nth-child(5n + 1) {
+    grid-column: span 2;
+  }
+  .newsCard:nth-child(5n + 1) .newsImageWrapper {
+    height: 260px;
+  }
+  .newsCard:nth-child(5n + 1) .newsTitle {
+    font-size: 1.4rem;
+  }
+
+  .newsCard:nth-child(7n + 4) .newsImageWrapper {
+    height: 200px;
+  }
+  .newsCard:nth-child(7n + 4) .newsTitle {
+    font-size: 1.3rem;
+  }
+}
+
+.newsCard {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.newsCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  border-color: var(--color-primary);
+}
+
+.newsImageWrapper {
+  width: 100%;
+  height: 160px;
+  overflow: hidden;
+  background-color: var(--color-background);
+}
+
+.newsImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.newsCard:hover .newsImage {
+  transform: scale(1.05);
+}
+
+.newsContent {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.newsTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.newsCard:hover .newsTitle {
+  color: var(--color-primary);
+}
+
+.newsSummary {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+  margin-bottom: 1rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.newsMeta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.newsDate, .newsSource {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.loading {
+  color: var(--color-text-muted);
+  font-style: italic;
+}

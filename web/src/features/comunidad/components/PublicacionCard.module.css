@@ -67,3 +67,23 @@
 }
 .btnEnviar:hover:not(:disabled) { background: var(--color-acento-hover); }
 .btnEnviar:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.deleteCommentBtn {
+  background: transparent;
+  border: none;
+  color: var(--color-texto-suave);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.5;
+  transition: all 0.2s;
+}
+
+.deleteCommentBtn:hover {
+  opacity: 1;
+  color: #ff4757;
+}

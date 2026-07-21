@@ -39,7 +39,7 @@ const animeService  = new AniListService()
 export const container = {
   // Anime
   buscarAnimes:        new BuscarAnimes(animeRepo, animeService),
-  obtenerDetalleAnime: new ObtenerDetalleAnime(animeRepo, animeService),
+  obtenerDetalleAnime: new ObtenerDetalleAnime(animeRepo, animeService, resenaRepo),
 
   // Usuario
   registrarUsuario:    new RegistrarUsuario(usuarioRepo),
@@ -59,5 +59,5 @@ export const container = {
 
   // Ranking
   obtenerRanking:      new ObtenerRanking(animeRepo),
-  obtenerFeed:         new ObtenerFeed(usuarioRepo),
+  obtenerFeed:         new ObtenerFeed(usuarioRepo, resenaRepo),
 }

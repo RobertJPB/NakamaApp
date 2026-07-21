@@ -17,6 +17,8 @@ export interface Anime {
   calificacionPromedio: number
   totalResenas:        number
   totalEnListas:       number
+  autor?:              string
+  demografia?:         string
   creadoEn:            Date
   actualizadoEn:       Date
 }

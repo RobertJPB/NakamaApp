@@ -1,10 +1,16 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useAuth }         from '../../../hooks/useAuth'
 import styles              from './AuthPage.module.css'
 
 export const AuthPage: React.FC = () => {
-  const { signIn, signUp, signInWithGoogle } = useAuth()
+  const { signIn, signUp, signInWithGoogle, estaAutenticado } = useAuth()
   const [modo,     setModo]          = useState<'login' | 'registro'>('login')
+
+  useEffect(() => {
+    if (estaAutenticado) {
+      window.location.href = '/'
+    }
+  }, [estaAutenticado])
   const [email,    setEmail]         = useState('')
   const [password, setPassword]      = useState('')
   const [username, setUsername]      = useState('')

@@ -1,0 +1,497 @@
+/* ══════════════════════════════════════════
+   ConfiguracionPage.module.css
+   ══════════════════════════════════════════ */
+
+.page {
+  min-height: 100vh;
+  background: var(--color-bg);
+  padding: 40px 16px;
+}
+
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.cargando {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  color: #ffc107;
+  font-size: 1rem;
+}
+
+/* ─── Page header ──────────────────────── */
+.pageHeader {
+  margin-bottom: 36px;
+}
+
+.pageTitle {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 6px;
+}
+
+.pageSubtitle {
+  font-size: 0.9rem;
+  color: #747d8c;
+  margin: 0;
+}
+
+/* ─── Form ──────────────────────────────── */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* ─── Section ───────────────────────────── */
+.section {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.sectionDesc {
+  font-size: 0.82rem;
+  color: #747d8c;
+  margin: -14px 0 0;
+}
+
+/* ─── Banner preview ─────────────────────── */
+.bannerPreview {
+  width: 100%;
+  height: 180px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+  background-size: cover;
+  background-position: center;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.08);
+  transition: border-color 0.2s, transform 0.15s;
+}
+
+.bannerPreview:hover {
+  border-color: rgba(255,193,7,0.35);
+  transform: scale(1.003);
+}
+
+.bannerPlaceholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: rgba(255,255,255,0.4);
+  font-size: 0.85rem;
+}
+
+.bannerHint {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.25);
+}
+
+.bannerOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.bannerPreview:hover .bannerOverlay {
+  opacity: 1;
+}
+
+.btnRemove {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: #ff4757;
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  transition: color 0.15s;
+}
+
+.btnRemove:hover {
+  color: #ff6b81;
+}
+
+/* ─── Avatar ─────────────────────────────── */
+.avatarRow {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.avatarWrap {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.avatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.avatarFallback {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #ffc107, #ff8000);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.avatarOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.avatarWrap:hover .avatarOverlay {
+  opacity: 1;
+}
+
+.avatarInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.avatarTip {
+  font-size: 0.85rem;
+  color: #ffffff;
+  margin: 0;
+}
+
+.avatarHint {
+  font-size: 0.78rem;
+  color: #747d8c;
+  margin: 0;
+}
+
+/* ─── Marcos ─────────────────────────────── */
+.marcosGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.marcoItem {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.05);
+  transition: all 0.2s;
+  padding: 4px;
+}
+
+.marcoItem:hover {
+  background: rgba(255,255,255,0.1);
+  transform: scale(1.05);
+}
+
+.marcoSeleccionado {
+  border-color: #ffc107;
+  background: rgba(255, 193, 7, 0.1);
+}
+
+.marcoImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.marcoNone {
+  font-size: 0.7rem;
+  color: #b2bec3;
+  text-align: center;
+  line-height: 1.1;
+}
+
+/* ─── Fields ─────────────────────────────── */
+.fieldGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  .fieldGrid { grid-template-columns: 1fr; }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #b2bec3;
+}
+
+.labelNote {
+  font-weight: 400;
+  color: #636e72;
+}
+
+.input {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  color: #ffffff;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  border-color: rgba(255,193,7,0.5);
+  background: rgba(255,255,255,0.07);
+}
+
+.inputWithPrefix {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inputPrefix {
+  position: absolute;
+  left: 12px;
+  color: #ffc107;
+  font-weight: 700;
+  font-size: 0.9rem;
+  pointer-events: none;
+}
+
+.inputPrefixed {
+  padding-left: 26px !important;
+}
+
+.textarea {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  color: #ffffff;
+  outline: none;
+  resize: vertical;
+  min-height: 80px;
+  transition: border-color 0.2s, background 0.2s;
+  font-family: inherit;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.textarea:focus {
+  border-color: rgba(255,193,7,0.5);
+  background: rgba(255,255,255,0.07);
+}
+
+.charCount {
+  font-size: 0.75rem;
+  color: #636e72;
+  text-align: right;
+  margin: 0;
+}
+
+/* ─── File hidden ────────────────────────── */
+.fileHidden {
+  display: none;
+}
+
+/* ─── Toggle switches ────────────────────── */
+.toggleList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.toggleItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.toggleItem:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.toggleItem:first-child {
+  padding-top: 0;
+}
+
+.toggleLabel {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 2px;
+}
+
+.toggleDesc {
+  font-size: 0.78rem;
+  color: #636e72;
+  margin: 0;
+}
+
+.toggle {
+  flex-shrink: 0;
+  width: 46px;
+  height: 26px;
+  border-radius: 13px;
+  background: rgba(255,255,255,0.12);
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.25s;
+}
+
+.toggle.toggleOn {
+  background: #ffc107;
+}
+
+.toggleThumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ffffff;
+  transition: transform 0.25s;
+}
+
+.toggle.toggleOn .toggleThumb {
+  transform: translateX(20px);
+}
+
+/* ─── Messages ────────────────────────────── */
+.errorMsg {
+  background: rgba(255, 71, 87, 0.12);
+  border: 1px solid rgba(255, 71, 87, 0.3);
+  color: #ff6b81;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.exitoMsg {
+  background: rgba(46, 213, 115, 0.12);
+  border: 1px solid rgba(46, 213, 115, 0.3);
+  color: #2ed573;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+/* ─── Actions ────────────────────────────── */
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-bottom: 20px;
+}
+
+.btnCancel {
+  padding: 10px 22px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: transparent;
+  color: #b2bec3;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+}
+
+.btnCancel:hover {
+  background: rgba(255,255,255,0.06);
+  color: #ffffff;
+}
+
+.btnSave {
+  padding: 10px 28px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #ffc107, #ff8f00);
+  border: none;
+  color: #1a1a1a;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+}
+
+.btnSave:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.btnSave:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

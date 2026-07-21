@@ -9,20 +9,21 @@ export class PrismaListaRepository implements IListaRepository {
       id:              raw.id,
       usuarioId:       raw.usuarioId,
       animeId:         raw.animeId,
-      estado:          raw.estado as EstadoListaType,
+      estados:         raw.estados,
       episodiosVistos: raw.episodiosVistos,
       esFavorito:      raw.esFavorito,
       esPrivada:       raw.esPrivada,
       notasPrivadas:   raw.notasPrivadas ?? undefined,
       actualizadoEn:   raw.actualizadoEn,
+      anime:           raw.anime,
     }
   }
 
-  async findByUsuario(usuarioId: string, estado?: EstadoListaType): Promise<EntradaLista[]> {
+  async findByUsuario(usuarioId: string, estado?: string): Promise<EntradaLista[]> {
     const rows = await prisma.listaUsuario.findMany({
-      where:   { usuarioId, ...(estado ? { estado } : {}) },
+      where:   { usuarioId, ...(estado ? { estados: { has: estado } } : {}) },
       orderBy: { actualizadoEn: 'desc' },
-      include: { anime: { select: { titulo: true, imagenUrl: true, anilistId: true, episodios: true } } },
+      include: { anime: { select: { titulo: true, imagenUrl: true, anilistId: true, episodios: true, tipo: true, estadoEmision: true, demografia: true, calificacionPromedio: true } } },
     })
     return rows.map(this.mapear)
   }
@@ -36,7 +37,6 @@ export class PrismaListaRepository implements IListaRepository {
 
   async upsert(data: Partial<EntradaLista>): Promise<EntradaLista> {
     const payload = {
-      estado:          data.estado!,
       episodiosVistos: data.episodiosVistos ?? 0,
       esFavorito:      data.esFavorito      ?? false,
       esPrivada:       data.esPrivada       ?? false,
@@ -44,8 +44,16 @@ export class PrismaListaRepository implements IListaRepository {
     }
     const raw = await prisma.listaUsuario.upsert({
       where:  { usuarioId_animeId: { usuarioId: data.usuarioId!, animeId: data.animeId! } },
-      create: { usuarioId: data.usuarioId!, animeId: data.animeId!, ...payload },
-      update: payload,
+      create: { 
+        usuarioId: data.usuarioId!, 
+        animeId: data.animeId!, 
+        estados: data.estados ?? [],
+        ...payload 
+      },
+      update: {
+        estados: data.estados,
+        ...payload
+      },
     })
     return this.mapear(raw)
   }
@@ -54,22 +62,23 @@ export class PrismaListaRepository implements IListaRepository {
     await prisma.listaUsuario.deleteMany({ where: { usuarioId, animeId } })
   }
 
-  async getStats(usuarioId: string) {
-    const grupos = await prisma.listaUsuario.groupBy({
-      by:    ['estado'],
+  async getStats(usuarioId: string): Promise<Record<string, number>> {
+    const rows = await prisma.listaUsuario.findMany({
       where: { usuarioId },
-      _count: { estado: true },
+      select: { estados: true },
     })
-    const stats: Record<string, number> = {
-      viendo: 0, completado: 0, pendiente: 0, en_pausa: 0, abandonado: 0,
-    }
-    grupos.forEach(g => { stats[g.estado] = g._count.estado })
-    return stats as Record<EstadoListaType, number>
+    const stats: Record<string, number> = {}
+    rows.forEach(r => {
+      r.estados.forEach(e => {
+        stats[e] = (stats[e] || 0) + 1
+      })
+    })
+    return stats
   }
 
   async getParaRuleta(usuarioId: string): Promise<EntradaLista[]> {
     const rows = await prisma.listaUsuario.findMany({
-      where:   { usuarioId, estado: 'pendiente', esPrivada: false },
+      where:   { usuarioId, estados: { has: 'pendiente' }, esPrivada: false },
       include: { anime: { select: { titulo: true, imagenUrl: true, anilistId: true } } },
     })
     return rows.map(this.mapear)

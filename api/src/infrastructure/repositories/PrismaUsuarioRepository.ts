@@ -12,6 +12,7 @@ export class PrismaUsuarioRepository implements IUsuarioRepository {
       nombreDisplay:   raw.nombreDisplay,
       avatarUrl:       raw.avatarUrl    ?? undefined,
       bannerUrl:       raw.bannerUrl    ?? undefined,
+      marcoUrl:        raw.marcoUrl     ?? undefined,
       bio:             raw.bio          ?? undefined,
       sitioWeb:        raw.sitioWeb     ?? undefined,
       perfilPrivado:   raw.perfilPrivado,
@@ -49,11 +50,13 @@ export class PrismaUsuarioRepository implements IUsuarioRepository {
     const raw = await prisma.usuario.update({
       where: { id },
       data: {
+        username:        data.username,
         nombreDisplay:   data.nombreDisplay,
         bio:             data.bio,
         sitioWeb:        data.sitioWeb,
         avatarUrl:       data.avatarUrl,
         bannerUrl:       data.bannerUrl,
+        marcoUrl:        data.marcoUrl,
         perfilPrivado:   data.perfilPrivado,
         resenasPublicas: data.resenasPublicas,
         listasPublicas:  data.listasPublicas,

@@ -8,4 +8,5 @@ export interface IResenaRepository {
   upsert(data: Partial<Resena>): Promise<Resena>
   delete(id: string, usuarioId: string): Promise<void>
   toggleLike(usuarioId: string, resenaId: string): Promise<{ accion: 'liked' | 'unliked' }>
+  findFeedByUsuario(usuarioId: string, page: number, limit: number): Promise<any[]>
 }

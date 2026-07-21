@@ -57,41 +57,249 @@
 }
 .ruletaCerrar:hover { color: var(--color-texto); }
 
-/* Tabs */
-.tabs { display: flex; gap: var(--space-2); flex-wrap: wrap; }
-.tab {
-  display: flex; align-items: center; gap: var(--space-2);
-  padding: var(--space-2) var(--space-4); border-radius: var(--radius-full);
-  font-size: var(--text-sm); font-weight: 600; color: var(--color-texto-muted);
-  border: 1px solid var(--color-borde); transition: all var(--transition-fast);
-}
-.tab:hover { border-color: var(--color-acento); color: var(--color-acento); }
-.tabActivo { background: var(--color-acento-soft); border-color: var(--color-acento); color: var(--color-acento); }
-.tabCount {
-  background: var(--color-surface-2); color: var(--color-texto-muted);
-  font-size: var(--text-xs); padding: 1px 6px; border-radius: var(--radius-full);
-  min-width: 20px; text-align: center;
+.folderGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  align-items: start;
+  gap: var(--space-4);
+  padding-bottom: var(--space-4);
 }
 
-/* Grid */
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--space-4); }
-.entradaWrap { position: relative; }
-.btnEliminar {
-  position: absolute; top: var(--space-2); right: var(--space-2);
-  background: rgba(0,0,0,0.7); color: var(--color-texto-suave);
-  width: 24px; height: 24px; border-radius: 50%;
-  font-size: var(--text-xs); display: flex; align-items: center; justify-content: center;
-  opacity: 0; transition: opacity var(--transition-fast), color var(--transition-fast);
+.folderCard {
+  background: #1f2124;
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid var(--color-borde-suave);
+  cursor: pointer;
+  transition: all var(--transition-fast);
 }
-.entradaWrap:hover .btnEliminar { opacity: 1; }
-.btnEliminar:hover { color: var(--color-error); }
 
-.skeleton {
-  aspect-ratio: 2/3; border-radius: var(--radius-md);
-  background: linear-gradient(90deg, var(--color-surface) 25%, var(--color-surface-2) 50%, var(--color-surface) 75%);
-  background-size: 200% 100%; animation: shimmer 1.5s infinite;
+.folderCard:hover {
+  border-color: var(--color-acento);
+  transform: translateY(-2px);
+  background: var(--color-surface-2);
 }
-@keyframes shimmer { to { background-position: -200% 0; } }
 
-.vacio { display: flex; flex-direction: column; align-items: center; gap: var(--space-4); padding: var(--space-16) 0; color: var(--color-texto-muted); }
-.btnDescubrir { color: var(--color-acento); font-weight: 600; font-size: var(--text-sm); }
+.folderName {
+  font-weight: 700;
+  font-size: var(--text-md);
+  color: var(--color-texto);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.folderCount {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--color-texto);
+  font-size: var(--text-xs);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+}
+
+.folderBody {
+  border-top: 1px solid var(--color-borde-suave);
+  padding-top: var(--space-4);
+  margin-top: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.animeRow {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface-2);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.animeRowHeader {
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.animeRowHeader:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.animeRowTitle {
+  font-weight: 600;
+  font-size: var(--text-sm);
+  color: var(--color-texto);
+}
+
+.animeRowDetails {
+  padding: var(--space-4);
+  background: rgba(0, 0, 0, 0.2);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  gap: var(--space-4);
+  position: relative;
+}
+
+/* Inside a List */
+.listHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-6);
+}
+
+.btnVolver {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: transparent;
+  color: var(--color-texto-muted);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  transition: color var(--transition-fast);
+}
+.btnVolver:hover {
+  color: var(--color-texto);
+}
+
+.animeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--space-4);
+}
+
+
+.columnaBody {
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  overflow-y: auto;
+}
+.columnaBody::-webkit-scrollbar {
+  width: 6px;
+}
+.columnaBody::-webkit-scrollbar-thumb {
+  background: var(--color-borde);
+  border-radius: var(--radius-full);
+}
+
+/* Kanban Card */
+.tarjeta {
+  background: var(--color-surface-2);
+  border-radius: var(--radius-md);
+  padding: var(--space-2);
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  cursor: pointer;
+  transition: transform var(--transition-fast), border-color var(--transition-fast);
+  border: 1px solid transparent;
+  position: relative;
+}
+.tarjeta:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-acento);
+}
+.tarjetaImg {
+  width: 48px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+}
+.tarjetaInfo {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.tarjetaTitulo {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-texto);
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.tarjetaAcciones {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+.tarjeta:hover .tarjetaAcciones {
+  opacity: 1;
+}
+.btnEliminarTarjeta {
+  background: rgba(0,0,0,0.5);
+  color: var(--color-texto-suave);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+}
+.btnEliminarTarjeta:hover {
+  background: var(--color-error);
+  color: #fff;
+}
+
+/* Add List */
+.addColumnaBtn {
+  min-width: 320px;
+  padding: var(--space-4);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed var(--color-borde);
+  border-radius: var(--radius-lg);
+  color: var(--color-texto-muted);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: left;
+}
+.addColumnaBtn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--color-acento);
+  color: var(--color-acento);
+}
+
+.addColumnaForm {
+  min-width: 320px;
+  padding: var(--space-3);
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-borde-suave);
+  display: flex;
+  gap: var(--space-2);
+}
+.addColumnaInput {
+  flex: 1;
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-2);
+  border: none;
+  color: var(--color-texto);
+  font-size: var(--text-sm);
+}
+.addColumnaInput:focus {
+  outline: 1px solid var(--color-acento);
+}
+.addColumnaGuardar {
+  background: var(--color-acento);
+  color: #1f2124;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: var(--text-sm);
+}
+

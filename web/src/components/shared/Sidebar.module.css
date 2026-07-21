@@ -1,0 +1,156 @@
+.sidebar {
+  background-color: #0a0a0a;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  box-sizing: border-box;
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+}
+
+.sidebar::-webkit-scrollbar { 
+  display: none;  /* Safari and Chrome */
+}
+
+.sidebarBrand {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding-left: 10px;
+  gap: 6px;
+  margin-bottom: 36px;
+}
+
+.logoIconImg {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+}
+
+.logoText {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #ffb800;
+}
+
+.sidebarMenu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: auto;
+}
+
+.menuLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  color: #a4b0be;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.menuLink:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+  color: #ffffff;
+}
+
+.menuLinkActive {
+  background: linear-gradient(90deg, rgba(255, 193, 7, 0.12) 0%, rgba(255, 193, 7, 0) 100%);
+  color: #ffffff;
+}
+
+.menuLinkActive .menuIcon {
+  color: #ffc107 !important;
+}
+
+.menuIcon {
+  color: #a4b0be;
+  transition: color 0.2s ease;
+}
+
+.menuDivider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.06);
+  margin: 4px 0;
+}
+
+/* Fast Launch */
+.fastLaunch {
+  margin-top: 24px;
+  margin-bottom: 24px;
+}
+
+.sidebarSectionTitle {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #57606f;
+  margin-bottom: 16px;
+}
+
+.fastLaunchList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fastLaunchItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.fastLaunchThumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.fastLaunchInfo {
+  flex: 1;
+}
+
+.fastLaunchName {
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 2px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+}
+
+.fastLaunchEp {
+  font-size: 10px;
+  color: #747d8c;
+  margin: 0 0 6px 0;
+}
+
+.progressBarBg {
+  background-color: rgba(255, 255, 255, 0.1);
+  height: 4px;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progressBarFill {
+  background: linear-gradient(90deg, #ffc107, #ff8000);
+  height: 100%;
+  border-radius: 2px;
+}

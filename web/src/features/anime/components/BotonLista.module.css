@@ -1,20 +1,36 @@
 .wrap { position: relative; }
 
 .btn {
-  width: 100%; padding: var(--space-3);
-  background: var(--color-surface-2); border: 1px solid var(--color-borde);
-  border-radius: var(--radius-md); color: var(--color-texto);
-  font-size: var(--text-sm); font-weight: 600;
-  transition: all var(--transition-fast); text-align: center;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0; color: #fff;
+  font-size: 14px; font-weight: 500;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease; text-align: center;
 }
-.btn:hover { border-color: var(--color-acento); color: var(--color-acento); }
-.btnActivo { background: var(--color-acento-soft); border-color: var(--color-acento); color: var(--color-acento); }
+.btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  transform: translateY(-2px);
+}
+.btnActivo { color: var(--color-acento); }
+
+.btnAbierto {
+  color: var(--color-acento);
+  border-color: var(--color-acento);
+  text-shadow: 0 0 8px rgba(255, 165, 2, 0.4);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
 
 .dropdown {
   position: absolute; top: calc(100% + var(--space-2)); left: 0; right: 0;
-  background: var(--color-surface-2); border: 1px solid var(--color-borde);
-  border-radius: var(--radius-md); overflow: hidden; z-index: 50;
-  box-shadow: var(--shadow-lg);
+  background: #151515; border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0; overflow: hidden; z-index: 50;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
 }
 .opcion {
   width: 100%; padding: var(--space-3) var(--space-4);

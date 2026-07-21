@@ -24,6 +24,8 @@ export class PrismaAnimeRepository implements IAnimeRepository {
       calificacionPromedio: Number(raw.calificacionPromedio),
       totalResenas:         raw.totalResenas,
       totalEnListas:        raw.totalEnListas,
+      autor:                raw.autor          ?? undefined,
+      demografia:           raw.demografia     ?? undefined,
       creadoEn:             raw.creadoEn,
       actualizadoEn:        raw.actualizadoEn,
     }
@@ -87,6 +89,9 @@ export class PrismaAnimeRepository implements IAnimeRepository {
       anio:                 data.anio,
       tipo:                 data.tipo,
       estudio:              data.estudio,
+      autor:                data.autor,
+      demografia:           data.demografia,
+      calificacionPromedio: data.calificacionPromedio,
     }
     const raw = await prisma.anime.upsert({
       where:  { anilistId: data.anilistId! },

@@ -19,14 +19,7 @@ datasource db {
 // ENUMS
 // ============================================================
 
-enum EstadoLista {
-  viendo
-  completado
-  pendiente
-  en_pausa
-  abandonado
-  @@schema("social")
-}
+
 
 enum EstadoSolicitud {
   pendiente
@@ -95,6 +88,8 @@ model Anime {
   calificacionPromedio Decimal  @default(0) @map("calificacion_promedio") @db.Decimal(4, 2)
   totalResenas         Int      @default(0) @map("total_resenas")
   totalEnListas        Int      @default(0) @map("total_en_listas")
+  autor                String?
+  demografia           String?
   creadoEn             DateTime @default(now()) @map("creado_en")
   actualizadoEn        DateTime @updatedAt       @map("actualizado_en")
 
@@ -182,6 +177,7 @@ model Usuario {
   nombreDisplay    String    @map("nombre_display") @db.VarChar(100)
   avatarUrl        String?   @map("avatar_url")
   bannerUrl        String?   @map("banner_url")
+  marcoUrl         String?   @map("marco_url")
   bio              String?   @db.VarChar(500)
   sitioWeb         String?   @map("sitio_web") @db.VarChar(255)
   perfilPrivado    Boolean   @default(false) @map("perfil_privado")
@@ -195,6 +191,7 @@ model Usuario {
   seguidores          Seguidor[]             @relation("Seguido")
   siguiendo           Seguidor[]             @relation("Seguidor")
   lista               ListaUsuario[]
+  columnasKanban      ColumnaKanban[]
   resenas             Resena[]
   reaccionesResena    ReaccionResena[]
   colecciones         Coleccion[]
@@ -232,7 +229,7 @@ model ListaUsuario {
   id              String      @id @default(uuid())
   usuarioId       String      @map("usuario_id")
   animeId         String      @map("anime_id")
-  estado          EstadoLista
+  estados         String[]    @default([])
   episodiosVistos Int         @default(0) @map("episodios_vistos")
   esFavorito      Boolean     @default(false) @map("es_favorito")
   esPrivada       Boolean     @default(false) @map("es_privada")
@@ -245,6 +242,22 @@ model ListaUsuario {
 
   @@unique([usuarioId, animeId])
   @@map("lista_usuario")
+  @@schema("social")
+}
+
+model ColumnaKanban {
+  id          String   @id @default(uuid())
+  usuarioId   String   @map("usuario_id")
+  nombre      String   @db.VarChar(100)
+  descripcion String?  @db.VarChar(500)
+  imagenUrl   String?  @map("imagen_url")
+  orden       Int      @default(0)
+  creadoEn    DateTime @default(now()) @map("creado_en")
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@unique([usuarioId, nombre])
+  @@map("columnas_kanban")
   @@schema("social")
 }
 
@@ -272,17 +285,21 @@ model Resena {
   id              String   @id @default(uuid())
   usuarioId       String   @map("usuario_id")
   animeId         String   @map("anime_id")
-  calificacion    Int
+  calificacion    Float
   contenido       String?
   contieneSpoiler Boolean  @default(false) @map("contiene_spoiler")
   esPublica       Boolean  @default(true)  @map("es_publica")
+  fechaVisto      DateTime? @map("fecha_visto")
+  etiquetas       String[] @default([])
   totalLikes      Int      @default(0)     @map("total_likes")
+  totalComentarios Int     @default(0)     @map("total_comentarios")
   creadoEn        DateTime @default(now()) @map("creado_en")
   editadoEn       DateTime? @map("editado_en")
 
   usuario   Usuario          @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
   anime     Anime            @relation(fields: [animeId],   references: [id], onDelete: Cascade)
   reacciones ReaccionResena[]
+  comentarios Comentario[]
 
   @@unique([usuarioId, animeId])
   @@map("resenas")
@@ -379,8 +396,9 @@ model Miembro {
 
 model Publicacion {
   id               String   @id @default(uuid())
-  comunidadId      String   @map("comunidad_id")
+  comunidadId      String?  @map("comunidad_id")
   usuarioId        String   @map("usuario_id")
+  tema             String?  @db.VarChar(100)
   titulo           String?  @db.VarChar(300)
   contenido        String
   imagenUrl        String?  @map("imagen_url")
@@ -388,8 +406,9 @@ model Publicacion {
   totalComentarios Int      @default(0) @map("total_comentarios")
   creadoEn         DateTime @default(now()) @map("creado_en")
   editadoEn        DateTime? @map("editado_en")
+  soloAmigos       Boolean   @default(false) @map("solo_amigos")
 
-  comunidad  Comunidad           @relation(fields: [comunidadId], references: [id], onDelete: Cascade)
+  comunidad  Comunidad?          @relation(fields: [comunidadId], references: [id], onDelete: Cascade)
   usuario    Usuario             @relation(fields: [usuarioId],   references: [id], onDelete: Cascade)
   comentarios Comentario[]
   reacciones  ReaccionPublicacion[]
@@ -400,7 +419,8 @@ model Publicacion {
 
 model Comentario {
   id             String    @id @default(uuid())
-  publicacionId  String    @map("publicacion_id")
+  publicacionId  String?   @map("publicacion_id")
+  resenaId       String?   @map("resena_id")
   usuarioId      String    @map("usuario_id")
   padreId        String?   @map("padre_id")
   contenido      String
@@ -408,7 +428,8 @@ model Comentario {
   creadoEn       DateTime  @default(now()) @map("creado_en")
   editadoEn      DateTime? @map("editado_en")
 
-  publicacion Publicacion  @relation(fields: [publicacionId], references: [id], onDelete: Cascade)
+  publicacion Publicacion? @relation(fields: [publicacionId], references: [id], onDelete: Cascade)
+  resena      Resena?      @relation(fields: [resenaId],      references: [id], onDelete: Cascade)
   usuario     Usuario      @relation(fields: [usuarioId],     references: [id], onDelete: Cascade)
   padre       Comentario?  @relation("Respuestas", fields: [padreId], references: [id], onDelete: Cascade)
   respuestas  Comentario[] @relation("Respuestas")
@@ -478,4 +499,22 @@ model Feed {
 
   @@map("feed")
   @@schema("sistema")
+}
+
+// ============================================================
+// SCHEMA: noticias (pipeline)
+// ============================================================
+
+model Noticia {
+  id               String   @id @default(uuid())
+  titulo           String   @db.VarChar(300)
+  resumen          String?
+  urlOrigen        String   @map("url_origen")
+  imagenUrl        String?  @map("imagen_url")
+  fuente           String   @db.VarChar(100)
+  fechaPublicacion DateTime @map("fecha_publicacion")
+  creadoEn         DateTime @default(now()) @map("creado_en")
+
+  @@map("noticias")
+  @@schema("contenido")
 }

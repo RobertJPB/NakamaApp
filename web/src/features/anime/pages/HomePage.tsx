@@ -1,11 +1,33 @@
-import React, { useState, useEffect } from 'react'
-import { Navbar } from '../../../components/shared/Navbar'
+import React, { useState } from 'react'
+import { 
+  Home, 
+  Compass, 
+  MessageSquare, 
+  Heart, 
+  Bell, 
+  Calendar, 
+  Tv, 
+  Star, 
+  Trophy, 
+  Search, 
+  Sliders,
+  BookMarked,
+  Users,
+  Shuffle,
+  Settings,
+  MessageCircle,
+  BarChart2
+} from 'lucide-react'
+import { Layout } from '../../../components/shared/Layout'
+import { NewsSection } from '../../feed/components/NewsSection'
 import styles from './HomePage.module.css'
+import { useAuth } from '../../../hooks/useAuth'
+import { useAnimes } from '../../../hooks/useAnimes'
 
-/* ─── Animes destacados (hero rotativo) ─────────────────────────── */
+/* ─── Animes destacados (hero rotativo - 3D Stack) ─────────────────────────── */
 const FEATURED = [
   {
-    id: 1,
+    id: 101922,
     badge: 'Anime destacado',
     titulo: 'Kimetsu no Yaiba',
     subtitulo: 'Demon Slayer: Kimetsu no Yaiba',
@@ -16,11 +38,11 @@ const FEATURED = [
     genero: 'Acción · Sobrenatural',
     puntuacion: '9.0',
     imagen: '/hero-kimetsu.jpg',
-    color: 'rgba(160, 28, 28, 0.3)',
+    color: 'rgba(160, 28, 28, 0.4)',
     slug: 'kimetsu-no-yaiba',
   },
   {
-    id: 2,
+    id: 113415,
     badge: 'Muy valorado',
     titulo: 'Jujutsu Kaisen',
     subtitulo: 'Jujutsu Kaisen',
@@ -31,11 +53,11 @@ const FEATURED = [
     genero: 'Acción · Oscuro',
     puntuacion: '8.8',
     imagen: 'https://static0.colliderimages.com/wordpress/wp-content/uploads/2023/10/jujutsu-kaisen-poster.jpg?q=50&fit=crop&w=1232&h=693&dpr=1.5',
-    color: 'rgba(18, 70, 160, 0.3)',
+    color: 'rgba(18, 70, 160, 0.4)',
     slug: 'jujutsu-kaisen',
   },
   {
-    id: 3,
+    id: 21,
     badge: 'Clásico',
     titulo: 'One Piece',
     subtitulo: 'One Piece',
@@ -46,270 +68,257 @@ const FEATURED = [
     genero: 'Aventura · Comedia',
     puntuacion: '8.7',
     imagen: '/hero-onepiece.jpg',
-    color: 'rgba(160, 100, 18, 0.3)',
+    color: 'rgba(160, 100, 18, 0.4)',
     slug: 'one-piece',
   },
 ]
 
-/* ─── Reseñas recientes (sidebar del hero) ──────────────────────── */
-const RESENAS_RECIENTES = [
-  { usuario: 'marta.gz',     anime: 'Vinland Saga',     stars: 5, texto: 'me dejó sin palabras el final del arco de Askeladd, no esperaba eso' },
-  { usuario: 'diego_rv',     anime: 'Steins;Gate',       stars: 5, texto: 'la vi 3 veces y sigo llorando igual, es demasiado buena' },
-  { usuario: 'pablodev',     anime: 'FMA Brotherhood',   stars: 5, texto: 'Ed y Al merecen el mundo entero bro' },
-  { usuario: 'caro.m',       anime: 'Spy x Family',      stars: 4, texto: 'anya es lo mejor que le pasó al anime este año' },
+/* ─── Pinned / Fast Launch (Seguimiento Rápido en Sidebar) ──────────────── */
+const FAST_LAUNCH = [
+  { id: 1, titulo: 'Demon Slayer', ep: 'Ep 12/26', pct: 46, imagen: '/hero-kimetsu.jpg' },
+  { id: 2, titulo: 'Jujutsu Kaisen', ep: 'Ep 22/24', pct: 91, imagen: 'https://static0.colliderimages.com/wordpress/wp-content/uploads/2023/10/jujutsu-kaisen-poster.jpg?q=50&fit=crop&w=1232&h=693&dpr=1.5' },
+  { id: 3, titulo: 'One Piece', ep: 'Ep 950/1000', pct: 95, imagen: '/hero-onepiece.jpg' },
 ]
 
-/* ─── Grid de animes (sección principal) ────────────────────────── */
-const GRID_ANIMES = [
-  { id: 1, titulo: 'Demon Slayer',        anio: 2019, eps: 26,  nota: '9.0', imagen: '/hero-kimetsu.jpg' },
-  { id: 2, titulo: 'Jujutsu Kaisen',      anio: 2020, eps: 24,  nota: '8.8', imagen: 'https://static0.colliderimages.com/wordpress/wp-content/uploads/2023/10/jujutsu-kaisen-poster.jpg?q=50&fit=crop&w=1232&h=693&dpr=1.5' },
-  { id: 3, titulo: 'One Piece',           anio: 1999, eps: 1000,nota: '8.7', imagen: '/hero-onepiece.jpg' },
-  { id: 4, titulo: 'Attack on Titan',     anio: 2013, eps: 87,  nota: '9.0', imagen: '/hero-anime.jpg' },
-  { id: 5, titulo: 'Jujutsu Kaisen 2',    anio: 2023, eps: 23,  nota: '8.9', imagen: 'https://static0.colliderimages.com/wordpress/wp-content/uploads/2023/10/jujutsu-kaisen-poster.jpg?q=50&fit=crop&w=1232&h=693&dpr=1.5' },
-  { id: 6, titulo: 'Demon Slayer S2',     anio: 2021, eps: 18,  nota: '8.7', imagen: '/hero-kimetsu.jpg' },
-  { id: 7, titulo: 'One Piece Wano',      anio: 2019, eps: 190, nota: '8.8', imagen: '/hero-onepiece.jpg' },
-  { id: 8, titulo: 'Attack on Titan S4',  anio: 2020, eps: 28,  nota: '9.1', imagen: '/hero-anime.jpg' },
-  { id: 9, titulo: 'Jujutsu Kaisen Movie',anio: 2021, eps: 1,   nota: '8.5', imagen: 'https://static0.colliderimages.com/wordpress/wp-content/uploads/2023/10/jujutsu-kaisen-poster.jpg?q=50&fit=crop&w=1232&h=693&dpr=1.5' },
-  { id: 10,titulo: 'Demon Slayer Movie',  anio: 2020, eps: 1,   nota: '8.9', imagen: '/hero-kimetsu.jpg' },
-]
 
-/* ─── Populares (ranking lateral) ───────────────────────────────── */
+
+/* ─── Populares (top 10) ────────────────────────────────────────── */
 const POPULARES = [
   { id: 1,  titulo: 'Fullmetal Alchemist: Brotherhood', genero: 'Acción · Aventura',    nota: '9.2' },
   { id: 2,  titulo: 'Steins;Gate',                      genero: 'Sci-Fi · Thriller',     nota: '9.1' },
-  { id: 3,  titulo: 'Kimetsu no Yaiba',                 genero: 'Acción · Sobrenatural', nota: '9.0' },
-  { id: 4,  titulo: 'Hunter x Hunter (2011)',            genero: 'Aventura · Fantasía',   nota: '8.9' },
-  { id: 5,  titulo: 'Frieren',                          genero: 'Fantasía · Drama',      nota: '9.1' },
-  { id: 6,  titulo: 'Vinland Saga',                     genero: 'Historia · Acción',     nota: '8.8' },
-  { id: 7,  titulo: 'Attack on Titan',                  genero: 'Acción · Drama',        nota: '9.0' },
-  { id: 8,  titulo: 'One Piece',                        genero: 'Aventura · Comedia',    nota: '8.7' },
-  { id: 9,  titulo: 'Jujutsu Kaisen',                   genero: 'Acción · Sobrenatural', nota: '8.8' },
-  { id: 10, titulo: 'Spy x Family',                     genero: 'Comedia · Acción',      nota: '8.6' },
+  { id: 3,  titulo: 'Frieren',                          genero: 'Fantasía · Drama',      nota: '9.1' },
+  { id: 4,  titulo: 'Kimetsu no Yaiba',                 genero: 'Acción · Sobrenatural', nota: '9.0' },
+  { id: 5,  titulo: 'Attack on Titan',                  genero: 'Acción · Drama',        nota: '9.0' },
+  { id: 6,  titulo: 'Hunter x Hunter (2011)',            genero: 'Aventura · Fantasía',   nota: '8.9' },
+  { id: 7,  titulo: 'Jujutsu Kaisen 2',                 genero: 'Acción · Oscuro',       nota: '8.9' },
+  { id: 8,  titulo: 'Violet Evergarden',                genero: 'Drama · Slice of Life', nota: '8.8' },
+  { id: 9,  titulo: 'Vinland Saga',                     genero: 'Acción · Historia',     nota: '8.8' },
+  { id: 10, titulo: 'Made in Abyss',                    genero: 'Aventura · Oscuro',     nota: '8.7' },
 ]
 
-/* ─── Helpers ────────────────────────────────────────────────────── */
-const Estrellas: React.FC<{ n: number }> = ({ n }) => (
-  <span className={styles.estrellas}>{'★'.repeat(n)}{'☆'.repeat(5 - n)}</span>
-)
+/* ─── Reseñas recientes ─────────────────────────────────────────── */
+const RESENAS_RECIENTES = [
+  { id: 1, usuario: 'xX_Guts_Xx',  avatar: 'G', anime: 'Frieren',           nota: 5, texto: 'bro pensé que me iba a aburrir porque es puro diálogo pero terminé llorando a las 3 am 😭 10/10', hace: 'hace 2h' },
+  { id: 2, usuario: 'SatoruFan99', avatar: 'S', anime: 'Jujutsu Kaisen 2',  nota: 4, texto: 'uf la animacion en el capitulo de sukuna vs mahoraga es una locura, mappa carreado a la industria de nuevo', hace: 'hace 5h' },
+  { id: 3, usuario: 'kiritokun',   avatar: 'K', anime: 'Sword Art Online',  nota: 3, texto: 'el primer arco goood, despues se vuelve un zzz zzz la verdad, solo lo veo por la nostalgia', hace: 'hace 1d' },
+  { id: 4, usuario: 'AnyaPeanuts', avatar: 'A', anime: 'Spy x Family',      nota: 5, texto: 'Anya es literalmente yo jajajaja que anime más wholesome por dios, necesito 5 temporadas más', hace: 'hace 1d' },
+  { id: 5, usuario: 'eren_tatakae',avatar: 'E', anime: 'Attack on Titan',   nota: 5, texto: 'simplemente peak fiction. dejen de pelear por el final y disfruten el tremendo viaje q nos dio isayama', hace: 'hace 2d' },
+  { id: 6, usuario: 'ChainsawBro', avatar: 'C', anime: 'Chainsaw Man',      nota: 4, texto: 'muy buena adaptacion pero sigo esperando q animen el arco de bomb girl plsss', hace: 'hace 2d' },
+]
 
 export const HomePage: React.FC = () => {
-  const [featuredIdx, setFeaturedIdx] = useState(0)
-  const [animando,    setAnimando]    = useState(false)
-  const [tabActivo,   setTabActivo]   = useState<'hoy' | 'semana' | 'mes'>('hoy')
-  const [resenasColapsadas, setResenasColapsadas] = useState(false)
-  const featured = FEATURED[featuredIdx]
+  const [featuredIdx,  setFeaturedIdx]  = useState(0)
+  const [tabActivo,    setTabActivo]    = useState<'hoy' | 'semana' | 'mes'>('hoy')
+  const { usuario, estaAutenticado, signOut } = useAuth()
+  const { animes, cargando, error, pagina, setPagina, totalPaginas } = useAnimes()
 
-  useEffect(() => {
-    const t = setInterval(() => irA((featuredIdx + 1) % FEATURED.length), 7000)
-    return () => clearInterval(t)
-  }, [featuredIdx])
+  const nextSlide = () => {
+    setFeaturedIdx((prev) => (prev + 1) % FEATURED.length)
+  }
 
-  const irA = (idx: number) => {
-    setAnimando(true)
-    setTimeout(() => { setFeaturedIdx(idx); setAnimando(false) }, 280)
+  const prevSlide = () => {
+    setFeaturedIdx((prev) => (prev - 1 + FEATURED.length) % FEATURED.length)
   }
 
   return (
-    <div className={styles.home}>
-      <Navbar />
+    <Layout>
+      {/* 3D CAROUSEL BANNERS */}
+        <section className={styles.carouselSection}>
+          <div className={styles.carouselContainer}>
+            {FEATURED.map((item, idx) => {
+              // Calculate positioning classes relative to active slide
+              let positionClass = styles.slideHidden
+              if (idx === featuredIdx) {
+                positionClass = styles.slideActive
+              } else if (idx === (featuredIdx + 1) % FEATURED.length) {
+                positionClass = styles.slideNext
+              } else if (idx === (featuredIdx - 1 + FEATURED.length) % FEATURED.length) {
+                positionClass = styles.slidePrev
+              }
 
-      {/* ══════════════════════════════════════════
-          HERO — imagen de fondo + info del anime
-          ══════════════════════════════════════════ */}
-      <section className={styles.hero}>
-        <div
-          className={`${styles.heroBg} ${animando ? styles.heroBgFade : ''}`}
-          style={{ backgroundImage: `url(${featured.imagen})` }}
-        />
-        <div className={styles.heroOverlay} />
-        <div className={styles.heroOverlayColor} style={{ background: featured.color }} />
-
-        <div className={styles.heroContent}>
-
-          {/* ── Texto izquierda ── */}
-          <div className={`${styles.heroTexto} ${animando ? styles.heroFade : ''}`}>
-
-            <h1 className={styles.heroTitulo}>{featured.titulo}</h1>
-            <p className={styles.heroSubtitulo}>{featured.subtitulo}</p>
-
-            <div className={styles.heroMeta}>
-              <span>{featured.anio}</span>
-              <span className={styles.heroPunto}>·</span>
-              <span>{featured.episodios}</span>
-              <span className={styles.heroPunto}>·</span>
-              <span>{featured.genero}</span>
-            </div>
-
-            <div className={styles.heroPuntuacion}>
-              <Estrellas n={Math.round(parseFloat(featured.puntuacion) / 2)} />
-              <span className={styles.heroPuntuacionNum}>{featured.puntuacion} / 10</span>
-            </div>
-
-            <p className={styles.heroDescripcion}>{featured.descripcion}</p>
-
-            <div className={styles.heroAcciones}>
-              <a href={`/descubrir`} className={styles.heroBtnPrimary}>
-                Ver ficha completa
-              </a>
-              <a href="/auth" className={styles.heroBtnSecondary}>
-                Añadir a mi lista
-              </a>
-            </div>
-          </div>
-
-          {/* ── Sidebar derecha — Reseñas recientes ── */}
-          <aside className={`${styles.heroLista} ${resenasColapsadas ? styles.heroListaColapsada : ''}`}>
-            <div className={styles.heroListaHeader}>
-              {!resenasColapsadas && <p className={styles.heroListaTitulo}>Reseñas recientes</p>}
-              <button 
-                className={styles.btnColapsar} 
-                onClick={() => setResenasColapsadas(!resenasColapsadas)}
-                title={resenasColapsadas ? "Desplegar reseñas" : "Minimizar reseñas"}
-              >
-                <svg 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  strokeWidth="3.5" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round"
-                  className={styles.chevronIcon}
+              return (
+                <div 
+                  key={item.id} 
+                  className={`${styles.carouselCard} ${positionClass}`}
+                  onClick={() => idx !== featuredIdx && setFeaturedIdx(idx)}
                 >
-                  {resenasColapsadas ? (
-                    <polyline points="4 9 12 17 20 9" />
-                  ) : (
-                    <polyline points="4 15 12 7 20 15" />
-                  )}
-                </svg>
-              </button>
-            </div>
-            
-            {!resenasColapsadas && (
-              <>
-                {RESENAS_RECIENTES.map((r, i) => (
-                  <div key={i} className={styles.resenaItem}>
-                    <div className={styles.resenaAvatar}>
-                      {r.usuario[0].toUpperCase()}
-                    </div>
-                    <div className={styles.resenaInfo}>
-                      <p className={styles.resenaUsuario}>{r.usuario}</p>
-                      <p className={styles.resenaAnime}>{r.anime}</p>
-                      <Estrellas n={r.stars} />
-                      <p className={styles.resenaTexto}>"{r.texto}"</p>
-                    </div>
-                  </div>
-                ))}
-                <a href="/auth" className={styles.heroListaVerTodo}>
-                  Ver toda la actividad →
-                </a>
-              </>
-            )}
-          </aside>
-        </div>
-
-        {/* Dots + flechas */}
-        <div className={styles.heroDots}>
-          {FEATURED.map((_, i) => (
-            <button key={i} className={`${styles.heroDot} ${i === featuredIdx ? styles.heroDotActivo : ''}`} onClick={() => irA(i)} />
-          ))}
-        </div>
-        <button className={`${styles.heroArrow} ${styles.heroArrowLeft}`}  onClick={() => irA((featuredIdx - 1 + FEATURED.length) % FEATURED.length)}>‹</button>
-        <button className={`${styles.heroArrow} ${styles.heroArrowRight}`} onClick={() => irA((featuredIdx + 1) % FEATURED.length)}>›</button>
-      </section>
-
-      {/* ══════════════════════════════════════════
-          GRID — Descubre nuevos animes
-          ══════════════════════════════════════════ */}
-      <section className={styles.seccion}>
-        <div className={styles.seccionInner}>
-
-          <div className={styles.seccionHeader}>
-            <h2 className={styles.seccionTitulo}>Lo que la comunidad está viendo</h2>
-            <div className={styles.tabs}>
-              {(['hoy', 'semana', 'mes'] as const).map(tab => (
-                <button
-                  key={tab}
-                  className={`${styles.tab} ${tabActivo === tab ? styles.tabActivo : ''}`}
-                  onClick={() => setTabActivo(tab)}
-                >
-                  {tab === 'hoy' ? 'Hoy' : tab === 'semana' ? 'Esta semana' : 'Este mes'}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Grid de animes — 2 columnas: cards + sidebar ranking */}
-          <div className={styles.gridLayout}>
-
-            {/* Cards de animes */}
-            <div className={styles.animeGrid}>
-              {GRID_ANIMES.map(anime => (
-                <article
-                  key={anime.id}
-                  className={styles.animeCard}
-                >
-                  <div className={styles.cardPoster}>
-                    <img src={anime.imagen} alt={anime.titulo} className={styles.cardPosterImg} />
-                    <div className={styles.cardOverlay}>
-                      <div className={styles.cardAcciones}>
-                        <button className={styles.cardBtnLista}>+ Mi lista</button>
-                        <a href="/descubrir" className={styles.cardBtnFicha}>Ver ficha</a>
+                  <img src={item.imagen} alt={item.titulo} className={styles.cardBgImage} />
+                  <div className={styles.cardOverlayGlow} style={{ background: `linear-gradient(to top, rgba(6, 5, 10, 0.99) 25%, rgba(6, 5, 10, 0.7) 60%, rgba(6, 5, 10, 0.2) 100%)` }} />
+                  
+                  {idx === featuredIdx && (
+                    <div className={styles.cardContent}>
+                      <span className={styles.cardBadge}>{item.badge}</span>
+                      <h2 className={styles.cardTitle}>{item.titulo}</h2>
+                      <p className={styles.cardSub}>{item.subtitulo}</p>
+                      
+                      <div className={styles.cardMeta}>
+                        <span className={styles.metaItem}>
+                          <Calendar size={13} /> {item.anio}
+                        </span>
+                        <span className={styles.metaItem}>
+                          <Tv size={13} /> {item.episodios}
+                        </span>
+                        <span className={styles.metaItem}>
+                          <Star className={styles.starYellow} size={13} fill="currentColor" /> {item.puntuacion}
+                        </span>
+                      </div>
+                      
+                      <p className={styles.cardDesc}>{item.descripcion}</p>
+                      
+                      <div className={styles.cardActions}>
+                        <a href={`/anime/${item.id}`} className={styles.btnPrimary}>Ver Ficha</a>
+                        <button className={styles.btnSecondary}>Seguir Actividad</button>
                       </div>
                     </div>
-                  </div>
-                  <div className={styles.cardInfo}>
-                    <p className={styles.cardTitulo}>{anime.titulo}</p>
-                    <div className={styles.cardRating}>
-                      <Estrellas n={Math.round(parseFloat(anime.nota) / 2)} />
-                      <span className={styles.cardRatingScore}>{anime.nota}</span>
-                    </div>
-                    <p className={styles.cardMeta}>{anime.anio} · {anime.eps} eps</p>
-                  </div>
-                </article>
-              ))}
+                  )}
+                </div>
+              )
+            })}
+          </div>
+
+          <button className={`${styles.sliderArrow} ${styles.arrowLeft}`} onClick={prevSlide}>‹</button>
+          <button className={`${styles.sliderArrow} ${styles.arrowRight}`} onClick={nextSlide}>›</button>
+        </section>
+
+        {/* BOTTOM SECTIONS */}
+        <section className={styles.bottomGrid}>
+          <div className={styles.mainGridContent}>
+            
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>¡Popular esta semana!</h2>
+              <div className={styles.tabs}>
+                {(['hoy', 'semana', 'mes'] as const).map(tab => (
+                  <button
+                    key={tab}
+                    className={`${styles.tab} ${tabActivo === tab ? styles.tabActivo : ''}`}
+                    onClick={() => setTabActivo(tab)}
+                  >
+                    {tab === 'hoy' ? 'Hoy' : tab === 'semana' ? 'Semana' : 'Mes'}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {/* Sidebar ranking */}
-            <aside className={styles.rankingSidebar}>
-              <h3 className={styles.sidebarTitulo}>
-                <span className={styles.acento}>♛</span> Mejor valorados
-              </h3>
-              <div className={styles.rankingLista}>
-                {POPULARES.map(anime => (
-                  <div key={anime.id} className={styles.rankingItem}>
-                    <span className={styles.rankingNum}>{String(anime.id).padStart(2, '0')}</span>
-                    <div className={styles.rankingInfo}>
-                      <p className={styles.rankingTitulo}>{anime.titulo}</p>
-                      <p className={styles.rankingGenero}>{anime.genero}</p>
+            {/* Anime Grid */}
+            {error && (
+              <p className={styles.apiError}>⚠ {error}</p>
+            )}
+            <div className={styles.animeGrid}>
+              {cargando
+                ? Array.from({ length: 18 }).map((_, i) => (
+                    <div key={i} className={`${styles.animeCard} ${styles.skeletonCard}`}>
+                      <div className={styles.skeletonPoster} />
+                      <div className={styles.cardInfo}>
+                        <div className={styles.skeletonText} />
+                        <div className={styles.skeletonTextSm} />
+                      </div>
                     </div>
-                    <span className={styles.rankingScore}>★ {anime.nota}</span>
+                  ))
+                : animes.slice(0, Math.floor(animes.length / 6) * 6).map(anime => (
+                    <a href={`/anime/${anime.anilistId}`} key={anime.anilistId} className={styles.animeCard}>
+                      <div className={styles.cardPoster}>
+                        <img
+                          src={anime.imagenUrl ?? '/hero-kimetsu.jpg'}
+                          alt={anime.titulo}
+                          className={styles.cardPosterImg}
+                        />
+                      </div>
+                      <div className={styles.cardInfo}>
+                        <p className={styles.cardName}>{anime.titulo}</p>
+                        <div className={styles.cardRating}>
+                          <Star className={styles.starYellow} size={13} fill="currentColor" />
+                          <span className={styles.ratingText}>
+                            {anime.calificacionPromedio ? Number(anime.calificacionPromedio).toFixed(1) : '—'}
+                          </span>
+                        </div>
+                      </div>
+                    </a>
+                  ))
+              }
+            </div>
+
+            {/* Paginación */}
+            <div className={styles.pagination}>
+              <button
+                className={styles.pageBtn}
+                onClick={() => setPagina(Math.max(1, pagina - 1))}
+                disabled={pagina === 1 || cargando}
+              >‹</button>
+              {Array.from({ length: totalPaginas }, (_, i) => i + 1).map(num => (
+                <button
+                  key={num}
+                  className={`${styles.pageBtn} ${pagina === num ? styles.pageBtnActive : ''}`}
+                  onClick={() => setPagina(num)}
+                  disabled={cargando}
+                >{num}</button>
+              ))}
+              <button
+                className={styles.pageBtn}
+                onClick={() => setPagina(pagina + 1)}
+                disabled={cargando}
+              >›</button>
+            </div>
+
+          </div>
+
+          {/* TOP 10 RANKING — full list */}
+          <aside className={styles.rankingsSidebar}>
+            <h3 className={styles.sidebarTitle}>
+              <Trophy className={styles.trophyIcon} size={16} /> Mejor Valorados
+            </h3>
+            <div className={styles.rankingList}>
+              {POPULARES.map((anime, index) => (
+                <div key={anime.id} className={styles.rankingItem}>
+                  <span className={`${styles.rankNumber} ${index < 3 ? styles.rankTop3 : ''}`}>{String(index + 1).padStart(2, '0')}</span>
+                  <div className={styles.rankDetails}>
+                    <p className={styles.rankName}>{anime.titulo}</p>
+                    <p className={styles.rankGenre}>{anime.genero}</p>
                   </div>
-                ))}
-                <a href="/ranking" className={styles.verTodo}>Ver ranking completo →</a>
-              </div>
-            </aside>
+                  <span className={styles.rankScore}>
+                    <Star className={styles.starYellow} size={11} fill="currentColor" /> {anime.nota}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <a href="/ranking" className={styles.rankingViewMore} style={{ marginTop: 8 }}>Ver ranking completo</a>
+          </aside>
+        </section>
+
+        {/* RESEÑAS RECIENTES */}
+        <section className={styles.resenasSection}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>
+              <MessageCircle size={18} style={{ marginRight: 8, verticalAlign: 'middle', color: '#ffc107' }} />
+              Reseñas Recientes
+            </h2>
+            <a href="/feed" className={styles.rankingViewMore}>Ver todas</a>
           </div>
-
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════
-          CTA — Únete a Nakama
-          ══════════════════════════════════════════ */}
-      <section className={styles.ctaSection}>
-        <div className={styles.ctaInner}>
-          <img src="/nakama-cat.png" alt="Nakama" className={styles.ctaLogo} />
-          <h2 className={styles.ctaTitulo}>Tu diario de anime</h2>
-          <p className={styles.ctaDesc}>
-            Lleva el registro de lo que ves, escribe reseñas, sigue a otros fans y descubre anime nuevo cada día.
-          </p>
-          <div className={styles.ctaAcciones}>
-            <a href="/auth" className={styles.heroBtnPrimary}>Crear cuenta gratis</a>
-            <a href="/descubrir" className={styles.heroBtnSecondary}>Explorar catálogo</a>
+          <div className={styles.resenasGrid}>
+            {RESENAS_RECIENTES.map(r => (
+              <article key={r.id} className={styles.resenaCard}>
+                <div className={styles.resenaHeader}>
+                  <div className={styles.resenaAvatar}>{r.avatar}</div>
+                  <div className={styles.resenaUserInfo}>
+                    <span className={styles.resenaUsuario}>{r.usuario}</span>
+                    <span className={styles.resenaAnime}>{r.anime}</span>
+                  </div>
+                  <div className={styles.resenaStars}>
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star key={i} size={12} className={i < r.nota ? styles.starYellow : styles.starEmpty} fill={i < r.nota ? '#ffc107' : 'none'} />
+                    ))}
+                  </div>
+                </div>
+                <p className={styles.resenaTexto}>{r.texto}</p>
+                <span className={styles.resenaHace}>{r.hace}</span>
+              </article>
+            ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-    </div>
+        {/* NOTICIAS */}
+        <section className={styles.resenasSection}>
+          <NewsSection />
+        </section>
+    </Layout>
   )
 }

@@ -22,16 +22,20 @@ export function useAnimeDetalle(anilistId: number | null) {
   const [cargando, setCargando] = useState(false)
   const [error,    setError]    = useState<string | null>(null)
 
-  useEffect(() => {
+  const fetchDetalle = () => {
     if (!anilistId) return
     setCargando(true)
     api.get(`/api/animes/${anilistId}`)
       .then(({ data }) => setDetalle(data))
       .catch(() => setError('No se pudo cargar el anime'))
       .finally(() => setCargando(false))
+  }
+
+  useEffect(() => {
+    fetchDetalle()
   }, [anilistId])
 
-  return { detalle, cargando, error }
+  return { detalle, cargando, error, recargar: fetchDetalle }
 }
 
 export function useBusqueda(query: string) {

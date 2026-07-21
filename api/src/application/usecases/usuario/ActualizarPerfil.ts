@@ -4,11 +4,13 @@ import { AppError }            from '../../../presentation/middlewares/error.mid
 
 export interface ActualizarPerfilDTO {
   usuarioId:      string
+  username?:      string
   nombreDisplay?: string
   bio?:           string
   sitioWeb?:      string
   avatarUrl?:     string
   bannerUrl?:     string
+  marcoUrl?:      string
   perfilPrivado?: boolean
   resenasPublicas?: boolean
   listasPublicas?:  boolean

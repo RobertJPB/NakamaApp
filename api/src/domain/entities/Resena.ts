@@ -7,6 +7,10 @@ export interface Resena {
   contieneSpoiler:  boolean
   esPublica:        boolean
   totalLikes:       number
+  fechaVisto?:      Date
+  etiquetas?:       string[]
   creadoEn:         Date
   editadoEn?:       Date
+  usuario?:         any
+  anime?:           any
 }

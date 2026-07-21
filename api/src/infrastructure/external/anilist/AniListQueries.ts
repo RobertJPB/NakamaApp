@@ -4,6 +4,7 @@ export const BUSCAR_ANIMES = `
       pageInfo { total currentPage lastPage }
       media(search: $busqueda, type: ANIME, sort: POPULARITY_DESC) {
         id
+        idMal
         title { romaji english native }
         coverImage { large }
         bannerImage
@@ -15,8 +16,10 @@ export const BUSCAR_ANIMES = `
         seasonYear
         format
         genres
+        tags { name }
         averageScore
         studios(isMain: true) { nodes { name } }
+        staff(sort: RELEVANCE, perPage: 25) { edges { role node { name { full } } } }
       }
     }
   }
@@ -26,6 +29,7 @@ export const DETALLE_ANIME = `
   query DetalleAnime($id: Int) {
     Media(id: $id, type: ANIME) {
       id
+      idMal
       title { romaji english native }
       coverImage { large extraLarge }
       bannerImage
@@ -37,9 +41,11 @@ export const DETALLE_ANIME = `
       seasonYear
       format
       genres
+      tags { name }
       averageScore
       popularity
       studios(isMain: true) { nodes { name } }
+      staff(sort: RELEVANCE, perPage: 25) { edges { role node { name { full } } } }
       characters(role: MAIN, perPage: 10) {
         nodes {
           id
@@ -53,12 +59,13 @@ export const DETALLE_ANIME = `
 `
 
 export const ANIMES_POPULARES = `
-  query AnimesPopulares($pagina: Int) {
-    Page(page: $pagina, perPage: 50) {
-      media(type: ANIME, sort: POPULARITY_DESC, status: RELEASING) {
+  query AnimesPopulares($pagina: Int, $perPage: Int = 21, $genre: String, $seasonYear: Int) {
+    Page(page: $pagina, perPage: $perPage) {
+      media(type: ANIME, sort: POPULARITY_DESC, genre: $genre, seasonYear: $seasonYear) {
         id
+        idMal
         title { romaji english }
-        coverImage { large }
+        coverImage { extraLarge large }
         averageScore
         episodes
         season

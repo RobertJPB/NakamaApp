@@ -13,8 +13,8 @@ export interface IAnimeExternalService {
 
   obtenerDetalle(anilistId: number): Promise<{
     anime: Partial<Anime>
+    generos?: string[]
     personajes: any[]
   }>
-
-  obtenerPopulares(pagina?: number): Promise<Partial<Anime>[]>
+  obtenerPopulares(pagina?: number, perPage?: number, genre?: string, seasonYear?: number): Promise<Partial<Anime>[]>
 }

@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { createClient } from '@supabase/supabase-js'
+import { prisma } from '../database/prisma/client'
 
 const supabase = createClient(
   process.env.SUPABASE_URL!,
@@ -10,6 +11,47 @@ export interface AuthRequest extends Request {
   userId?: string
 }
 
+async function asegurarUsuarioDB(user: any) {
+  if (!user) return
+
+  const usuarioExistente = await prisma.usuario.findUnique({
+    where: { id: user.id }
+  })
+
+  if (!usuarioExistente) {
+    // Generar un username limpio y único
+    let baseUsername = user.user_metadata?.username || user.user_metadata?.name || user.email?.split('@')[0] || 'user'
+    baseUsername = baseUsername.toLowerCase().replace(/[^a-z0-9_]/g, '')
+    if (baseUsername.length < 3) {
+      baseUsername = 'user_' + baseUsername
+    }
+    baseUsername = baseUsername.substring(0, 45)
+
+    let username = baseUsername
+    let counter = 1
+    while (true) {
+      const colision = await prisma.usuario.findUnique({
+        where: { username }
+      })
+      if (!colision) break
+      username = `${baseUsername}_${counter}`
+      counter++
+    }
+
+    const nombreDisplay = user.user_metadata?.full_name || user.user_metadata?.name || username
+
+    await prisma.usuario.create({
+      data: {
+        id: user.id,
+        email: user.email || '',
+        username,
+        nombreDisplay,
+        avatarUrl: null, // No importar avatar de Google por defecto
+      }
+    })
+  }
+}
+
 export const authMiddleware = async (
   req: AuthRequest,
   res: Response,
@@ -18,11 +60,17 @@ export const authMiddleware = async (
   const token = req.headers.authorization?.replace('Bearer ', '')
   if (!token) return res.status(401).json({ error: 'Token requerido' })
 
-  const { data, error } = await supabase.auth.getUser(token)
-  if (error || !data.user) return res.status(401).json({ error: 'Token inválido o expirado' })
+  try {
+    const { data, error } = await supabase.auth.getUser(token)
+    if (error || !data.user) return res.status(401).json({ error: 'Token inválido o expirado' })
 
-  req.userId = data.user.id
-  next()
+    await asegurarUsuarioDB(data.user)
+
+    req.userId = data.user.id
+    next()
+  } catch (err) {
+    next(err)
+  }
 }
 
 export const authOpcional = async (
@@ -32,8 +80,16 @@ export const authOpcional = async (
 ) => {
   const token = req.headers.authorization?.replace('Bearer ', '')
   if (token) {
-    const { data } = await supabase.auth.getUser(token)
-    if (data.user) req.userId = data.user.id
+    try {
+      const { data } = await supabase.auth.getUser(token)
+      if (data.user) {
+        await asegurarUsuarioDB(data.user)
+        req.userId = data.user.id
+      }
+    } catch (e) {
+      // Ignorar errores en auth opcional
+    }
   }
   next()
 }
+
