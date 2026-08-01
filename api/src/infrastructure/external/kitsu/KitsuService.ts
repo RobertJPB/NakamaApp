@@ -8,6 +8,10 @@ const KITSU_URL = 'https://kitsu.io/api/edge'
 const malScoreCache = new Map<string, { score: number; ts: number }>()
 const MAL_CACHE_TTL_MS = 24 * 60 * 60 * 1000 // 24 horas
 
+// Cache general para respuestas de API (búsquedas y populares)
+const responseCache = new Map<string, { data: any; ts: number }>()
+const RESPONSE_CACHE_TTL = 60 * 60 * 1000 // 1 hora
+
 async function getMalScoreForKitsuId(kitsuId: string): Promise<number | null> {
   // Check cache first
   const cached = malScoreCache.get(kitsuId)
@@ -114,6 +118,12 @@ export class KitsuService implements IAnimeExternalService {
     const offset = (pagina - 1) * limit
     const query = encodeURIComponent(busqueda)
     
+    const cacheKey = `search_${query}_${pagina}_${perPage}`
+    const cached = responseCache.get(cacheKey)
+    if (cached && Date.now() - cached.ts < RESPONSE_CACHE_TTL) {
+      return cached.data
+    }
+    
     const data = await this.fetchKitsuPaginated(`/anime?filter[text]=${query}`, limit, offset)
     
     let animes = (data.data || []).map(mapKitsuToAnime)
@@ -132,16 +142,7 @@ export class KitsuService implements IAnimeExternalService {
       return 0
     })
 
-    // Enriquecer notas con MAL en paralelo
-    await Promise.all(
-      animes.map(async (anime: any) => {
-        if (!anime.externalId) return
-        const malScore = await getMalScoreForKitsuId(anime.externalId)
-        if (malScore !== null) anime.calificacionPromedio = malScore
-      })
-    )
-
-    return {
+    const result = {
       pageInfo: {
         total: data.meta?.count || 0,
         currentPage: pagina,
@@ -149,6 +150,9 @@ export class KitsuService implements IAnimeExternalService {
       },
       animes
     }
+
+    responseCache.set(cacheKey, { data: result, ts: Date.now() })
+    return result
   }
 
   async obtenerDetalle(externalId: string) {
@@ -242,6 +246,13 @@ export class KitsuService implements IAnimeExternalService {
   async obtenerPopulares(pagina = 1, perPage = 18, genre?: string, seasonYear?: number) {
     const limit = perPage
     const offset = (pagina - 1) * limit
+    
+    const cacheKey = `populares_${pagina}_${perPage}_${genre || 'all'}_${seasonYear || 'all'}`
+    const cached = responseCache.get(cacheKey)
+    if (cached && Date.now() - cached.ts < RESPONSE_CACHE_TTL) {
+      return cached.data
+    }
+
     let url = `/anime?sort=-userCount`
     if (genre) url += `&filter[categories]=${encodeURIComponent(genre)}`
     if (seasonYear) url += `&filter[seasonYear]=${seasonYear}`
@@ -249,15 +260,7 @@ export class KitsuService implements IAnimeExternalService {
     const data = await this.fetchKitsuPaginated(url, limit, offset)
     const animes = (data.data || []).map(mapKitsuToAnime)
 
-    // Enriquecer notas con MAL en paralelo (no bloqueante: si falla no afecta la respuesta)
-    await Promise.all(
-      animes.map(async (anime: any) => {
-        if (!anime.externalId) return
-        const malScore = await getMalScoreForKitsuId(anime.externalId)
-        if (malScore !== null) anime.calificacionPromedio = malScore
-      })
-    )
-
+    responseCache.set(cacheKey, { data: animes, ts: Date.now() })
     return animes
   }
 
