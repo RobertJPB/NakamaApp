@@ -1,7 +1,7 @@
 {
   "version": 2,
   "installCommand": "npm install -g pnpm && pnpm install",
-  "buildCommand": "pnpm --filter @nakama/web... build",
+  "buildCommand": "pnpm run --filter @nakama/web build",
   "outputDirectory": "web/dist",
   "rewrites": [
     { "source": "/(.*)", "destination": "/" }
