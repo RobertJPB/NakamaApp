@@ -184,7 +184,11 @@ export const Header: React.FC = () => {
                           if (!n.leida) marcarComoLeida(n.id)
                           setMostrarNotif(false)
                           if (n.actor?.username) {
-                            navigate(n.referenciaId ? `/post/${n.referenciaId}` : `/perfil/${n.actor.username}`)
+                            if (n.tipo === 'like_resena' || n.tipo === 'comentario_publicacion') {
+                              navigate(`/perfil/${usuario?.username || usuario?.user_metadata?.username}`)
+                            } else {
+                              navigate(`/perfil/${n.actor.username}`)
+                            }
                           }
                         }}
                       >
