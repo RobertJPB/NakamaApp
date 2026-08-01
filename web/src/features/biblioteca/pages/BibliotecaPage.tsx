@@ -7,7 +7,8 @@ import styles              from './BibliotecaPage.module.css'
 import { AnimeCard }       from '../../../components/ui/AnimeCard'
 import { ReviewModal }     from '../../anime/components/ReviewModal'
 import { CrearListaModal } from '../components/CrearListaModal'
-import { Heart, Clock, Eye, CheckSquare, Tv, Film, Folder, Trash2, ChevronLeft } from 'lucide-react'
+import { EditarListaModal } from '../components/EditarListaModal'
+import { Heart, Clock, Eye, CheckSquare, Tv, Film, Trash2, ChevronLeft, Settings } from 'lucide-react'
 
 // Función para determinar el ícono según el nombre de la lista
 const getIconForList = (nombre: string) => {
@@ -23,10 +24,11 @@ const getIconForList = (nombre: string) => {
 
 export const BibliotecaPage: React.FC = () => {
   const usuario = useAuthStore(s => s.usuario)
-  const { lista, columnas, cargando, eliminar, crearLista, agregar } = useBiblioteca(usuario?.id ?? null)
+  const { lista, columnas, cargando, eliminar, crearLista, editarLista, agregar } = useBiblioteca(usuario?.id ?? null)
   
   const [showCrearModal, setShowCrearModal] = useState(false)
-  const [listaSeleccionada, setListaSeleccionada] = useState<string | null>(null)
+  const [showEditarModal, setShowEditarModal] = useState(false)
+  const [listaSeleccionada, setListaSeleccionada] = useState<any | null>(null)
 
   // Modal de búsqueda
   const [showSearch, setShowSearch] = useState(false)
@@ -51,6 +53,13 @@ export const BibliotecaPage: React.FC = () => {
     setShowCrearModal(false)
   }
 
+  const handleEditarColumna = async (columnaId: string, datos: { nombre?: string; descripcion?: string; imagenUrl?: string; esPrivada?: boolean }) => {
+    await editarLista(columnaId, datos)
+    setShowEditarModal(false)
+    // Update local state to reflect changes instantly without waiting for re-fetch
+    setListaSeleccionada((prev: any) => ({ ...prev, ...datos }))
+  }
+
   // Búsqueda en tiempo real (debounced)
   useEffect(() => {
     if (!searchQuery.trim()) {
@@ -60,8 +69,8 @@ export const BibliotecaPage: React.FC = () => {
     const timer = setTimeout(async () => {
       setIsSearching(true)
       try {
-        const { data } = await api.get(`/api/anime/buscar?q=${encodeURIComponent(searchQuery)}`)
-        setSearchResults(data.slice(0, 5)) // Solo los primeros 5 resultados rápidos
+        const { data } = await api.get(`/api/animes?busqueda=${encodeURIComponent(searchQuery)}`)
+        setSearchResults(data.animes ? data.animes.slice(0, 5) : []) // Solo los primeros 5 resultados rápidos
       } catch (e) {
         console.error(e)
       } finally {
@@ -73,10 +82,21 @@ export const BibliotecaPage: React.FC = () => {
 
   const handleAgregarAnime = async (anime: any) => {
     if (!listaSeleccionada) return
-    await agregar(anime.id || anime.anilistId, listaSeleccionada)
+    const propietarioId = listaSeleccionada.propietario?.id
+    await agregar(anime.id || anime.externalId, listaSeleccionada.nombre, propietarioId)
     setShowSearch(false)
     setSearchQuery('')
     setSearchResults([])
+  }
+
+  const handleInvitar = async () => {
+    try {
+      const { data } = await api.post(`/api/biblioteca/invitar/${listaSeleccionada.id}`)
+      navigator.clipboard.writeText(data.url)
+      alert('¡Enlace de invitación copiado al portapapeles!')
+    } catch (e: any) {
+      alert(e.response?.data?.mensaje || 'Error al generar invitación')
+    }
   }
 
   // Render Vista Principal (Carpetas con nombres)
@@ -89,7 +109,7 @@ export const BibliotecaPage: React.FC = () => {
               <h1 className={styles.titulo}>Mi Tablero</h1>
               <p className={styles.subtitulo}>Tus listas personalizadas</p>
             </div>
-            {!cargando && (
+            {usuario?.id === lista[0]?.usuarioId || usuario?.id ? (
                 <button 
                   style={{
                     background: 'var(--color-acento)',
@@ -101,8 +121,6 @@ export const BibliotecaPage: React.FC = () => {
                     borderRadius: '8px',
                     cursor: 'pointer',
                     transition: 'background var(--transition-fast)',
-                    minWidth: 'auto',
-                    marginBottom: 0
                   }}
                   onMouseEnter={e => e.currentTarget.style.background = 'var(--color-acento-hover)'}
                   onMouseLeave={e => e.currentTarget.style.background = 'var(--color-acento)'}
@@ -110,7 +128,7 @@ export const BibliotecaPage: React.FC = () => {
                 >
                   Agregar Lista
                 </button>
-            )}
+            ) : null}
           </div>
 
 
@@ -120,12 +138,13 @@ export const BibliotecaPage: React.FC = () => {
             ) : (
               columnas.map((col: any) => {
                 const animesEnColumna = lista.filter((e: any) => e.estados?.includes(col.nombre))
+
                 
                 return (
                   <div 
                     key={col.id} 
                     className={styles.folderCard}
-                    onClick={() => setListaSeleccionada(col.nombre)}
+                    onClick={() => setListaSeleccionada(col)}
                     style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: 'var(--space-4)', cursor: 'pointer', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-borde-suave)' }}
                   >
                     {col.imagenUrl && (
@@ -171,42 +190,189 @@ export const BibliotecaPage: React.FC = () => {
   }
 
   // Render Vista de Animes dentro de la Lista
-  const animesEnColumna = lista.filter((e: any) => e.estados?.includes(listaSeleccionada))
+  const animesEnColumna = lista.filter((e: any) => e.estados?.includes(listaSeleccionada?.nombre))
 
   return (
     <Layout>
       <div className={styles.wrap}>
-        <div className={styles.listHeader} style={{ justifyContent: 'flex-start' }}>
-          <div>
-            <button className={styles.btnVolver} onClick={() => setListaSeleccionada(null)} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <ChevronLeft size={18} />
-              Volver a mis listas
-            </button>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '16px' }}>
-              <h1 className={styles.titulo} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                {getIconForList(listaSeleccionada)} {listaSeleccionada}
-              </h1>
-              <button 
-                onClick={() => setShowSearch(true)}
-                style={{
-                  background: 'var(--color-acento)',
-                  color: '#1f2124',
-                  fontWeight: 700,
-                  fontSize: 'var(--text-sm)',
-                  padding: '6px 12px',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  transition: 'background var(--transition-fast)'
-                }}
-                onMouseEnter={e => e.currentTarget.style.background = 'var(--color-acento-hover)'}
-                onMouseLeave={e => e.currentTarget.style.background = 'var(--color-acento)'}
-              >
-                Añadir Anime
-              </button>
+        {/* Imagen de portada de la lista */}
+        {listaSeleccionada?.imagenUrl && (
+          <div style={{ width: '100%', height: '220px', position: 'relative', marginBottom: '0', borderRadius: '12px', overflow: 'hidden' }}>
+            <img
+              src={listaSeleccionada.imagenUrl}
+              alt={listaSeleccionada.nombre}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'brightness(0.55)' }}
+            />
+            <div style={{
+              position: 'absolute', inset: 0,
+              background: 'linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.85) 100%)'
+            }} />
+            <div style={{ position: 'absolute', bottom: '20px', left: '24px', right: '24px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+              <div>
+                <button className={styles.btnVolver} onClick={() => setListaSeleccionada(null)} style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '8px', opacity: 0.85 }}>
+                  <ChevronLeft size={18} />
+                  Volver a mis listas
+                </button>
+                <h1 className={styles.titulo} style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: 0, textShadow: '0 2px 8px rgba(0,0,0,0.7)' }}>
+                  {getIconForList(listaSeleccionada.nombre)} {listaSeleccionada.nombre}
+                </h1>
+                {listaSeleccionada.descripcion && (
+                  <p style={{ margin: '4px 0 0', color: 'rgba(255,255,255,0.75)', fontSize: '0.9rem' }}>{listaSeleccionada.descripcion}</p>
+                )}
+              </div>
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                {!listaSeleccionada.esGuardada && !listaSeleccionada.esColaborativa && (
+                  <>
+                    <button
+                      onClick={() => setShowEditarModal(true)}
+                      title="Editar Lista"
+                      style={{
+                        background: 'transparent', color: 'var(--color-texto-muted)',
+                        padding: '8px', border: '1px solid var(--color-borde)', borderRadius: '8px',
+                        cursor: 'pointer', transition: 'all var(--transition-fast)', flexShrink: 0,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-texto)'; e.currentTarget.style.background = 'rgba(255,255,255,0.05)' }}
+                      onMouseLeave={e => { e.currentTarget.style.color = 'var(--color-texto-muted)'; e.currentTarget.style.background = 'transparent' }}
+                    >
+                      <Settings size={20} />
+                    </button>
+                    <button
+                      onClick={handleInvitar}
+                      style={{
+                        background: 'transparent', color: 'var(--color-texto)',
+                        fontWeight: 700, fontSize: 'var(--text-sm)',
+                        padding: '8px 16px', border: '1px solid var(--color-borde)', borderRadius: '8px',
+                        cursor: 'pointer', transition: 'background var(--transition-fast)', flexShrink: 0
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                      Invitar Colaborador
+                    </button>
+                  </>
+                )}
+                
+                {listaSeleccionada.esGuardada ? (
+                  <button
+                    onClick={async () => {
+                      await api.delete(`/api/biblioteca/columnas/${listaSeleccionada.id}/guardar`)
+                      window.location.reload()
+                    }}
+                    style={{
+                      background: 'transparent', color: 'var(--color-texto)',
+                      fontWeight: 700, fontSize: 'var(--text-sm)',
+                      padding: '8px 16px', border: '1px solid var(--color-borde)', borderRadius: '8px',
+                      cursor: 'pointer', transition: 'background var(--transition-fast)', flexShrink: 0
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                  >
+                    Dejar de guardar
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setShowSearch(true)}
+                    style={{
+                      background: 'var(--color-acento)', color: '#1f2124',
+                      fontWeight: 700, fontSize: 'var(--text-sm)',
+                      padding: '8px 16px', border: 'none', borderRadius: '8px',
+                      cursor: 'pointer', transition: 'background var(--transition-fast)', flexShrink: 0
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'var(--color-acento-hover)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'var(--color-acento)'}
+                  >
+                    Añadir Anime
+                  </button>
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        )}
+
+        {/* Header sin imagen */}
+        {!listaSeleccionada?.imagenUrl && (
+          <div className={styles.listHeader} style={{ justifyContent: 'flex-start' }}>
+            <div>
+              <button className={styles.btnVolver} onClick={() => setListaSeleccionada(null)} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <ChevronLeft size={18} />
+                Volver a mis listas
+              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '16px' }}>
+                <h1 className={styles.titulo} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  {getIconForList(listaSeleccionada?.nombre)} {listaSeleccionada?.nombre}
+                </h1>
+                
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  {!listaSeleccionada.esGuardada && !listaSeleccionada.esColaborativa && (
+                    <>
+                      <button
+                        onClick={() => setShowEditarModal(true)}
+                        title="Editar Lista"
+                        style={{
+                          background: 'transparent', color: 'var(--color-texto-muted)',
+                          padding: '6px', border: '1px solid var(--color-borde)', borderRadius: '6px',
+                          cursor: 'pointer', transition: 'all var(--transition-fast)', flexShrink: 0,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center'
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-texto)'; e.currentTarget.style.background = 'rgba(255,255,255,0.05)' }}
+                        onMouseLeave={e => { e.currentTarget.style.color = 'var(--color-texto-muted)'; e.currentTarget.style.background = 'transparent' }}
+                      >
+                        <Settings size={18} />
+                      </button>
+                      <button
+                        onClick={handleInvitar}
+                        style={{
+                          background: 'transparent', color: 'var(--color-texto)',
+                          fontWeight: 700, fontSize: 'var(--text-sm)',
+                          padding: '6px 12px', border: '1px solid var(--color-borde)', borderRadius: '6px',
+                          cursor: 'pointer', transition: 'background var(--transition-fast)'
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                      >
+                        Invitar Colaborador
+                      </button>
+                    </>
+                  )}
+
+                  {listaSeleccionada.esGuardada ? (
+                    <button
+                      onClick={async () => {
+                        await api.delete(`/api/biblioteca/columnas/${listaSeleccionada.id}/guardar`)
+                        window.location.reload()
+                      }}
+                      style={{
+                        background: 'transparent', color: 'var(--color-texto)',
+                        fontWeight: 700, fontSize: 'var(--text-sm)',
+                        padding: '6px 12px', border: '1px solid var(--color-borde)', borderRadius: '6px',
+                        cursor: 'pointer', transition: 'background var(--transition-fast)'
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                      Dejar de guardar
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => setShowSearch(true)}
+                      style={{
+                        background: 'var(--color-acento)', color: '#1f2124',
+                        fontWeight: 700, fontSize: 'var(--text-sm)',
+                        padding: '6px 12px', border: 'none', borderRadius: '6px',
+                        cursor: 'pointer', transition: 'background var(--transition-fast)'
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'var(--color-acento-hover)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'var(--color-acento)'}
+                    >
+                      Añadir Anime
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {animesEnColumna.length === 0 ? (
           <div style={{ padding: '40px 0', textAlign: 'center', color: 'var(--color-texto-muted)' }}>
@@ -215,7 +381,7 @@ export const BibliotecaPage: React.FC = () => {
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             {animesEnColumna.map((entrada: any) => {
-              const resena = resenas.find(r => r.anime?.anilistId === entrada.anime?.anilistId || r.animeId === entrada.animeId)
+              const resena = resenas.find(r => r.anime?.externalId === entrada.anime?.externalId || r.animeId === entrada.animeId)
               
               return (
                 <div key={entrada.animeId} style={{ 
@@ -225,12 +391,12 @@ export const BibliotecaPage: React.FC = () => {
                 }}>
                   <div style={{ width: '150px', flexShrink: 0 }}>
                     <AnimeCard
-                      anilistId={entrada.anime?.anilistId}
+                      externalId={entrada.anime?.externalId}
                       titulo={entrada.anime?.titulo}
                       imagenUrl={entrada.anime?.imagenUrl}
                       estado={""}
                       calificacion={entrada.calificacion}
-                      onClick={() => window.location.href = `/anime/${entrada.anime?.anilistId}`}
+                      onClick={() => window.location.href = `/anime/${entrada.anime?.externalId}`}
                     />
                   </div>
                   
@@ -289,18 +455,18 @@ export const BibliotecaPage: React.FC = () => {
                             </span>
                           </div>
                           {resena.contenido ? (
-                            <p style={{ margin: 0, color: 'var(--color-texto-suave)', fontSize: '1rem', lineHeight: 1.6, fontStyle: 'italic', maxWidth: '600px' }}>
-                              "{resena.contenido}"
+                            <p style={{ margin: 0, color: 'var(--color-texto-suave)', fontSize: '1rem', lineHeight: 1.6, maxWidth: '600px' }}>
+                              {resena.contenido}
                             </p>
                           ) : (
-                            <p style={{ margin: 0, color: 'var(--color-texto-muted)', fontStyle: 'italic', fontSize: '0.9rem' }}>
+                            <p style={{ margin: 0, color: 'var(--color-texto-muted)', fontSize: '0.9rem' }}>
                               Solo calificación
                             </p>
                           )}
                         </div>
                       ) : (
                         <p style={{ color: 'var(--color-texto-muted)', fontSize: '0.9rem', margin: 0 }}>
-                          <span style={{ fontStyle: 'italic' }}>No has escrito ninguna reseña.</span>{' '}
+                          <span>No has escrito ninguna reseña.</span>{' '}
                           <button 
                             onClick={() => setReviewingAnime(entrada.anime)}
                             style={{ 
@@ -327,7 +493,7 @@ export const BibliotecaPage: React.FC = () => {
                     onMouseLeave={e => { e.currentTarget.style.color = 'var(--color-texto-muted)' }}
                     onClick={(e) => {
                       e.stopPropagation()
-                      eliminar(entrada.animeId)
+                      eliminar(entrada.animeId, listaSeleccionada?.propietario?.id, listaSeleccionada?.nombre)
                     }}
                     title="Eliminar"
                   >
@@ -400,7 +566,7 @@ export const BibliotecaPage: React.FC = () => {
 
       {reviewingAnime && (
         <ReviewModal
-          animeIdInicial={reviewingAnime.anilistId?.toString()}
+          animeIdInicial={reviewingAnime.externalId?.toString()}
           animeInicial={reviewingAnime}
           onClose={() => setReviewingAnime(null)}
           onSaved={(res) => {
@@ -413,6 +579,14 @@ export const BibliotecaPage: React.FC = () => {
         <CrearListaModal 
           onClose={() => setShowCrearModal(false)}
           onCrear={handleCrearColumna}
+        />
+      )}
+      {/* Modales */}
+      {showEditarModal && listaSeleccionada && (
+        <EditarListaModal
+          lista={listaSeleccionada}
+          onClose={() => setShowEditarModal(false)}
+          onEditar={handleEditarColumna}
         />
       )}
     </Layout>

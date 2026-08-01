@@ -1,38 +1,59 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { api } from '../../../lib/axios'
 import { useAuth } from '../../../hooks/useAuth'
+import { MoreHorizontal, Flag, Pencil, AlertTriangle } from 'lucide-react'
+import { FeedItemInteractions } from '../../feed/components/FeedItemInteractions'
 import styles from './PublicacionCard.module.css'
 
-interface Props { publicacion: any; onComentado?: () => void }
+interface Props { 
+  publicacion: any; 
+  onComentado?: () => void; 
+  onVotar?: (opcionId: string) => void;
+  miRol?: 'admin' | 'moderador' | 'miembro' | null;
+  onEliminar?: (pubId: string) => void;
+}
 
-export const PublicacionCard: React.FC<Props> = ({ publicacion, onComentado }) => {
+export const PublicacionCard: React.FC<Props> = ({ publicacion, onComentado, onVotar, miRol, onEliminar }) => {
   const { estaAutenticado, usuario } = useAuth()
-  const [abierto,   setAbierto]   = useState(false)
-  const [comentario,setComentario]= useState('')
-  const [likes,     setLikes]     = useState(publicacion.totalLikes ?? 0)
-  const [liked,     setLiked]     = useState(false)
-  const [enviando,  setEnviando]  = useState(false)
+  const [menuAbierto, setMenuAbierto] = useState(false)
+  const [editando,    setEditando]    = useState(false)
+  const [editTexto,   setEditTexto]   = useState(publicacion.contenido ?? '')
+  const [spoilerAceptado, setSpoilerAceptado] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
 
-  const toggleLike = async () => {
-    if (!estaAutenticado) return
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuAbierto(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  const guardarEdicion = async () => {
+    if (!editTexto.trim() || editTexto === publicacion.contenido) {
+      setEditando(false)
+      return
+    }
     try {
-      await api.post(`/api/comunidades/_/publicaciones/${publicacion.id}/like`)
-      setLiked(p => !p)
-      setLikes((p: number) => liked ? p - 1 : p + 1)
-    } catch {}
+      await api.put(`/comunidades/publicaciones/${publicacion.id}`, { contenido: editTexto })
+      publicacion.contenido = editTexto
+      setEditando(false)
+    } catch (err) {
+      console.error(err)
+      alert('Error al guardar edición')
+    }
   }
 
-  const enviarComentario = async () => {
-    if (!comentario.trim()) return
-    setEnviando(true)
+  const reportar = async (tipo: 'publicacion' | 'comentario', id: string) => {
+    if (!window.confirm(`¿Estás seguro de reportar este ${tipo} como inapropiado?`)) return
     try {
-      await api.post(`/api/comunidades/${publicacion.comunidadId}/publicaciones/${publicacion.id}/comentar`, {
-        contenido: comentario
-      })
-      setComentario('')
-      onComentado?.()
-    } catch {}
-    finally { setEnviando(false) }
+      await api.post('/api/reportes', { tipo, referenciaId: id })
+      alert('Reporte enviado a los moderadores. Gracias por mantener la comunidad segura.')
+    } catch (err) {
+      alert('Ocurrió un error al enviar el reporte.')
+    }
   }
 
   const tiempoRelativo = (fecha: string) => {
@@ -44,6 +65,43 @@ export const PublicacionCard: React.FC<Props> = ({ publicacion, onComentado }) =
     const dias = Math.floor(hrs / 24)
     if (dias < 30)   return `hace ${dias}d`
     return new Date(fecha).toLocaleDateString('es-DO', { month: 'short', day: 'numeric' })
+  }
+
+  const renderOpcionesEncuesta = () => {
+    if (!publicacion.opciones) return null
+    
+    // Check if current user voted
+    const votedOption = publicacion.opciones.find((o: any) => o.votosUsuarios?.some((v: any) => v.usuarioId === usuario?.id))
+    const totalVotos = publicacion.opciones.reduce((acc: number, o: any) => acc + (o.votos ?? 0), 0)
+
+    return (
+      <div className={styles.encuestaContainer}>
+        {publicacion.opciones.map((o: any) => {
+          const isVoted = votedOption?.id === o.id
+          const percentage = totalVotos > 0 ? Math.round(((o.votos ?? 0) / totalVotos) * 100) : 0
+          
+          return (
+            <button 
+              key={o.id} 
+              className={`${styles.encuestaOpcion} ${isVoted ? styles.voted : ''} ${votedOption ? styles.disabledOpcion : ''}`}
+              onClick={() => {
+                if (!votedOption && onVotar) onVotar(o.id)
+              }}
+              disabled={!!votedOption || !estaAutenticado}
+            >
+              {votedOption && <div className={styles.encuestaBar} style={{ width: `${percentage}%` }} />}
+              <div className={styles.encuestaContent}>
+                {o.imagenUrl && <img src={o.imagenUrl} alt="" className={styles.opcionImagen} />}
+                <span className={styles.encuestaText}>{o.texto}</span>
+              </div>
+              {votedOption && <span className={styles.encuestaPercent}>{percentage}%</span>}
+            </button>
+
+          )
+        })}
+        <div className={styles.encuestaTotal}>{totalVotos} votos</div>
+      </div>
+    )
   }
 
   return (
@@ -61,91 +119,106 @@ export const PublicacionCard: React.FC<Props> = ({ publicacion, onComentado }) =
             <p className={styles.nombre}>{publicacion.usuario?.nombreDisplay}</p>
             <p className={styles.meta}>
               @{publicacion.usuario?.username} · {tiempoRelativo(publicacion.creadoEn)}
+              {publicacion.comunidad && (
+                <>
+                  {' '}en{' '}
+                  <a 
+                    href={`/comunidades/${publicacion.comunidadId}`} 
+                    className={styles.metaComunidad}
+                    onClick={e => e.stopPropagation()}
+                  >
+                    {publicacion.comunidad.nombre}
+                  </a>
+                </>
+              )}
             </p>
           </div>
         </a>
+
+        {estaAutenticado && (
+          <div ref={menuRef} className={styles.menuWrap}>
+            <button
+              className={styles.btnAccion}
+              onClick={() => setMenuAbierto(p => !p)}
+              title="Más opciones"
+            >
+              <MoreHorizontal size={18} />
+            </button>
+            {menuAbierto && (
+              <div className={styles.dropdown}>
+                {publicacion.usuario?.id === usuario?.id && (
+                  <button className={styles.dropdownItem} onClick={() => { setEditando(true); setMenuAbierto(false) }}>
+                    <Pencil size={14} /> Editar
+                  </button>
+                )}
+                {publicacion.usuario?.id !== usuario?.id && (
+                  <button className={`${styles.dropdownItem} ${styles.dropdownDanger}`} onClick={() => { setMenuAbierto(false); reportar('publicacion', publicacion.id) }}>
+                    <Flag size={14} /> Denunciar
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Contenido */}
       {publicacion.titulo && <h3 className={styles.titulo}>{publicacion.titulo}</h3>}
-      <p className={styles.contenido}>{publicacion.contenido}</p>
-      {publicacion.imagenUrl && (
+      {editando ? (
+        <div className={styles.editarWrap}>
+          <textarea 
+            className={styles.editarInput} 
+            value={editTexto} 
+            onChange={(e) => setEditTexto(e.target.value)}
+            rows={3}
+            autoFocus
+          />
+          <div className={styles.editarActions}>
+            <button className={styles.btnCancelar} onClick={() => { setEditando(false); setEditTexto(publicacion.contenido ?? '') }}>Cancelar</button>
+            <button className={styles.btnGuardar} onClick={guardarEdicion}>Guardar</button>
+          </div>
+        </div>
+      ) : (
+        publicacion.tipo === 'resena' && publicacion.resena?.contieneSpoiler && !spoilerAceptado ? (
+          <div className={styles.spoilerWarning}>
+            <AlertTriangle size={24} />
+            <p style={{ margin: 0 }}>¡Alerta de Spoiler!</p>
+            <button className={styles.btnVerSpoiler} onClick={() => setSpoilerAceptado(true)}>Mostrar reseña</button>
+          </div>
+        ) : (
+          publicacion.contenido && <p className={styles.contenido}>{publicacion.contenido}</p>
+        )
+      )}
+      
+      {publicacion.tipo === 'imagen' && publicacion.imagenUrl && (
         <img src={publicacion.imagenUrl} alt="" className={styles.imagen} />
       )}
 
-      {/* Acciones */}
-      <div className={styles.acciones}>
-        <button
-          className={`${styles.btnAccion} ${liked ? styles.liked : ''}`}
-          onClick={toggleLike}
-        >
-          <span>♥</span> {likes}
-        </button>
-        <button
-          className={styles.btnAccion}
-          onClick={() => setAbierto(p => !p)}
-        >
-          <span>💬</span> {publicacion.totalComentarios ?? 0}
-        </button>
-      </div>
-
-      {/* Sección comentarios */}
-      {abierto && (
-        <div className={styles.comentarios}>
-          {/* Comentarios existentes */}
-          {(publicacion.comentarios ?? []).map((c: any) => (
-            <div key={c.id} className={styles.comentario}>
-              <div className={styles.comentAvatar}>
-                {c.usuario?.username?.[0]?.toUpperCase()}
-              </div>
-              <div className={styles.comentCuerpo}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span className={styles.comentNombre}>{c.usuario?.nombreDisplay}</span>
-                  {c.usuario?.id === usuario?.id && (
-                    <button
-                      className={styles.deleteCommentBtn}
-                      onClick={async () => {
-                        if (!window.confirm('¿Eliminar comentario?')) return
-                        try {
-                          await api.delete(`/api/feed/publicacion/${publicacion.id}/comentarios/${c.id}`)
-                          onComentado?.()
-                        } catch (err) {
-                          console.error(err)
-                        }
-                      }}
-                      title="Eliminar comentario"
-                    >
-                      <span style={{ fontSize: '12px' }}>✖</span>
-                    </button>
-                  )}
-                </div>
-                <p className={styles.comentTexto}>{c.contenido}</p>
-              </div>
-            </div>
-          ))}
-
-          {/* Input nuevo comentario */}
-          {estaAutenticado && (
-            <div className={styles.comentInput}>
-              <textarea
-                className={styles.textarea}
-                placeholder="Escribe un comentario..."
-                value={comentario}
-                onChange={e => setComentario(e.target.value)}
-                rows={2}
-                maxLength={2000}
-              />
-              <button
-                className={styles.btnEnviar}
-                onClick={enviarComentario}
-                disabled={!comentario.trim() || enviando}
-              >
-                {enviando ? '...' : 'Comentar'}
-              </button>
+      {publicacion.tipo === 'encuesta' && renderOpcionesEncuesta()}
+      
+      {publicacion.tipo === 'resena' && publicacion.resena && (
+        <div className={styles.resenaBox}>
+          {publicacion.resena.anime && (
+            <div className={styles.resenaAnimeInfo}>
+              <img src={publicacion.resena.anime.imagenUrl} alt="" className={styles.resenaImg} />
+              <h4>{publicacion.resena.anime.titulo}</h4>
             </div>
           )}
+          <div className={styles.resenaEstrellas}>★ {publicacion.resena.calificacion} / 10</div>
         </div>
       )}
+
+      {/* Acciones y Comentarios integrados */}
+      <FeedItemInteractions 
+        tipo={publicacion.tipo === 'resena' ? 'resena' : 'publicacion'}
+        itemId={publicacion.id}
+        initialLikes={publicacion.totalLikes ?? 0}
+        initialCommentsCount={publicacion.totalComentarios ?? 0}
+        initialComments={publicacion.comentarios}
+        initialHasLiked={publicacion.hasLiked ?? false}
+        isOwner={publicacion.usuario?.id === usuario?.id || miRol === 'admin' || miRol === 'moderador'}
+        onDeleted={onEliminar || (() => {})}
+      />
     </article>
   )
 }

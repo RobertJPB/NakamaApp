@@ -6,12 +6,12 @@ import { Anime } from '../../domain/entities/Anime'
  * sin tocar los use cases — solo cambia la implementación en container.ts.
  */
 export interface IAnimeExternalService {
-  buscarAnimes(busqueda: string, pagina?: number): Promise<{
+  buscarAnimes(busqueda: string, pagina?: number, perPage?: number): Promise<{
     pageInfo?: { total: number; currentPage: number; lastPage: number }
     animes: Partial<Anime>[]
   }>
 
-  obtenerDetalle(anilistId: number): Promise<{
+  obtenerDetalle(externalId: string): Promise<{
     anime: Partial<Anime>
     generos?: string[]
     personajes: any[]

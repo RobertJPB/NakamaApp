@@ -42,7 +42,7 @@ export const ResenaCard: React.FC<ResenaCardProps> = ({ resena }) => {
             </a>
             {' '}<span className={styles.entradaAccion}>dejó una reseña de</span>{' '}
             {resena.anime && (
-              <a href={`/anime/${resena.anime.anilistId}`} className={styles.entradaAnime}>
+              <a href={`/anime/${resena.anime.externalId}`} className={styles.entradaAnime}>
                 {resena.anime.titulo}
               </a>
             )}
@@ -104,7 +104,7 @@ export const ResenaCard: React.FC<ResenaCardProps> = ({ resena }) => {
 
       <div className={styles.entradaMedia}>
         {resena.anime?.imagenUrl && (
-          <a href={`/anime/${resena.anime?.anilistId}`} className={styles.entradaThumb}>
+          <a href={`/anime/${resena.anime?.externalId}`} className={styles.entradaThumb}>
             <img src={resena.anime.imagenUrl} alt={resena.anime.titulo} />
           </a>
         )}

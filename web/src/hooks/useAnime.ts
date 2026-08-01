@@ -17,25 +17,40 @@ export function useAnimePopulares(pagina = 1) {
   return { animes, cargando, error }
 }
 
-export function useAnimeDetalle(anilistId: number | null) {
-  const [detalle,  setDetalle]  = useState<any | null>(null)
-  const [cargando, setCargando] = useState(false)
+export function useAnimeDetalle(externalId: string | null, initialData?: any) {
+  const [detalle,  setDetalle]  = useState<any | null>(
+    initialData ? { anime: initialData, personajes: [], generos: [], stats: {} } : null
+  )
+  const [cargando, setCargando] = useState(!initialData)
+  const [isFetching, setIsFetching] = useState(false)
   const [error,    setError]    = useState<string | null>(null)
 
   const fetchDetalle = () => {
-    if (!anilistId) return
-    setCargando(true)
-    api.get(`/api/animes/${anilistId}`)
+    if (!externalId) return
+    if (!initialData) setCargando(true)
+    setIsFetching(true)
+    
+    api.get(`/api/animes/${externalId}`)
       .then(({ data }) => setDetalle(data))
-      .catch(() => setError('No se pudo cargar el anime'))
-      .finally(() => setCargando(false))
+      .catch(() => {
+        if (!initialData) setError('No se pudo cargar el anime')
+      })
+      .finally(() => {
+        setCargando(false)
+        setIsFetching(false)
+      })
   }
 
   useEffect(() => {
     fetchDetalle()
-  }, [anilistId])
+  }, [externalId])
 
-  return { detalle, cargando, error, recargar: fetchDetalle }
+  return { detalle, cargando, isFetching, error, recargar: fetchDetalle }
+}
+
+export function prefetchAnimeDetalle(externalId: string) {
+  // Petición silenciosa para llenar la caché de axios antes de que el usuario haga clic
+  api.get(`/api/animes/${externalId}`).catch(() => {})
 }
 
 export function useBusqueda(query: string) {

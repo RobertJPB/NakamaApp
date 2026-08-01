@@ -172,13 +172,13 @@ const DetalleColeccion: React.FC<{ id: string }> = ({ id }) => {
                   <span className={`${styles.num} ${index < 3 ? styles.numTop : ''}`}>{index + 1}</span>
                 </div>
                 <AnimeCard
-                  anilistId={ca.anime?.anilistId}
+                  externalId={ca.anime?.externalId}
                   titulo={ca.anime?.titulo}
                   imagenUrl={ca.anime?.imagenUrl}
                   tipo={ca.anime?.tipo}
                   anio={ca.anime?.anio}
                   calificacion={Number(ca.anime?.calificacionPromedio)}
-                  onClick={() => window.location.href = `/anime/${ca.anime?.anilistId}`}
+                  onClick={() => window.location.href = `/anime/${ca.anime?.externalId}`}
                 />
                 {ca.nota && (
                   <p className={styles.animaNota}>"{ca.nota}"</p>

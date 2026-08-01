@@ -2,7 +2,7 @@ import React from 'react'
 import styles from './AnimeCard.module.css'
 
 interface AnimeCardProps {
-  anilistId:   number
+  externalId: string
   titulo:      string
   imagenUrl:   string
   tipo?:       string

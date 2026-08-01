@@ -1,5 +1,4 @@
 import { IListaRepository } from '../../../domain/repositories/IListaRepository'
-import { EstadoLista } from '../../../domain/value-objects/EstadoLista'
 
 export interface AgregarAListaDTO {
   usuarioId:       string

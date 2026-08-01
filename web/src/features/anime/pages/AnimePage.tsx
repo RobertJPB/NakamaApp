@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react'
-import { useParams }       from 'react-router-dom'
+import { useParams, useLocation, useNavigate } from 'react-router-dom'
 import { Layout }          from '../../../components/shared/Layout'
 import { useAnimeDetalle } from '../../../hooks/useAnime'
 import { useAuth }         from '../../../hooks/useAuth'
@@ -13,12 +13,16 @@ import { Eye, Heart, Clock, Star, Share2, Users, Edit3, ChevronLeft, ChevronRigh
 
 export const AnimePage: React.FC = () => {
   const { id }                    = useParams<{ id: string }>()
-  const { detalle, cargando, recargar } = useAnimeDetalle(Number(id))
+  const location                  = useLocation()
+  const navigate                  = useNavigate()
+  const { initialAnime }          = location.state || {}
+  const { detalle, cargando, isFetching, recargar } = useAnimeDetalle(Number(id), initialAnime)
   const { usuario, estaAutenticado } = useAuth()
   const { lista, toggleFavorito } = useBiblioteca(usuario?.id ?? null)
   const [showReviewForm, setShowReviewForm] = useState(false)
   const [loadingFav, setLoadingFav] = useState(false)
   const [isFavoritoLocal, setIsFavoritoLocal] = useState(false)
+  const [favError, setFavError] = useState('')
   const [showLeftScroll, setShowLeftScroll] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -45,12 +49,54 @@ export const AnimePage: React.FC = () => {
     if (entrada) setIsFavoritoLocal(!!entrada.esFavorito)
   }, [lista, id])
 
-  if (cargando) return <Layout><div className={styles.cargando}>Cargando...</div></Layout>
+  if (cargando) {
+    return (
+      <Layout>
+        <div className={styles.pageWrapper}>
+          {/* Skeleton Header/Banner */}
+          <div className={styles.bannerContainer} style={{ background: 'var(--color-surface-2)', animation: 'pulse 1.5s infinite' }} />
+          
+          <div className={styles.mainContent}>
+            {/* Sidebar Skeleton */}
+            <div className={styles.sidebar}>
+              <div className={styles.posterWrapper} style={{ background: 'var(--color-surface-2)', height: 350, animation: 'pulse 1.5s infinite' }} />
+              <div style={{ height: 40, background: 'var(--color-surface-2)', borderRadius: 8, marginTop: 16, animation: 'pulse 1.5s infinite' }} />
+              <div style={{ height: 40, background: 'var(--color-surface-2)', borderRadius: 8, marginTop: 8, animation: 'pulse 1.5s infinite' }} />
+            </div>
+
+            {/* Content Skeleton */}
+            <div className={styles.infoCol}>
+              <div style={{ height: 48, background: 'var(--color-surface-2)', borderRadius: 8, width: '70%', marginBottom: 16, animation: 'pulse 1.5s infinite' }} />
+              <div style={{ height: 24, background: 'var(--color-surface-2)', borderRadius: 4, width: '40%', marginBottom: 32, animation: 'pulse 1.5s infinite' }} />
+              
+              <div className={styles.statsContainer}>
+                {[1, 2, 3].map(i => (
+                  <div key={i} className={styles.statBox} style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+                    <div style={{ height: 20, width: 20, background: 'var(--color-surface-2)', borderRadius: '50%', marginBottom: 8, animation: 'pulse 1.5s infinite' }} />
+                    <div style={{ height: 16, width: 60, background: 'var(--color-surface-2)', borderRadius: 4, animation: 'pulse 1.5s infinite' }} />
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ height: 100, background: 'var(--color-surface-2)', borderRadius: 8, marginTop: 32, animation: 'pulse 1.5s infinite' }} />
+            </div>
+          </div>
+        </div>
+        <style>{`
+          @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 0.3; }
+            100% { opacity: 0.6; }
+          }
+        `}</style>
+      </Layout>
+    )
+  }
   if (!detalle) return <Layout><div className={styles.cargando}>Anime no encontrado</div></Layout>
 
   const { anime, personajes } = detalle
 
-  // Mostrar la calificación general (MyAnimeList)
+  // Mostrar la calificación general
   const promedioVisual = (!anime?.calificacionPromedio || Number(anime.calificacionPromedio) === 0) 
     ? '—' 
     : Number(anime.calificacionPromedio).toFixed(2)
@@ -95,39 +141,60 @@ export const AnimePage: React.FC = () => {
               </div>
 
               <div className={styles.leftActions}>
-                <BotonLista animeId={anime.id} />
-                <button className={styles.leftBtn}>
+                <BotonLista animeId={anime.id} onListaChange={recargar} />
+                <button className={styles.leftBtn} onClick={() => navigate('/comunidades')}>
                   <Users size={16} /> Ver Comunidades
                 </button>
-                <button 
-                  className={`${styles.leftBtn} ${isFavoritoLocal ? styles.favBtnActive : ''}`}
-                  onClick={async () => {
-                    if (!estaAutenticado) return alert('Debes iniciar sesión')
-                    if (loadingFav) return
-                    setLoadingFav(true)
-                    
-                    // Optimistic UI Update local
-                    setIsFavoritoLocal(!isFavoritoLocal)
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <button 
+                    className={`${styles.leftBtn} ${isFavoritoLocal ? styles.favBtnActive : ''}`}
+                    onClick={async () => {
+                      if (!estaAutenticado) {
+                        return navigate('/auth', { state: { message: 'Debes iniciar sesión para acceder a esta función' } })
+                      }
+                      
+                      const totalFavs = lista.filter((l: any) => l.esFavorito).length
+                      if (!isFavoritoLocal && totalFavs >= 5) {
+                        setFavError('Límite de 5 favoritos alcanzado.')
+                        setTimeout(() => setFavError(''), 3000)
+                        return
+                      }
 
-                    try {
-                      const nuevoEstado = await toggleFavorito(anime.id)
-                      setIsFavoritoLocal(nuevoEstado)
-                    } catch (err: any) {
-                      setIsFavoritoLocal(isFavoritoLocal) // rollback
-                      alert(err.response?.data?.error || 'Error al actualizar favoritos')
-                    } finally {
-                      setLoadingFav(false)
-                    }
-                  }}
-                  disabled={loadingFav}
-                >
-                  <Star size={16} fill={isFavoritoLocal ? "currentColor" : "none"} /> 
-                  {isFavoritoLocal ? 'Favorito' : 'Añadir Favorito'}
-                </button>
+                      if (loadingFav) return
+                      setLoadingFav(true)
+                      
+                      // Optimistic UI Update local
+                      setIsFavoritoLocal(!isFavoritoLocal)
+
+                      try {
+                        const nuevoEstado = await toggleFavorito(anime.id)
+                        setIsFavoritoLocal(nuevoEstado)
+                      } catch (err: any) {
+                        setIsFavoritoLocal(isFavoritoLocal) // rollback
+                        setFavError(err.response?.data?.error || 'Error al actualizar favoritos')
+                        setTimeout(() => setFavError(''), 3000)
+                      } finally {
+                        setLoadingFav(false)
+                      }
+                    }}
+                    disabled={loadingFav}
+                  >
+                    <Star size={16} fill={isFavoritoLocal ? "currentColor" : "none"} /> 
+                    {isFavoritoLocal ? 'Favorito' : 'Añadir Favorito'}
+                  </button>
+                  {favError && (
+                    <span style={{ color: 'var(--color-error)', fontSize: '12px', textAlign: 'center' }}>
+                      {favError}
+                    </span>
+                  )}
+                </div>
                 
                 <button 
                   className={`${styles.leftBtn} ${styles.reviewBtn}`}
                   onClick={() => {
+                    if (!estaAutenticado) {
+                      return navigate('/auth', { state: { message: 'Debes iniciar sesión para acceder a esta función' } })
+                    }
                     if (!showReviewForm) setShowReviewForm(true);
                     setTimeout(() => document.getElementById('reviewSection')?.scrollIntoView({ behavior: 'smooth' }), 100);
                   }}
@@ -138,7 +205,7 @@ export const AnimePage: React.FC = () => {
             </aside>
 
             {/* ── COLUMNA CENTRAL (Info Principal) ── */}
-            <main className={styles.mainCol}>
+            <main className={styles.mainCol} style={{ opacity: isFetching ? 0.5 : 1, transition: 'opacity 0.2s' }}>
               <header className={styles.header}>
                 <h1 className={styles.title}>{anime.titulo}</h1>
                 <div className={styles.subtitle}>
@@ -155,22 +222,42 @@ export const AnimePage: React.FC = () => {
                 </div>
               </header>
 
-              <div className={styles.synopsis}>
-                {anime.sinopsis ? (
+              <section className={styles.synopsis}>
+                {isFetching ? (
+                  <div style={{ opacity: 0.6 }}>
+                    <div style={{ height: 16, background: 'var(--color-surface-2)', borderRadius: 4, width: '100%', marginBottom: 8, animation: 'pulse 1.5s infinite' }} />
+                    <div style={{ height: 16, background: 'var(--color-surface-2)', borderRadius: 4, width: '90%', marginBottom: 8, animation: 'pulse 1.5s infinite' }} />
+                    <div style={{ height: 16, background: 'var(--color-surface-2)', borderRadius: 4, width: '95%', marginBottom: 8, animation: 'pulse 1.5s infinite' }} />
+                  </div>
+                ) : (
                   <div dangerouslySetInnerHTML={{ __html: (() => {
-                    let text = anime.sinopsis.replace(/<br\s*\/?>/gi, ' ').replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
-                    const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
-                    if (sentences.length <= 1) return `<p>${text}</p>`;
+                    let text = (anime.sinopsis || 'Sin sinopsis disponible.').trim();
+                    // Eliminar notas de fuente como "(Fuente: ...)" o "(Source: ...)"
+                    text = text.replace(/\(?(Fuente|Source):[^\)]+\)?/gi, '').trim();
+                    let paragraphs = text.split(/\n+/).map(p => p.trim()).filter(p => p.length > 0);
+                    
+                    if (paragraphs.length >= 2) {
+                      return `<p style="margin-bottom: 12px;">${paragraphs[0]}</p><p>${paragraphs.slice(1).join(' ')}</p>`;
+                    }
+                    
+                    // Si solo hay un párrafo pero contiene <br>, lo separamos por ahí
+                    if (text.toLowerCase().includes('<br')) {
+                      paragraphs = text.split(/<br\s*\/?>/gi).map(p => p.trim()).filter(p => p.length > 0);
+                      if (paragraphs.length >= 2) {
+                        return `<p style="margin-bottom: 12px;">${paragraphs[0]}</p><p>${paragraphs.slice(1).join(' ')}</p>`;
+                      }
+                    }
+
+                    // Si no hay saltos de línea explícitos, lo dividimos en 2 mitades para cumplir la regla
+                    const sentences = paragraphs[0].match(/[^.!?]+[.!?]+/g) || [paragraphs[0]];
+                    if (sentences.length <= 1) return `<p>${paragraphs[0]}</p><p></p>`; // Demasiado corto para dividir
                     const mid = Math.ceil(sentences.length / 2);
                     const p1 = sentences.slice(0, mid).join(' ').trim();
                     const p2 = sentences.slice(mid).join(' ').trim();
                     return `<p style="margin-bottom: 12px;">${p1}</p><p>${p2}</p>`;
                   })() }}></div>
-                ) : (
-                  <p>Sin sinopsis disponible.</p>
                 )}
-              </div>
-
+              </section>
 
               <div className={styles.infoRow}>
                 {/* DETAILS (Detalles Técnicos) */}
@@ -197,9 +284,18 @@ export const AnimePage: React.FC = () => {
                 <section className={styles.sectionNoBorder}>
                   <h3 className={styles.sectionTitle}>GÉNEROS</h3>
                   <div className={styles.genresList}>
-                    {anime.generos?.map((g: string) => (
-                      <a key={g} href={`/descubrir?genero=${g}`} className={styles.genreBadge}>{g}</a>
-                    ))}
+                    {isFetching && (!anime.generos || anime.generos.length === 0) ? (
+                      <>
+                        <span className={styles.genreBadge} style={{ background: 'var(--color-surface-2)', color: 'transparent', animation: 'pulse 1.5s infinite' }}>Cargando</span>
+                        <span className={styles.genreBadge} style={{ background: 'var(--color-surface-2)', color: 'transparent', animation: 'pulse 1.5s infinite' }}>Cargando</span>
+                      </>
+                    ) : (
+                      anime.generos?.slice(0, 8).map((g: string) => {
+                        const reverseMap: Record<string, string> = { "Acción": "Action", "Aventura": "Adventure", "Comedia": "Comedy", "Fantasía": "Fantasy", "Terror": "Horror", "Misterio": "Mystery", "Ciencia Ficción": "Sci-Fi", "Recuentos de la vida": "Slice of Life", "Deportes": "Sports", "Sobrenatural": "Supernatural", "Suspenso": "Thriller", "Psicológico": "Psychological", "Música": "Music", "Chicas Mágicas": "Mahou Shoujo" }
+                        const queryG = reverseMap[g] || g
+                        return <a key={g} href={`/descubrir?genero=${queryG}`} className={styles.genreBadge}>{g}</a>
+                      })
+                    )}
                   </div>
                 </section>
               </div>
@@ -208,7 +304,16 @@ export const AnimePage: React.FC = () => {
               <section className={styles.section}>
                 <h3 className={styles.sectionTitle}>PERSONAJES</h3>
                 <div className={styles.carouselContainer}>
-                  {personajes && personajes.length > 0 && (
+                  {isFetching && (!personajes || personajes.length === 0) ? (
+                    <div className={styles.castGrid}>
+                      {Array.from({ length: 8 }).map((_, i) => (
+                        <div key={i} className={styles.castItem}>
+                          <div className={styles.castImgWrapper} style={{ background: 'var(--color-surface-2)', animation: 'pulse 1.5s infinite' }} />
+                          <div style={{ height: 12, background: 'var(--color-surface-2)', width: '70%', margin: '8px auto 0', borderRadius: 4, animation: 'pulse 1.5s infinite' }} />
+                        </div>
+                      ))}
+                    </div>
+                  ) : personajes && personajes.length > 0 ? (
                     <>
                       {showLeftScroll && (
                         <button className={`${styles.scrollBtn} ${styles.scrollBtnLeft}`} onClick={scrollLeft}>
@@ -218,18 +323,20 @@ export const AnimePage: React.FC = () => {
                       <button className={`${styles.scrollBtn} ${styles.scrollBtnRight}`} onClick={scrollRight}>
                         <ChevronRight size={32} />
                       </button>
-                    </>
-                  )}
-                  <div className={styles.castGrid} ref={scrollRef} onScroll={handleScroll}>
-                  {(personajes ?? []).map((p: any) => (
-                    <div key={p.id} className={styles.castItem}>
-                      <div className={styles.castImgWrapper}>
-                        <img src={p.imagenUrl} alt={p.nombre} title={p.nombre} />
+                      <div className={styles.castGrid} ref={scrollRef} onScroll={handleScroll}>
+                        {(personajes ?? []).map((p: any) => (
+                          <div key={p.id} className={styles.castItem}>
+                            <div className={styles.castImgWrapper}>
+                              <img src={p.imagenUrl} alt={p.nombre} title={p.nombre} />
+                            </div>
+                            <span className={styles.castName}>{p.nombre.split(' ')[0]}</span>
+                          </div>
+                        ))}
                       </div>
-                      <span className={styles.castName}>{p.nombre.split(' ')[0]}</span>
-                    </div>
-                  ))}
-                  </div>
+                    </>
+                  ) : (
+                    <p style={{ color: 'var(--color-text-dim)', fontSize: 14 }}>No hay personajes registrados.</p>
+                  )}
                 </div>
               </section>
             </main>

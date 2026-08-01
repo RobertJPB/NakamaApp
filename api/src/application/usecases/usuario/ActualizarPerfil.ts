@@ -23,6 +23,13 @@ export class ActualizarPerfil implements IUseCase<ActualizarPerfilDTO, any> {
     const usuario = await this.usuarioRepo.findById(input.usuarioId)
     if (!usuario) throw new AppError('Usuario no encontrado', 404)
 
+    if (input.username && input.username !== usuario.username) {
+      const existing = await this.usuarioRepo.findByUsername(input.username);
+      if (existing) {
+        throw new AppError('El username ya está en uso', 400);
+      }
+    }
+
     const { usuarioId, ...campos } = input
     return this.usuarioRepo.update(usuarioId, campos)
   }

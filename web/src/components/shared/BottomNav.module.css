@@ -1,0 +1,59 @@
+.bottomNav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 65px;
+  background: rgba(10, 10, 10, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  z-index: 1000;
+  justify-content: space-around;
+  align-items: center;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.navItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #a4b0be;
+  text-decoration: none;
+  gap: 4px;
+  flex: 1;
+  height: 100%;
+  transition: color 0.2s ease;
+}
+
+.iconContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.label {
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.navItem:hover {
+  color: #ffffff;
+}
+
+.navItem.active {
+  color: #ffc107;
+}
+
+.navItem.active .iconContainer {
+  transform: scale(1.1);
+}
+
+@media (max-width: 768px) {
+  .bottomNav {
+    display: flex;
+  }
+}

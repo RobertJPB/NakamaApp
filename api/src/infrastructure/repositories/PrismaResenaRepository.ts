@@ -87,29 +87,51 @@ export class PrismaResenaRepository implements IResenaRepository {
       await prisma.reaccionResena.delete({
         where: { usuarioId_resenaId: { usuarioId, resenaId } },
       })
+      await prisma.resena.update({ where: { id: resenaId }, data: { totalLikes: { decrement: 1 } } })
       return { accion: 'unliked' as const }
     }
 
     await prisma.reaccionResena.create({ data: { usuarioId, resenaId } })
+    const resena = await prisma.resena.update({ where: { id: resenaId }, data: { totalLikes: { increment: 1 } } })
+    
+    if (resena.usuarioId !== usuarioId) {
+      await prisma.notificacion.create({
+        data: {
+          usuarioId: resena.usuarioId,
+          tipo: 'like_resena',
+          actorId: usuarioId,
+          referenciaId: resena.id,
+          mensaje: 'Le dio me gusta a tu reseña.'
+        }
+      })
+    }
+
     return { accion: 'liked' as const }
   }
 
   async findFeedByUsuario(usuarioId: string, page: number, limit: number): Promise<any[]> {
-    const seguidos = await prisma.seguidor.findMany({
-      where: { seguidorId: usuarioId },
-      select: { seguidoId: true }
-    });
+    // 1. Ejecutar las dos primeras consultas en paralelo para ahorrar latencia de red
+    const [seguidos, misMembresias] = await Promise.all([
+      prisma.seguidor.findMany({
+        where: { seguidorId: usuarioId },
+        select: { seguidoId: true }
+      }),
+      prisma.miembro.findMany({
+        where: { usuarioId },
+        select: { comunidadId: true }
+      })
+    ]);
     
-    const misMembresias = await prisma.miembro.findMany({
-      where: { usuarioId },
-      select: { comunidadId: true }
-    });
     const comunidadIds = misMembresias.map(m => m.comunidadId);
     
-    const miembrosComunidad = await prisma.miembro.findMany({
-      where: { comunidadId: { in: comunidadIds } },
-      select: { usuarioId: true }
-    });
+    // 2. Ejecutar la tercera consulta si hay comunidades
+    let miembrosComunidad: { usuarioId: string }[] = [];
+    if (comunidadIds.length > 0) {
+      miembrosComunidad = await prisma.miembro.findMany({
+        where: { comunidadId: { in: comunidadIds } },
+        select: { usuarioId: true }
+      });
+    }
 
     const usuariosIds = [
       usuarioId,
@@ -124,17 +146,36 @@ export class PrismaResenaRepository implements IResenaRepository {
         usuarioId: { in: uniqueIds },
         esPublica: true
       },
-      skip: (page - 1) * limit,
-      take: limit,
+      take: page * limit,
       orderBy: { creadoEn: 'desc' },
       include: {
         usuario: { select: { username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true } },
-        anime: { select: { titulo: true, anilistId: true, imagenUrl: true } },
+        anime: { select: { titulo: true, externalId: true, imagenUrl: true } },
         reacciones: { where: { usuarioId } }
       }
     });
 
-    return resenas.map(r => ({
+    const publicaciones = await prisma.publicacion.findMany({
+      where: {
+        OR: [
+          // Posts personales (sin comunidad) de usuarios seguidos o del propio usuario
+          { comunidadId: null, usuarioId: { in: uniqueIds }, soloAmigos: false },
+          // Posts de comunidades a las que el usuario está unido
+          ...(comunidadIds.length > 0 ? [{ comunidadId: { in: comunidadIds } }] : [])
+        ]
+      },
+      take: page * limit,
+      orderBy: { creadoEn: 'desc' },
+      include: {
+        usuario: { select: { username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true } },
+        comunidad: { select: { id: true, nombre: true, imagenUrl: true } },
+        opciones: { include: { votosUsuarios: { where: { usuarioId } } } },
+        reacciones: { where: { usuarioId } },
+        resena: { include: { anime: { select: { titulo: true, externalId: true, imagenUrl: true } } } }
+      }
+    });
+
+    const mappedResenas = resenas.map(r => ({
       id: r.id,
       tipo: 'resena',
       actorUsername: r.usuario.username,
@@ -142,16 +183,58 @@ export class PrismaResenaRepository implements IResenaRepository {
       actorAvatar: r.usuario.avatarUrl,
       actorMarco: r.usuario.marcoUrl,
       animeTitulo: r.anime.titulo,
-      animeAnilistId: r.anime.anilistId,
+      externalId: r.anime.externalId,
       animeImagen: r.anime.imagenUrl,
       calificacion: r.calificacion,
       contenido: r.contenido,
       etiquetas: r.etiquetas,
       fechaVisto: r.fechaVisto ? r.fechaVisto.toISOString() : null,
       creadoEn: r.creadoEn.toISOString(),
+      timestamp: r.creadoEn.getTime(),
       totalLikes: r.totalLikes,
       totalComentarios: r.totalComentarios,
       hasLiked: r.reacciones.length > 0
     }));
+
+    const mappedPublicaciones = publicaciones.map(p => ({
+      id: p.id,
+      tipo: p.tipo, // 'texto' | 'encuesta' | 'resena'
+      actorUsername: p.usuario.username,
+      actorNombre: p.usuario.nombreDisplay,
+      actorAvatar: p.usuario.avatarUrl,
+      actorMarco: p.usuario.marcoUrl,
+      comunidadId: p.comunidadId,
+      comunidadNombre: p.comunidad?.nombre,
+      comunidadImagen: p.comunidad?.imagenUrl,
+      titulo: p.titulo,
+      contenido: p.contenido,
+      imagenUrl: p.imagenUrl,
+      resena: p.resena ? {
+        id: p.resena.id,
+        animeTitulo: p.resena.anime.titulo,
+        externalId: p.resena.anime.externalId,
+        animeImagen: p.resena.anime.imagenUrl,
+        calificacion: p.resena.calificacion
+      } : null,
+      opciones: p.opciones?.map(opt => ({
+        id: opt.id,
+        texto: opt.texto,
+        votos: opt.votos,
+        hasVoted: opt.votosUsuarios.length > 0
+      })) || [],
+      creadoEn: p.creadoEn.toISOString(),
+      timestamp: p.creadoEn.getTime(),
+      totalLikes: p.totalLikes,
+      totalComentarios: p.totalComentarios,
+      hasLiked: p.reacciones.length > 0
+    }));
+
+    const feed = [...mappedResenas, ...mappedPublicaciones]
+      .sort((a, b) => b.timestamp - a.timestamp)
+      .slice((page - 1) * limit, page * limit)
+      .map(({ timestamp, ...rest }) => rest);
+
+    return feed;
   }
 }
+

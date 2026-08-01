@@ -160,6 +160,32 @@
   border: 1px solid rgba(255,255,255,0.1);
 }
 
+.spoilerBtn {
+  width: 100%;
+  margin-top: 12px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #747d8c;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.spoilerBtn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+.spoilerActivo {
+  background: rgba(255, 193, 7, 0.1);
+  border-color: #ffc107;
+  color: #ffc107 !important;
+}
+.spoilerActivo:hover {
+  background: rgba(255, 193, 7, 0.2);
+}
+
 .formCol {
   flex: 1;
   display: flex;

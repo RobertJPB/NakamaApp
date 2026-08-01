@@ -1,5 +1,5 @@
 export interface AnimeResumen {
-  anilistId:   number
+  externalId: string
   titulo:      string
   imagenUrl?:  string
   tipo?:       string

@@ -7,29 +7,44 @@ import { useBusqueda } from '../../../hooks/useAnime'
 interface ReviewModalProps {
   animeIdInicial?: string
   animeInicial?: any
+  resenaToEdit?: any
   onClose: () => void
   onSaved: (resena: any) => void
 }
 
-export const ReviewModal: React.FC<ReviewModalProps> = ({ animeIdInicial, animeInicial, onClose, onSaved }) => {
-  const [tab, setTab] = useState<'resena' | 'comentario'>('resena')
-  const [paso, setPaso] = useState<'search' | 'compose'>(animeIdInicial ? 'compose' : 'search')
+export const ReviewModal: React.FC<ReviewModalProps> = ({ animeIdInicial, animeInicial, resenaToEdit, onClose, onSaved }) => {
+  const [tab, setTab] = useState<'resena' | 'comentario' | 'encuesta'>('resena')
+  const [paso, setPaso] = useState<'search' | 'compose'>((animeIdInicial || resenaToEdit) ? 'compose' : 'search')
   
   // Search State
   const [query, setQuery] = useState('')
   const { resultados, cargando } = useBusqueda(query)
   
   // Compose Reseña State
-  const [selectedAnime, setSelectedAnime] = useState<any>(animeInicial)
-  const [calificacion, setCalificacion] = useState(0)
+  const [selectedAnime, setSelectedAnime] = useState<any>(
+    animeInicial || 
+    resenaToEdit?.anime || 
+    resenaToEdit?.referencia || 
+    (resenaToEdit?.animeTitulo ? {
+      titulo: resenaToEdit.animeTitulo,
+      externalId: resenaToEdit.externalId,
+      imagenUrl: resenaToEdit.animeImagen
+    } : null)
+  )
+  const [calificacion, setCalificacion] = useState(resenaToEdit?.calificacion || 0)
   const [hover, setHover] = useState(0)
-  const [contenido, setContenido] = useState('')
-  const [fechaVisto, setFechaVisto] = useState('')
-  const [tagsInput, setTagsInput] = useState('')
+  const [contenido, setContenido] = useState(resenaToEdit?.contenido || '')
+  const [fechaVisto, setFechaVisto] = useState(resenaToEdit?.fechaVisto ? resenaToEdit.fechaVisto.split('T')[0] : '')
+  const [tagsInput, setTagsInput] = useState(resenaToEdit?.etiquetas ? resenaToEdit.etiquetas.join(', ') : '')
+  const [contieneSpoiler, setContieneSpoiler] = useState(resenaToEdit?.contieneSpoiler || false)
   
   // Comentario State
   const [tema, setTema] = useState('')
   const [soloAmigos, setSoloAmigos] = useState(false)
+
+  // Encuesta State
+  const [pregunta, setPregunta] = useState('')
+  const [opciones, setOpciones] = useState(['', ''])
 
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState('')
@@ -45,15 +60,27 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ animeIdInicial, animeI
     setEnviando(true); setError('')
     try {
       const etiquetas = tagsInput.split(',').map(t => t.trim()).filter(Boolean)
-      const res = await api.post('/api/resenas', { 
-        animeId: selectedAnime?.anilistId || selectedAnime?.id, 
-        calificacion, 
-        contenido, 
-        contieneSpoiler: false, 
-        esPublica: true,
-        fechaVisto: fechaVisto ? new Date(fechaVisto).toISOString() : undefined,
-        etiquetas
-      })
+      
+      let res;
+      if (resenaToEdit) {
+        res = await api.put(`/api/resenas/${resenaToEdit.id}`, {
+          calificacion, 
+          contenido, 
+          contieneSpoiler,
+          fechaVisto: fechaVisto ? new Date(fechaVisto).toISOString() : undefined,
+          etiquetas
+        })
+      } else {
+        res = await api.post('/api/resenas', { 
+          animeId: selectedAnime?.externalId || selectedAnime?.id, 
+          calificacion, 
+          contenido, 
+          contieneSpoiler, 
+          esPublica: true,
+          fechaVisto: fechaVisto ? new Date(fechaVisto).toISOString() : undefined,
+          etiquetas
+        })
+      }
       onSaved({ ...res.data, anime: selectedAnime, esResena: true })
     } catch (e: any) {
       setError(e.response?.data?.error ?? 'Error al enviar la reseña')
@@ -75,6 +102,25 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ animeIdInicial, animeI
     } finally { setEnviando(false) }
   }
 
+  const enviarEncuesta = async () => {
+    const opcionesFiltradas = opciones.filter(o => o.trim())
+    if (!pregunta.trim()) { setError('Escribe una pregunta'); return }
+    if (opcionesFiltradas.length < 2) { setError('Agrega al menos 2 opciones'); return }
+    setEnviando(true); setError('')
+    try {
+      const res = await api.post('/api/feed/post', {
+        contenido: pregunta,
+        tipo: 'encuesta',
+        opciones: opcionesFiltradas
+      })
+      onSaved({ ...res.data, esResena: false })
+      setPregunta('')
+      setOpciones(['', ''])
+    } catch (e: any) {
+      setError(e.response?.data?.error ?? 'Error al publicar la encuesta')
+    } finally { setEnviando(false) }
+  }
+
   const displayVal = hover || calificacion
 
   return (
@@ -82,21 +128,33 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ animeIdInicial, animeI
       <div className={styles.modal}>
         <div className={styles.header}>
           <div className={styles.tabs}>
-            <button 
-              className={`${styles.tabBtn} ${tab === 'resena' ? styles.tabActivo : ''}`}
-              onClick={() => { 
-                setTab('resena'); 
-                if (!selectedAnime) setPaso('search');
-              }}
-            >
-              Reseña
-            </button>
-            <button 
-              className={`${styles.tabBtn} ${tab === 'comentario' ? styles.tabActivo : ''}`}
-              onClick={() => { setTab('comentario'); setPaso('compose'); setError('') }}
-            >
-              Publicación
-            </button>
+            {resenaToEdit ? (
+              <span className={styles.tabActivo} style={{ fontWeight: 'bold' }}>Editar Reseña</span>
+            ) : (
+              <>
+                <button 
+                  className={`${styles.tabBtn} ${tab === 'resena' ? styles.tabActivo : ''}`}
+                  onClick={() => { 
+                    setTab('resena'); 
+                    if (!selectedAnime) setPaso('search');
+                  }}
+                >
+                  Reseña
+                </button>
+                <button 
+                  className={`${styles.tabBtn} ${tab === 'comentario' ? styles.tabActivo : ''}`}
+                  onClick={() => { setTab('comentario'); setPaso('compose'); setError('') }}
+                >
+                  Publicación
+                </button>
+                <button 
+                  className={`${styles.tabBtn} ${tab === 'encuesta' ? styles.tabActivo : ''}`}
+                  onClick={() => { setTab('encuesta'); setError('') }}
+                >
+                  Encuesta
+                </button>
+              </>
+            )}
           </div>
           <button onClick={onClose} className={styles.closeBtn}><X size={20} /></button>
         </div>
@@ -120,7 +178,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ animeIdInicial, animeI
                 {cargando && <p className={styles.cargando}>Buscando...</p>}
                 <div className={styles.searchResults}>
                   {resultados.map(anime => (
-                    <div key={anime.id || anime.anilistId} className={styles.searchResultItem} onClick={() => handleSelectAnime(anime)}>
+                    <div key={anime.id || anime.externalId} className={styles.searchResultItem} onClick={() => handleSelectAnime(anime)}>
                       <span className={styles.resultTitle}>{anime.titulo}</span>
                       <span className={styles.resultYear}>{anime.anio}</span>
                     </div>
@@ -134,6 +192,17 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ animeIdInicial, animeI
                 <div className={styles.composeLayout}>
                   <div className={styles.posterCol}>
                     <img src={selectedAnime.imagenUrl || selectedAnime.imagen} alt="Poster" className={styles.poster} />
+                    <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-start' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: '#cdd', fontSize: '13px', fontWeight: 500 }}>
+                        <input 
+                          type="checkbox" 
+                          checked={contieneSpoiler} 
+                          onChange={(e) => setContieneSpoiler(e.target.checked)} 
+                          style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                        />
+                        ¿Contiene spoilers?
+                      </label>
+                    </div>
                   </div>
                   <div className={styles.formCol}>
                     <div className={styles.animeTitleBlock}>
@@ -250,6 +319,66 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ animeIdInicial, animeI
             <div className={styles.footer}>
               <button className={styles.saveBtn} onClick={enviarComentario} disabled={enviando}>
                 {enviando ? 'Publicando...' : 'Publicar'}
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* CONTENIDO ENCUESTA */}
+        {tab === 'encuesta' && (
+          <>
+            <div className={styles.composeBody}>
+              <div className={styles.formColFull}>
+                <div className={styles.inputGroup}>
+                  <label>Pregunta</label>
+                  <input
+                    type="text"
+                    autoFocus
+                    placeholder="¿Cuál es tu personaje favorito de Chainsaw Man?"
+                    className={styles.temaInput}
+                    value={pregunta}
+                    onChange={e => setPregunta(e.target.value)}
+                  />
+                </div>
+
+                <div className={styles.inputGroup} style={{ marginTop: 16 }}>
+                  <label>Opciones</label>
+                  {opciones.map((op, i) => (
+                    <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center' }}>
+                      <input
+                        type="text"
+                        placeholder={`Opción ${i + 1}`}
+                        className={styles.temaInput}
+                        value={op}
+                        onChange={e => {
+                          const next = [...opciones]
+                          next[i] = e.target.value
+                          setOpciones(next)
+                        }}
+                      />
+                      {opciones.length > 2 && (
+                        <button
+                          className={styles.changeAnimeBtn}
+                          onClick={() => setOpciones(opciones.filter((_, idx) => idx !== i))}
+                        >✕</button>
+                      )}
+                    </div>
+                  ))}
+                  {opciones.length < 4 && (
+                    <button
+                      className={styles.changeAnimeBtn}
+                      style={{ marginTop: 4 }}
+                      onClick={() => setOpciones([...opciones, ''])}
+                    >Agregar opción</button>
+                  )}
+                </div>
+
+                {error && <p className={styles.error}>{error}</p>}
+              </div>
+            </div>
+            <div className={styles.footer}>
+              <button className={styles.saveBtn} onClick={enviarEncuesta} disabled={enviando}>
+                {enviando ? 'Publicando...' : 'Publicar Encuesta'}
               </button>
             </div>
           </>

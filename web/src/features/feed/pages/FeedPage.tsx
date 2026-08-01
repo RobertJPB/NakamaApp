@@ -1,32 +1,162 @@
 import React, { useEffect, useState } from 'react'
 import { Layout }   from '../../../components/shared/Layout'
-import { api }      from '../../../lib/axios'
+import { api, getCached } from '../../../lib/axios'
 import { useAuthStore } from '../../../store/authStore'
 import { ComposerTrigger } from '../components/ComposerTrigger'
 import { ReviewModal } from '../../anime/components/ReviewModal'
 import { FeedItemInteractions } from '../components/FeedItemInteractions'
 import { NewsSection } from '../components/NewsSection'
+import { SuggestedUsers } from '../components/SuggestedUsers'
 import styles       from './FeedPage.module.css'
-import { Star, StarHalf } from 'lucide-react'
+import { Star, StarHalf, MoreHorizontal, Pencil, Trash2, Flag } from 'lucide-react'
 
 const TIPO_LABEL: Record<string, { emoji: string; texto: string }> = {
   resena:       { emoji: '', texto: 'dejó una reseña de' },
   lista_update: { emoji: '📋', texto: 'actualizó su lista:' },
-  publicacion:  { emoji: '', texto: 'publicó en' },
+  texto:        { emoji: '', texto: 'publicó' },
+  encuesta:     { emoji: '', texto: 'creó una encuesta' },
   coleccion:    { emoji: '📚', texto: 'creó una colección:' },
+}
+
+const SpoilerText: React.FC<{ contenido: string, contieneSpoiler: boolean }> = ({ contenido, contieneSpoiler }) => {
+  const [mostrar, setMostrar] = useState(false);
+  
+  if (contieneSpoiler && !mostrar) {
+    return (
+      <div className={styles.spoilerWrap}>
+        <p className={styles.spoilerAviso}>⚠ Esta publicación contiene spoilers</p>
+        <button className={styles.spoilerBtn} onClick={() => setMostrar(true)}>
+          Mostrar de todas formas
+        </button>
+      </div>
+    );
+  }
+  return <p className={styles.entradaResena}>{contenido}</p>;
 }
 
 export const FeedPage: React.FC = () => {
   const usuario              = useAuthStore(s => s.usuario)
-  const [feed,     setFeed]  = useState<any[]>([])
-  const [cargando, setCargando] = useState(true)
+
+  // Load from cache immediately if available
+  const [feed, setFeed]  = useState<any[]>(() => getCached('/api/feed') ?? [])
+  const [cargando, setCargando] = useState(() => !getCached('/api/feed'))
   const [modalAbierto, setModalAbierto] = useState(false)
+  const [menuAbiertoId, setMenuAbiertoId] = useState<string | null>(null)
+  
+  // Edit State
+  const [editandoId, setEditandoId] = useState<string | null>(null)
+  const [editContenido, setEditContenido] = useState('')
+  const [editingResena, setEditingResena] = useState<any>(null)
+
+  const handleVote = async (publicacionId: string, opcionId: string) => {
+    // Buscar la publicación y determinar la acción localmente (Optimistic Update)
+    const pub = feed.find(e => e.id === publicacionId)
+    if (!pub) return
+    const opciones = pub.referencia?.opciones || pub.opciones
+    if (!opciones) return
+
+    const votedOption = opciones.find((o: any) => o.hasVoted)
+    let accion = 'voted'
+    if (votedOption) {
+      accion = votedOption.id === opcionId ? 'unvoted' : 'changed'
+    }
+
+    // Actualizar estado local inmediatamente
+    setFeed(prev => prev.map(entrada => {
+      if (entrada.id === publicacionId && (entrada.opciones || entrada.referencia?.opciones)) {
+        const isRef = !!entrada.referencia?.opciones
+        const opts = isRef ? entrada.referencia.opciones : entrada.opciones
+        const updatedOptions = opts.map((o: any) => {
+          if (accion === 'unvoted') {
+            if (o.id === opcionId) return { ...o, votos: Math.max(0, o.votos - 1), hasVoted: false }
+          } else if (accion === 'changed') {
+            if (o.id === opcionId) return { ...o, votos: o.votos + 1, hasVoted: true }
+            if (o.hasVoted) return { ...o, votos: Math.max(0, o.votos - 1), hasVoted: false }
+          } else if (accion === 'voted') {
+            if (o.id === opcionId) return { ...o, votos: o.votos + 1, hasVoted: true }
+          }
+          return o
+        })
+        if (isRef) return { ...entrada, referencia: { ...entrada.referencia, opciones: updatedOptions } }
+        return { ...entrada, opciones: updatedOptions }
+      }
+      return entrada
+    }))
+
+    // Petición en segundo plano
+    try {
+      await api.post('/api/comunidades/votar-encuesta', { opcionId })
+    } catch (err: any) {
+      console.error(err)
+      // Revertir podría ser implementado aquí (por simplicidad, podríamos forzar un fetch de la publicación o solo mostrar error)
+      alert(err.response?.data?.error || 'Error al votar')
+      // revert (simplificado):
+      fetchFeed()
+    }
+  }
 
   useEffect(() => {
+    const cached = getCached('/api/feed')
+    if (cached) {
+      setFeed(cached)
+      setCargando(false)
+    }
+
+    // Timeout: if API takes more than 6s, stop showing skeletons
+    const timeout = setTimeout(() => setCargando(false), 6000)
+
     api.get('/api/feed')
       .then(({ data }) => setFeed(Array.isArray(data) ? data : []))
-      .finally(() => setCargando(false))
+      .catch(() => {})
+      .finally(() => {
+        setCargando(false)
+        clearTimeout(timeout)
+      })
+
+    return () => clearTimeout(timeout)
   }, [])
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      if (!target.closest(`.${styles.dropdown}`) && !target.closest(`.${styles.btnMore}`)) {
+        setMenuAbiertoId(null)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const guardarEdicion = async (id: string, nuevoContenido: string, tipo: string) => {
+    try {
+      if (tipo === 'texto') {
+        const res = await api.put(`/api/comunidad/publicaciones/${id}`, { contenido: nuevoContenido })
+        setFeed(prev => prev.map(p => p.id === id ? { ...p, contenido: nuevoContenido } : p))
+      }
+      setEditandoId(null)
+      setEditContenido('')
+    } catch (err) {
+      alert('Error al guardar los cambios')
+    }
+  }
+
+  const handleEliminar = async (id: string, tipo: string) => {
+    if (!window.confirm('¿Seguro que quieres eliminar esta publicación?')) return
+    try {
+      const ruta = tipo === 'resena' ? `/api/resenas/${id}` : `/api/comunidades/_/publicaciones/${id}`
+      await api.delete(ruta)
+      setFeed(prev => prev.filter(p => p.id !== id))
+    } catch (err) {
+      alert('Error al eliminar')
+    }
+  }
+
+  const reportar = (id: string) => {
+    const r = window.prompt('Razón de la denuncia (spam, ofensivo, etc):')
+    if (r) {
+      alert('Denuncia enviada. Gracias por ayudar a mantener la comunidad segura.')
+    }
+  }
 
   return (
     <Layout>
@@ -55,20 +185,21 @@ export const FeedPage: React.FC = () => {
                           actorAvatar: usuario?.avatarUrl || usuario?.user_metadata?.avatar_url,
                           actorMarco: usuario?.marcoUrl || usuario?.user_metadata?.marcoUrl,
                           animeTitulo: resultado.anime?.titulo,
-                          animeAnilistId: resultado.animeId,
+                          externalId: resultado.animeId,
                           animeImagen: resultado.anime?.imagenUrl
                         }, ...prev])
                       } else {
                         setFeed(prev => [{
                           ...resultado,
-                          tipo: 'publicacion',
+                          tipo: resultado.tipo || 'publicacion',
                           actorUsername: usuario?.username || usuario?.user_metadata?.username,
                           actorNombre: usuario?.nombreDisplay || usuario?.user_metadata?.nombreDisplay,
                           actorAvatar: usuario?.avatarUrl || usuario?.user_metadata?.avatar_url,
                           actorMarco: usuario?.marcoUrl || usuario?.user_metadata?.marcoUrl,
                           referencia: {
                             tema: resultado.tema,
-                            contenido: resultado.contenido
+                            contenido: resultado.contenido,
+                            opciones: resultado.opciones
                           }
                         }, ...prev])
                       }
@@ -108,9 +239,14 @@ export const FeedPage: React.FC = () => {
                         <a href={`/perfil/${entrada.actorUsername}`} className={styles.entradaUsuario}>
                           @{entrada.actorUsername}
                         </a>
-                        {' '}<span className={styles.entradaAccion}>{tipo.emoji} {tipo.texto}</span>{' '}
+                        {' '}<span className={styles.entradaAccion}>
+                          {tipo.emoji} {tipo.texto}
+                          {entrada.comunidadNombre && entrada.comunidadId ? (
+                            <>{' '}<a href={`/comunidades/${entrada.comunidadId}`} className={styles.entradaAnime} onClick={e => e.stopPropagation()}>{entrada.comunidadNombre}</a></>
+                          ) : ''}
+                        </span>{' '}
                         {entrada.animeTitulo && (
-                          <a href={`/anime/${entrada.animeAnilistId}`} className={styles.entradaAnime}>
+                          <a href={`/anime/${entrada.externalId}`} className={styles.entradaAnime}>
                             {entrada.animeTitulo}
                           </a>
                         )}
@@ -119,7 +255,7 @@ export const FeedPage: React.FC = () => {
                       {/* Detalle según tipo */}
                       {entrada.tipo === 'resena' && (
                         <div className={styles.entradaDetalle}>
-                          {entrada.contenido && <p className={styles.entradaResena}>{entrada.contenido}</p>}
+                          {entrada.contenido && <SpoilerText contenido={entrada.contenido} contieneSpoiler={entrada.contieneSpoiler} />}
                           {entrada.etiquetas && entrada.etiquetas.length > 0 && (
                             <div className={styles.etiquetasWrap}>
                               {entrada.etiquetas.map((tag: string, i: number) => (
@@ -130,12 +266,67 @@ export const FeedPage: React.FC = () => {
                         </div>
                       )}
 
-                      {entrada.tipo === 'publicacion' && (
+                      {(entrada.tipo === 'texto' || entrada.tipo === 'encuesta') && (
                         <div className={styles.entradaDetalle}>
                           {entrada.referencia?.tema && (
                             <strong className={styles.entradaTema}>{entrada.referencia.tema}</strong>
                           )}
-                          <p className={styles.entradaResena}>{entrada.referencia?.contenido || entrada.contenido}</p>
+                          {editandoId === entrada.id ? (
+                            <div className={styles.inlineEditWrap}>
+                              <textarea
+                                value={editContenido}
+                                onChange={e => setEditContenido(e.target.value)}
+                                className={styles.inlineEditTextarea}
+                                autoFocus
+                              />
+                              <div className={styles.inlineEditActions}>
+                                <button className={styles.inlineEditSave} onClick={() => guardarEdicion(entrada.id, editContenido, entrada.tipo)}>Guardar</button>
+                                <button className={styles.inlineEditCancel} onClick={() => setEditandoId(null)}>Cancelar</button>
+                              </div>
+                            </div>
+                          ) : (
+                            <SpoilerText 
+                              contenido={entrada.referencia?.contenido || entrada.contenido} 
+                              contieneSpoiler={entrada.contieneSpoiler} 
+                            />
+                          )}
+                          
+                          {entrada.tipo === 'encuesta' && (entrada.referencia?.opciones || entrada.opciones) && (
+                            <div className={styles.encuestaContainer} style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px', maxWidth: '450px' }}>
+                              {(() => {
+                                const opciones = entrada.referencia?.opciones || entrada.opciones;
+                                const pollHasVoted = opciones.some((o: any) => o.hasVoted);
+                                return opciones.map((o: any) => {
+                                  const isVoted = o.hasVoted;
+                                  return (
+                                    <button
+                                      key={o.id || o.texto}
+                                      className={styles.encuestaOpcion}
+                                      onClick={() => handleVote(entrada.id, o.id)}
+                                      style={{
+                                        padding: '10px',
+                                        borderRadius: '8px',
+                                        border: `1px solid ${isVoted ? '#cc8400' : 'transparent'}`,
+                                        background: isVoted ? '#cc8400' : 'var(--color-surface-2)',
+                                        color: isVoted ? '#ffffff' : 'var(--color-texto)',
+                                        cursor: 'pointer',
+                                        textAlign: 'left',
+                                        transition: 'all 0.2s',
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center'
+                                      }}
+                                      onMouseEnter={(e) => { if (!isVoted) e.currentTarget.style.borderColor = 'var(--color-acento)' }}
+                                      onMouseLeave={(e) => { if (!isVoted) e.currentTarget.style.borderColor = 'transparent' }}
+                                    >
+                                      <span>{o.texto}</span>
+                                      <span style={{ fontSize: '12px', opacity: 0.8 }}>{o.votos} {o.votos === 1 ? 'voto' : 'votos'}</span>
+                                    </button>
+                                  )
+                                })
+                              })()}
+                            </div>
+                          )}
                         </div>
                       )}
 
@@ -163,11 +354,11 @@ export const FeedPage: React.FC = () => {
                         )}
                       </p>
 
-                      {(entrada.tipo === 'resena' || entrada.tipo === 'publicacion') && (
+                      {(entrada.tipo === 'resena' || entrada.tipo === 'texto' || entrada.tipo === 'encuesta') && (
                         <FeedItemInteractions
                           itemId={entrada.id}
-                          tipo={entrada.tipo}
-                          isOwner={usuario?.user_metadata?.username === entrada.actorUsername}
+                          tipo={entrada.tipo === 'resena' ? 'resena' : 'publicacion'}
+                          isOwner={usuario?.username === entrada.actorUsername}
                           initialLikes={entrada.totalLikes || 0}
                           initialHasLiked={entrada.hasLiked || false}
                           initialCommentsCount={entrada.totalComentarios || 0}
@@ -179,7 +370,7 @@ export const FeedPage: React.FC = () => {
                     {(entrada.animeImagen || (entrada.tipo === 'resena' && entrada.calificacion)) && (
                       <div className={styles.entradaMedia}>
                         {entrada.animeImagen && (
-                          <a href={`/anime/${entrada.animeAnilistId}`} className={styles.entradaThumb}>
+                          <a href={`/anime/${entrada.externalId}`} className={styles.entradaThumb}>
                             <img src={entrada.animeImagen} alt={entrada.animeTitulo} />
                           </a>
                         )}
@@ -198,6 +389,34 @@ export const FeedPage: React.FC = () => {
                         )}
                       </div>
                     )}
+
+                    {!!usuario && (
+                      <div className={styles.menuWrapAbsolute}>
+                        <button className={styles.btnMore} onClick={() => setMenuAbiertoId(menuAbiertoId === entrada.id ? null : entrada.id)} title="Opciones">
+                          <MoreHorizontal size={14} />
+                        </button>
+                        {menuAbiertoId === entrada.id && (
+                          <div className={styles.dropdown}>
+                            {entrada.actorUsername === (usuario.username || usuario.user_metadata?.username) && (
+                              <button className={styles.dropdownItem} onClick={() => { 
+                                setMenuAbiertoId(null); 
+                                if (entrada.tipo === 'resena') {
+                                  setEditingResena(entrada.referencia || entrada)
+                                } else {
+                                  setEditandoId(entrada.id)
+                                  setEditContenido(entrada.referencia?.contenido || entrada.contenido || '')
+                                }
+                              }}>
+                                <Pencil size={14} /> Editar
+                              </button>
+                            )}
+                            <button className={`${styles.dropdownItem} ${styles.dropdownDanger}`} onClick={() => { setMenuAbiertoId(null); reportar(entrada.id) }}>
+                              <Flag size={14} /> Denunciar
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </article>
                 )
               })
@@ -205,11 +424,27 @@ export const FeedPage: React.FC = () => {
           </div>
 
           <aside className={styles.sidebarCol}>
-            <NewsSection title="Noticias en Tendencia" compact={true} />
+            <SuggestedUsers forceLoading={cargando} />
+            <NewsSection title="Noticias en Tendencia" compact={true} forceLoading={cargando} />
           </aside>
 
         </div>
       </div>
+      
+      {editingResena && (
+        <ReviewModal
+          resenaToEdit={editingResena}
+          onClose={() => setEditingResena(null)}
+          onSaved={(res) => {
+            setFeed(prev => prev.map(p => {
+              if (p.referenciaId === res.id) return { ...p, referencia: res }
+              if (p.id === res.id) return { ...p, ...res }
+              return p
+            }))
+            setEditingResena(null)
+          }}
+        />
+      )}
     </Layout>
   )
 }

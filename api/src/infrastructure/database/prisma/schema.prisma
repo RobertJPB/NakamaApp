@@ -58,6 +58,14 @@ enum TipoComunidad {
   @@schema("comunidad")
 }
 
+enum TipoPublicacion {
+  texto
+  imagen
+  encuesta
+  resena
+  @@schema("comunidad")
+}
+
 enum RolPersonaje {
   MAIN
   SUPPORTING
@@ -71,7 +79,7 @@ enum RolPersonaje {
 
 model Anime {
   id                   String   @id @default(uuid())
-  anilistId            Int      @unique @map("anilist_id")
+  externalId           String   @unique @map("external_id")
   titulo               String   @db.VarChar(255)
   tituloJapones        String?  @map("titulo_japones") @db.VarChar(255)
   tituloRomaji         String?  @map("titulo_romaji")  @db.VarChar(255)
@@ -151,7 +159,7 @@ model AnimeDemografia {
 
 model Personaje {
   id                 String  @id @default(uuid())
-  anilistPersonajeId Int     @unique @map("anilist_personaje_id")
+  externalId         String  @unique @map("external_id")
   animeId            String  @map("anime_id")
   nombre             String  @db.VarChar(255)
   nombreNativo       String? @map("nombre_nativo") @db.VarChar(255)
@@ -206,6 +214,10 @@ model Usuario {
   notificacionesEnviadas  Notificacion[]     @relation("NotificacionActor")
   feedEntradas        Feed[]                 @relation("FeedUsuario")
   feedAcciones        Feed[]                 @relation("FeedActor")
+  listasColaboradas   ColaboradorLista[]
+  listasGuardadas     ListaGuardada[]
+  votosEncuesta       VotoEncuesta[]
+  plantillasTierList  PlantillaTierList[]
 
   @@map("usuarios")
   @@schema("social")
@@ -252,12 +264,44 @@ model ColumnaKanban {
   descripcion String?  @db.VarChar(500)
   imagenUrl   String?  @map("imagen_url")
   orden       Int      @default(0)
+  esPrivada   Boolean  @default(false) @map("es_privada")
   creadoEn    DateTime @default(now()) @map("creado_en")
 
+  // Relaciones
   usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  colaboradores ColaboradorLista[]
+  guardadaPor   ListaGuardada[]
 
   @@unique([usuarioId, nombre])
   @@map("columnas_kanban")
+  @@schema("social")
+}
+
+model ListaGuardada {
+  id          String   @id @default(uuid())
+  usuarioId   String   @map("usuario_id")
+  columnaId   String   @map("columna_id")
+  creadoEn    DateTime @default(now()) @map("creado_en")
+
+  usuario Usuario       @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  columna ColumnaKanban @relation(fields: [columnaId], references: [id], onDelete: Cascade)
+
+  @@unique([usuarioId, columnaId])
+  @@map("listas_guardadas")
+  @@schema("social")
+}
+
+model ColaboradorLista {
+  id          String   @id @default(uuid())
+  columnaId   String   @map("columna_id")
+  usuarioId   String   @map("usuario_id")
+  creadoEn    DateTime @default(now()) @map("creado_en")
+
+  columna ColumnaKanban @relation(fields: [columnaId], references: [id], onDelete: Cascade)
+  usuario Usuario       @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@unique([columnaId, usuarioId])
+  @@map("colaboradores_lista")
   @@schema("social")
 }
 
@@ -300,6 +344,7 @@ model Resena {
   anime     Anime            @relation(fields: [animeId],   references: [id], onDelete: Cascade)
   reacciones ReaccionResena[]
   comentarios Comentario[]
+  publicaciones Publicacion[]
 
   @@unique([usuarioId, animeId])
   @@map("resenas")
@@ -395,25 +440,56 @@ model Miembro {
 }
 
 model Publicacion {
-  id               String   @id @default(uuid())
-  comunidadId      String?  @map("comunidad_id")
-  usuarioId        String   @map("usuario_id")
-  tema             String?  @db.VarChar(100)
-  titulo           String?  @db.VarChar(300)
-  contenido        String
-  imagenUrl        String?  @map("imagen_url")
-  totalLikes       Int      @default(0) @map("total_likes")
-  totalComentarios Int      @default(0) @map("total_comentarios")
-  creadoEn         DateTime @default(now()) @map("creado_en")
-  editadoEn        DateTime? @map("editado_en")
-  soloAmigos       Boolean   @default(false) @map("solo_amigos")
+  id               String          @id @default(uuid())
+  comunidadId      String?         @map("comunidad_id")
+  usuarioId        String          @map("usuario_id")
+  resenaId         String?         @map("resena_id")
+  tipo             TipoPublicacion @default(texto)
+  tema             String?         @db.VarChar(100)
+  titulo           String?         @db.VarChar(300)
+  contenido        String?
+  imagenUrl        String?         @map("imagen_url")
+  totalLikes       Int             @default(0) @map("total_likes")
+  totalComentarios Int             @default(0) @map("total_comentarios")
+  creadoEn         DateTime        @default(now()) @map("creado_en")
+  editadoEn        DateTime?       @map("editado_en")
+  soloAmigos       Boolean         @default(false) @map("solo_amigos")
 
-  comunidad  Comunidad?          @relation(fields: [comunidadId], references: [id], onDelete: Cascade)
-  usuario    Usuario             @relation(fields: [usuarioId],   references: [id], onDelete: Cascade)
+  comunidad   Comunidad?          @relation(fields: [comunidadId], references: [id], onDelete: Cascade)
+  usuario     Usuario             @relation(fields: [usuarioId],   references: [id], onDelete: Cascade)
+  resena      Resena?             @relation(fields: [resenaId],    references: [id], onDelete: SetNull)
   comentarios Comentario[]
   reacciones  ReaccionPublicacion[]
+  opciones    OpcionEncuesta[]
 
   @@map("publicaciones")
+  @@schema("comunidad")
+}
+
+model OpcionEncuesta {
+  id            String      @id @default(uuid())
+  publicacionId String      @map("publicacion_id")
+  texto         String      @db.VarChar(200)
+  imagenUrl     String?     @map("imagen_url")
+  votos         Int         @default(0)
+
+  publicacion   Publicacion @relation(fields: [publicacionId], references: [id], onDelete: Cascade)
+  votosUsuarios VotoEncuesta[]
+
+  @@map("opciones_encuesta")
+  @@schema("comunidad")
+}
+
+model VotoEncuesta {
+  usuarioId String @map("usuario_id")
+  opcionId  String @map("opcion_id")
+  creadoEn  DateTime @default(now()) @map("creado_en")
+
+  usuario Usuario        @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  opcion  OpcionEncuesta @relation(fields: [opcionId], references: [id], onDelete: Cascade)
+
+  @@id([usuarioId, opcionId])
+  @@map("votos_encuesta")
   @@schema("comunidad")
 }
 
@@ -517,4 +593,17 @@ model Noticia {
 
   @@map("noticias")
   @@schema("contenido")
+}
+
+model PlantillaTierList {
+  id        String   @id @default(uuid())
+  nombre    String   @db.VarChar(100)
+  datos     Json
+  creadoEn  DateTime @default(now()) @map("creado_en")
+  usuarioId String   @map("usuario_id")
+
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@map("plantillas_tierlist")
+  @@schema("social")
 }

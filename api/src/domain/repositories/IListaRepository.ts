@@ -8,6 +8,7 @@ export interface EntradaLista {
   esPrivada:       boolean
   notasPrivadas?:  string
   actualizadoEn:   Date
+  anime?:          any
 }
 
 export interface IListaRepository {

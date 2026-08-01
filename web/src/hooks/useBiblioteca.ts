@@ -1,15 +1,29 @@
 import { useState, useEffect, useCallback } from 'react'
-import { api } from '../lib/axios'
+import { api, getCached } from '../lib/axios'
 
 export function useBiblioteca(usuarioId: string | null) {
-  const [lista,    setLista]    = useState<any[]>([])
-  const [stats,    setStats]    = useState<any>(null)
-  const [columnas, setColumnas] = useState<any[]>([])
-  const [cargando, setCargando] = useState(false)
+  const [lista,    setLista]    = useState<any[]>(() => {
+    if (!usuarioId) return []
+    return getCached(`/api/biblioteca/${usuarioId}`)?.lista ?? []
+  })
+  const [stats,    setStats]    = useState<any>(() => {
+    if (!usuarioId) return null
+    return getCached(`/api/biblioteca/${usuarioId}/stats`)?.stats ?? null
+  })
+  const [columnas, setColumnas] = useState<any[]>(() => {
+    if (!usuarioId) return []
+    return getCached(`/api/biblioteca/${usuarioId}/columnas`)?.columnas ?? []
+  })
+  const [cargando, setCargando] = useState(() => {
+    if (!usuarioId) return false
+    // Only show loading if nothing is cached
+    return !getCached(`/api/biblioteca/${usuarioId}`)
+  })
 
   const cargar = useCallback(() => {
     if (!usuarioId) return
     setCargando(true)
+    const timeout = setTimeout(() => setCargando(false), 5000)
     Promise.all([
       api.get(`/api/biblioteca/${usuarioId}`),
       api.get(`/api/biblioteca/${usuarioId}/stats`),
@@ -20,23 +34,26 @@ export function useBiblioteca(usuarioId: string | null) {
         setStats(statsRes.data.stats ?? {})
         setColumnas(columnasRes.data.columnas ?? [])
       })
-      .finally(() => setCargando(false))
+      .finally(() => {
+        setCargando(false)
+        clearTimeout(timeout)
+      })
   }, [usuarioId])
 
   useEffect(() => { cargar() }, [cargar])
 
-  const agregar = async (animeId: string, estado: string) => {
-    await api.post('/api/biblioteca', { animeId, estado })
+  const agregar = async (animeId: string, estado: string, propietarioId?: string) => {
+    await api.post('/api/biblioteca', { animeId, estado, propietarioId })
     cargar()
   }
 
-  const actualizar = async (animeId: string, datos: any) => {
-    await api.put(`/api/biblioteca/${animeId}`, datos)
+  const actualizar = async (animeId: string, datos: any, propietarioId?: string) => {
+    await api.put(`/api/biblioteca/${animeId}`, { ...datos, propietarioId })
     cargar()
   }
 
-  const eliminar = async (animeId: string) => {
-    await api.delete(`/api/biblioteca/${animeId}`)
+  const eliminar = async (animeId: string, propietarioId?: string, estado?: string) => {
+    await api.delete(`/api/biblioteca/${animeId}`, { data: { propietarioId, estado } })
     cargar()
   }
 
@@ -46,12 +63,15 @@ export function useBiblioteca(usuarioId: string | null) {
     return res.data.esFavorito
   }
 
-  const crearLista = async (data: string | { nombre: string; descripcion?: string; imagenUrl?: string }) => {
-    if (!usuarioId) return
-    const body = typeof data === 'string' ? { nombre: data } : data
-    await api.post('/api/biblioteca/columnas', body)
+  const crearLista = async (datos: { nombre: string; descripcion?: string; imagenUrl?: string }) => {
+    await api.post('/api/biblioteca/columnas', datos)
     cargar()
   }
 
-  return { lista, stats, columnas, cargando, agregar, actualizar, eliminar, toggleFavorito, crearLista }
+  const editarLista = async (columnaId: string, datos: { nombre?: string; descripcion?: string; imagenUrl?: string; esPrivada?: boolean }) => {
+    await api.put(`/api/biblioteca/columnas/${columnaId}`, datos)
+    cargar()
+  }
+
+  return { lista, columnas, stats, cargando, agregar, actualizar, eliminar, toggleFavorito, crearLista, editarLista }
 }

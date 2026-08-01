@@ -1,6 +1,6 @@
 export interface Anime {
   id:                  string
-  anilistId:           number
+  externalId:          string
   titulo:              string
   tituloJapones?:      string
   tituloRomaji?:       string

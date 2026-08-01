@@ -3,11 +3,17 @@ import { useLocation } from 'react-router-dom'
 import { Search, X } from 'lucide-react'
 import { Layout }    from '../../../components/shared/Layout'
 import { AnimeCard } from '../../../components/ui/AnimeCard'
-import { api }       from '../../../lib/axios'
+import { api, getCached } from '../../../lib/axios'
 import { useBusqueda } from '../../../hooks/useAnime'
 import styles        from './DescubrirPage.module.css'
 
-const GENEROS = ['Action','Adventure','Comedy','Drama','Fantasy','Horror','Mystery','Romance','Sci-Fi','Slice of Life','Sports','Supernatural','Thriller','Mecha']
+const GENEROS = [
+  { value: 'Action', label: 'Acción' }, { value: 'Adventure', label: 'Aventura' }, { value: 'Comedy', label: 'Comedia' },
+  { value: 'Drama', label: 'Drama' }, { value: 'Fantasy', label: 'Fantasía' }, { value: 'Horror', label: 'Terror' },
+  { value: 'Mystery', label: 'Misterio' }, { value: 'Romance', label: 'Romance' }, { value: 'Sci-Fi', label: 'Ciencia Ficción' },
+  { value: 'Slice of Life', label: 'Recuentos de la vida' }, { value: 'Sports', label: 'Deportes' }, { value: 'Supernatural', label: 'Sobrenatural' },
+  { value: 'Thriller', label: 'Suspenso' }, { value: 'Mecha', label: 'Mecha' }
+]
 const TIPOS   = ['TV','MOVIE','OVA','ONA','SPECIAL']
 const TEMPORADAS = ['WINTER','SPRING','SUMMER','FALL']
 const DEMOGRAFIAS = ['Shounen', 'Shoujo', 'Seinen', 'Josei', 'Kids']
@@ -25,9 +31,9 @@ const Categoria = ({ titulo, animes, layout = 'grid', onVerMas }: { titulo: stri
   
   // Usaremos un tamaño uniforme: 7 columnas en PC grande, 5 en mediano, 3 en móvil
   let columnas = 4;
-  if (windowWidth >= 1600) columnas = 10;
-  else if (windowWidth >= 1280) columnas = 8;
-  else if (windowWidth >= 768) columnas = 6;
+  if (windowWidth >= 1600) columnas = 11;
+  else if (windowWidth >= 1280) columnas = 9;
+  else if (windowWidth >= 768) columnas = 7;
   else columnas = 4;
 
   
@@ -48,16 +54,16 @@ const Categoria = ({ titulo, animes, layout = 'grid', onVerMas }: { titulo: stri
         {items.map((anime, i) => {
           return (
             <div 
-              key={anime.id ?? anime.anilistId} 
+              key={anime.id ?? anime.externalId} 
               className={styles.categoriaItem}
-              onClick={() => window.location.href = `/anime/${anime.anilistId}`}
+              onClick={() => window.location.href = `/anime/${anime.externalId}`}
             >
               <div className={styles.categoriaPoster}>
                 <img src={anime.imagenUrl} alt={anime.titulo} loading="lazy" />
                 <div className={styles.categoriaOverlay}>
                   <h4 className={styles.categoriaAnimeTitulo}>{anime.titulo}</h4>
                   <div className={styles.categoriaMeta}>
-                    {anime.calificacionPromedio && <span className={styles.catRating}>★ {(Number(anime.calificacionPromedio) / 10).toFixed(1)}</span>}
+                    {anime.calificacionPromedio && <span className={styles.catRating}>★ {Number(anime.calificacionPromedio).toFixed(1)}</span>}
                     {anime.anio && <span>{anime.anio}</span>}
                   </div>
                 </div>
@@ -74,25 +80,36 @@ export const DescubrirPage: React.FC = () => {
   const location = useLocation()
   const params = new URLSearchParams(location.search)
   const initialQuery = params.get('q') ?? ''
+  const initialGenero = params.get('genero') ?? ''
 
   const [query,    setQuery]    = useState(initialQuery)
-  const [genero,   setGenero]   = useState('')
+  const [genero,   setGenero]   = useState(initialGenero)
   const [tipo,     setTipo]     = useState('')
   const [temporada,setTemporada]= useState('')
   const [demografia, setDemografia] = useState('')
+  const [anio,       setAnio]       = useState('')
+  const [page,       setPage]       = useState(1)
   const [animes,   setAnimes]   = useState<any[]>([])
   const [cargando, setCargando] = useState(false)
   const [cargandoCategorias, setCargandoCategorias] = useState(false)
 
-  const [populares, setPopulares] = useState<any[]>([])
-  const [recomendados, setRecomendados] = useState<any[]>([])
-  const [clasicos, setClasicos] = useState<any[]>([])
-  const [romance, setRomance] = useState<any[]>([])
-  const [accion, setAccion] = useState<any[]>([])
+  const [populares,    setPopulares]    = useState<any[]>(() => getCached('/api/animes/populares') ?? [])
+  const [recomendados, setRecomendados] = useState<any[]>(() => getCached('/api/animes/populares?page=2') ?? [])
+  const [clasicos,     setClasicos]     = useState<any[]>(() => getCached('/api/animes/populares?anio=1998') ?? [])
+  const [romance,      setRomance]      = useState<any[]>(() => getCached('/api/animes/populares?genero=Romance') ?? [])
+  const [accion,       setAccion]       = useState<any[]>(() => getCached('/api/animes/populares?genero=Action') ?? [])
+  const [comedia,      setComedia]      = useState<any[]>(() => getCached('/api/animes/populares?genero=Comedy') ?? [])
+  const [terror,       setTerror]       = useState<any[]>(() => getCached('/api/animes/populares?genero=Horror') ?? [])
+  const [scifi,        setScifi]        = useState<any[]>(() => getCached('/api/animes/populares?genero=Sci-Fi') ?? [])
+  const [fantasia,     setFantasia]     = useState<any[]>(() => getCached('/api/animes/populares?genero=Fantasy') ?? [])
+  const [deportes,     setDeportes]     = useState<any[]>(() => getCached('/api/animes/populares?genero=Sports') ?? [])
+  const [misterio,     setMisterio]     = useState<any[]>(() => getCached('/api/animes/populares?genero=Mystery') ?? [])
+  const [mecha,        setMecha]        = useState<any[]>(() => getCached('/api/animes/populares?genero=Mecha') ?? [])
 
   useEffect(() => {
-    const q = new URLSearchParams(location.search).get('q') ?? ''
-    setQuery(q)
+    const searchParams = new URLSearchParams(location.search)
+    setQuery(searchParams.get('q') ?? '')
+    setGenero(searchParams.get('genero') ?? '')
   }, [location.search])
 
   const { resultados, cargando: buscando } = useBusqueda(query)
@@ -100,68 +117,66 @@ export const DescubrirPage: React.FC = () => {
   // Cargar categorías principales si no hay búsqueda activa
   useEffect(() => {
     if (query.trim() || genero || tipo || temporada || demografia) return;
-    
-    const fetchCategories = async () => {
-      setCargandoCategorias(true)
-      
-      const fetchWithRetry = async (url: string, setter: any, retries = 3, delay = 600) => {
-        for (let attempt = 1; attempt <= retries; attempt++) {
-          try {
-            const res = await api.get(url)
-            const data = Array.isArray(res.data) ? res.data : (res.data.animes ?? [])
-            if (data.length > 0) {
-              setter(data)
-              return
-            }
-          } catch (err) {
-            console.error(`Error fetching ${url} (attempt ${attempt}/${retries})`, err)
-          }
-          if (attempt < retries) {
-            await new Promise(r => setTimeout(r, delay * attempt))
-          }
-        }
-      }
 
-      // Fetch Romance first (freshest rate limit quota), then the rest
-      await fetchWithRetry('/api/animes/populares?genero=Romance', setRomance)
-      await new Promise(r => setTimeout(r, 1000))
-      
-      await fetchWithRetry('/api/animes/populares', setPopulares)
-      await new Promise(r => setTimeout(r, 700))
-      
-      await fetchWithRetry('/api/animes/populares?page=2', setRecomendados)
-      await new Promise(r => setTimeout(r, 700))
-      
-      await fetchWithRetry('/api/animes/populares?anio=1998', setClasicos)
-      await new Promise(r => setTimeout(r, 700))
-      
-      await fetchWithRetry('/api/animes/populares?genero=Action', setAccion)
+    // Each category fetches and renders independently as soon as it arrives
+    const fetchAndSet = (url: string, setter: (d: any[]) => void) => {
+      // Show cached data immediately
+      const cached = getCached(url)
+      if (cached && cached.length > 0) setter(cached)
 
-      setCargandoCategorias(false)
+      api.get(url)
+        .then(res => {
+          const data = Array.isArray(res.data) ? res.data : (res.data.animes ?? [])
+          if (data.length > 0) setter(data)
+        })
+        .catch(() => {})
     }
-    
-    fetchCategories()
+
+    fetchAndSet('/api/animes/populares',              setPopulares)
+    fetchAndSet('/api/animes/populares?page=2',       setRecomendados)
+    fetchAndSet('/api/animes/populares?anio=1998',    setClasicos)
+    fetchAndSet('/api/animes/populares?genero=Romance', setRomance)
+    fetchAndSet('/api/animes/populares?genero=Action',  setAccion)
+    fetchAndSet('/api/animes/populares?genero=Comedy',  setComedia)
+    fetchAndSet('/api/animes/populares?genero=Horror',  setTerror)
+    fetchAndSet('/api/animes/populares?genero=Sci-Fi',  setScifi)
+    fetchAndSet('/api/animes/populares?genero=Fantasy', setFantasia)
+    fetchAndSet('/api/animes/populares?genero=Sports',  setDeportes)
+    fetchAndSet('/api/animes/populares?genero=Mystery', setMisterio)
+    fetchAndSet('/api/animes/populares?genero=Mecha',   setMecha)
+
+    setCargandoCategorias(false)
   }, [query, genero, tipo, temporada])
 
   // Aplicar filtros locales
   useEffect(() => {
-    if (!genero && !tipo && !temporada && !demografia) return
+    if (!genero && !tipo && !temporada && !demografia && !anio) return
     setCargando(true)
     const params = new URLSearchParams()
     if (genero)    params.set('genero',    genero)
     if (tipo)      params.set('tipo',      tipo)
     if (temporada) params.set('temporada', temporada)
     if (demografia) params.set('demografia', demografia)
+    if (anio)       params.set('anio',       anio)
+    params.set('page', page.toString())
+    params.set('perPage', '40')
+    
     // Usamos populares para que busque en AniList
-    api.get(`/api/animes/populares?${params.toString()}&perPage=40`)
+    api.get(`/api/animes/populares?${params.toString()}`)
       .then(({ data }) => setAnimes(Array.isArray(data) ? data : data.animes ?? []))
       .finally(() => setCargando(false))
-  }, [genero, tipo, temporada])
+  }, [genero, tipo, temporada, demografia, anio, page])
 
   const [mostrarFiltros, setMostrarFiltros] = useState(false)
 
-  const limpiarFiltros = () => { setGenero(''); setTipo(''); setTemporada(''); setDemografia('') }
-  const hayFiltros = genero || tipo || temporada || demografia
+  const handleSetGenero = (v: string) => { setGenero(v); setPage(1) }
+  const handleSetTipo = (v: string) => { setTipo(v); setPage(1) }
+  const handleSetTemporada = (v: string) => { setTemporada(v); setPage(1) }
+  const handleSetDemografia = (v: string) => { setDemografia(v); setPage(1) }
+  const handleSetAnio = (v: string) => { setAnio(v); setPage(1) }
+
+  const limpiarFiltros = () => { setGenero(''); setTipo(''); setTemporada(''); setDemografia(''); setAnio(''); setPage(1); }
+  const hayFiltros = genero || tipo || temporada || demografia || anio
   const mostrar = query.trim() ? resultados : animes
 
   return (
@@ -175,7 +190,7 @@ export const DescubrirPage: React.FC = () => {
             <input 
               className={styles.searchGrande}
               type="text" 
-              placeholder="¿Qué tipo de anime quieres ver hoy?" 
+              placeholder="¿Qué tipo de anime quieres buscar hoy?" 
               value={query}
               onChange={e => setQuery(e.target.value)}
             />
@@ -197,36 +212,36 @@ export const DescubrirPage: React.FC = () => {
               <div className={styles.filtroGrupoH}>
                 <span className={styles.filtroLabel}>Género:</span>
                 <div className={styles.filtroOpcionesH}>
-                  <button className={`${styles.chipH} ${!genero ? styles.chipActivo : ''}`} onClick={() => setGenero('')}>Todos</button>
+                  <button className={`${styles.chipH} ${!genero ? styles.chipActivo : ''}`} onClick={() => handleSetGenero('')}>Todos</button>
                   {GENEROS.map(g => (
-                    <button key={g} className={`${styles.chipH} ${genero === g ? styles.chipActivo : ''}`} onClick={() => setGenero(g)}>{g}</button>
+                    <button key={g.value} className={`${styles.chipH} ${genero === g.value ? styles.chipActivo : ''}`} onClick={() => handleSetGenero(g.value)}>{g.label}</button>
                   ))}
                 </div>
               </div>
               <div className={styles.filtroGrupoH}>
                 <span className={styles.filtroLabel}>Formato:</span>
                 <div className={styles.filtroOpcionesH}>
-                  <button className={`${styles.chipH} ${!tipo ? styles.chipActivo : ''}`} onClick={() => setTipo('')}>Todos</button>
+                  <button className={`${styles.chipH} ${!tipo ? styles.chipActivo : ''}`} onClick={() => handleSetTipo('')}>Todos</button>
                   {TIPOS.map(t => (
-                    <button key={t} className={`${styles.chipH} ${tipo === t ? styles.chipActivo : ''}`} onClick={() => setTipo(t)}>{t}</button>
+                    <button key={t} className={`${styles.chipH} ${tipo === t ? styles.chipActivo : ''}`} onClick={() => handleSetTipo(t)}>{t}</button>
                   ))}
                 </div>
               </div>
               <div className={styles.filtroGrupoH}>
                 <span className={styles.filtroLabel}>Temporada:</span>
                 <div className={styles.filtroOpcionesH}>
-                  <button className={`${styles.chipH} ${!temporada ? styles.chipActivo : ''}`} onClick={() => setTemporada('')}>Todas</button>
+                  <button className={`${styles.chipH} ${!temporada ? styles.chipActivo : ''}`} onClick={() => handleSetTemporada('')}>Todas</button>
                   {TEMPORADAS.map(t => (
-                    <button key={t} className={`${styles.chipH} ${temporada === t ? styles.chipActivo : ''}`} onClick={() => setTemporada(t)}>{t}</button>
+                    <button key={t} className={`${styles.chipH} ${temporada === t ? styles.chipActivo : ''}`} onClick={() => handleSetTemporada(t)}>{t}</button>
                   ))}
                 </div>
               </div>
               <div className={styles.filtroGrupoH}>
                 <span className={styles.filtroLabel}>Demografía:</span>
                 <div className={styles.filtroOpcionesH}>
-                  <button className={`${styles.chipH} ${!demografia ? styles.chipActivo : ''}`} onClick={() => setDemografia('')}>Todas</button>
+                  <button className={`${styles.chipH} ${!demografia ? styles.chipActivo : ''}`} onClick={() => handleSetDemografia('')}>Todas</button>
                   {DEMOGRAFIAS.map(d => (
-                    <button key={d} className={`${styles.chipH} ${demografia === d ? styles.chipActivo : ''}`} onClick={() => setDemografia(d)}>{d}</button>
+                    <button key={d} className={`${styles.chipH} ${demografia === d ? styles.chipActivo : ''}`} onClick={() => handleSetDemografia(d)}>{d}</button>
                   ))}
                 </div>
               </div>
@@ -239,12 +254,22 @@ export const DescubrirPage: React.FC = () => {
           <div className={styles.resultados}>
             {hayFiltros || query.trim() ? (
               <>
-                <p className={styles.contador}>
-                  {query.trim()
-                    ? `${resultados.length} resultado${resultados.length !== 1 ? 's' : ''} para "${query}"`
-                    : `${mostrar.length} animes ${genero ? `de ${genero}` : ''}`
-                  }
-                </p>
+                <div className={styles.resultadosHeader}>
+                  <h2 className={styles.resultadosTitulo}>
+                    {query.trim() 
+                      ? 'Resultados de búsqueda' 
+                      : (anio === '1998' 
+                          ? 'Animes Clásicos' 
+                          : (genero 
+                              ? `Animes de ${GENEROS.find(g => g.value === genero)?.label || genero}` 
+                              : 'Todos los Animes'))}
+                  </h2>
+                  {query.trim() && (
+                    <p className={styles.contador}>
+                      {`${resultados.length} resultado${resultados.length !== 1 ? 's' : ''} para "${query}"`}
+                    </p>
+                  )}
+                </div>
 
                 {cargando || buscando ? (
                   <div className={styles.grid}>
@@ -262,17 +287,36 @@ export const DescubrirPage: React.FC = () => {
                     <div className={styles.grid}>
                       {mostrar.map((anime: any) => (
                         <AnimeCard
-                          key={anime.anilistId ?? anime.id}
-                          anilistId={anime.anilistId}
+                          key={anime.externalId ?? anime.id}
+                          externalId={anime.externalId}
                           titulo={anime.titulo}
                           imagenUrl={anime.imagenUrl}
                           tipo={anime.tipo}
                           anio={anime.anio}
                           calificacion={Number(anime.calificacionPromedio)}
-                          onClick={() => window.location.href = `/anime/${anime.anilistId}`}
+                          onClick={() => window.location.href = `/anime/${anime.externalId}`}
                         />
                       ))}
                     </div>
+                    {hayFiltros && !query.trim() && (
+                      <div className={styles.paginacion}>
+                        <button 
+                          className={styles.pageBtn} 
+                          disabled={page === 1} 
+                          onClick={() => setPage(p => Math.max(1, p - 1))}
+                        >
+                          Anterior
+                        </button>
+                        <span className={styles.pageText}>Página {page}</span>
+                        <button 
+                          className={styles.pageBtn} 
+                          disabled={mostrar.length < 40}
+                          onClick={() => setPage(p => p + 1)}
+                        >
+                          Siguiente
+                        </button>
+                      </div>
+                    )}
                     {hayFiltros && <button className={styles.limpiarBtnCentral} onClick={limpiarFiltros}>Volver a Descubrir</button>}
                   </>
                 )}
@@ -280,11 +324,18 @@ export const DescubrirPage: React.FC = () => {
             ) : (
               // Vista de Categorías (Netflix style)
               <div className={styles.categoriasWrap}>
-                <Categoria layout="grid" titulo="Recomendado para ti" animes={recomendados} onVerMas={() => setGenero('Action')} />
-                <Categoria layout="grid" titulo="Animes Populares" animes={populares} />
-                <Categoria layout="grid" titulo="Animes Clásicos" animes={clasicos} onVerMas={() => setTemporada('1998')} />
-                <Categoria layout="grid" titulo="Amor y Romance" animes={romance} onVerMas={() => setGenero('Romance')} />
-                <Categoria layout="grid" titulo="Acción" animes={accion} onVerMas={() => setGenero('Action')} />
+                <Categoria layout="grid" titulo="Recomendado para ti"   animes={recomendados} onVerMas={() => handleSetGenero('Action')} />
+                <Categoria layout="grid" titulo="Animes Populares"      animes={populares} />
+                <Categoria layout="grid" titulo="Acción"                animes={accion}    onVerMas={() => handleSetGenero('Action')} />
+                <Categoria layout="grid" titulo="Comedia"               animes={comedia}   onVerMas={() => handleSetGenero('Comedy')} />
+                <Categoria layout="grid" titulo="Fantasía"              animes={fantasia}  onVerMas={() => handleSetGenero('Fantasy')} />
+                <Categoria layout="grid" titulo="Romance"               animes={romance}   onVerMas={() => handleSetGenero('Romance')} />
+                <Categoria layout="grid" titulo="Ciencia Ficción"       animes={scifi}     onVerMas={() => handleSetGenero('Sci-Fi')} />
+                <Categoria layout="grid" titulo="Animes Clásicos"       animes={clasicos}  onVerMas={() => handleSetAnio('1998')} />
+                <Categoria layout="grid" titulo="Deportes"              animes={deportes}  onVerMas={() => handleSetGenero('Sports')} />
+                <Categoria layout="grid" titulo="Misterio"              animes={misterio}  onVerMas={() => handleSetGenero('Mystery')} />
+                <Categoria layout="grid" titulo="Terror"                animes={terror}    onVerMas={() => handleSetGenero('Horror')} />
+                <Categoria layout="grid" titulo="Mecha"                 animes={mecha}     onVerMas={() => handleSetGenero('Mecha')} />
                 {cargandoCategorias && (
                   <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--color-texto-muted)', fontSize: 'var(--text-sm)' }}>
                     Cargando más categorías...

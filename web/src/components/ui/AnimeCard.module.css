@@ -50,7 +50,7 @@
 .overlay {
   position:    absolute;
   inset:       0;
-  background:  rgba(245,168,0,0.15);
+  background:  rgba(255, 255, 255, 0.05); /* Tinte blanco muy suave en lugar de amarillo */
   display:     flex;
   align-items: center;
   justify-content: center;

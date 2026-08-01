@@ -5,7 +5,7 @@ export function useComunidades(tipo?: string) {
   const [comunidades, setComunidades] = useState<any[]>([])
   const [cargando,    setCargando]    = useState(true)
 
-  useEffect(() => {
+  const recargar = useCallback(() => {
     setCargando(true)
     const params = tipo ? `?tipo=${tipo}` : ''
     api.get(`/api/comunidades${params}`)
@@ -13,12 +13,15 @@ export function useComunidades(tipo?: string) {
       .finally(() => setCargando(false))
   }, [tipo])
 
-  return { comunidades, cargando }
+  useEffect(() => { recargar() }, [recargar])
+
+  return { comunidades, cargando, recargar }
 }
 
-export function useComunidadDetalle(id: string | undefined) {
+export function useComunidadDetalle(id: string | undefined, seccion?: string) {
   const [comunidad,     setComunidad]     = useState<any>(null)
   const [publicaciones, setPublicaciones] = useState<any[]>([])
+  const [miembros,      setMiembros]      = useState<any[]>([])
   const [cargando,      setCargando]      = useState(false)
 
   const cargar = useCallback(() => {
@@ -26,19 +29,26 @@ export function useComunidadDetalle(id: string | undefined) {
     setCargando(true)
     Promise.all([
       api.get(`/api/comunidades/${id}`),
-      api.get(`/api/comunidades/${id}/publicaciones`),
+      api.get(`/api/comunidades/${id}/publicaciones${seccion ? `?seccion=${seccion}` : ''}`),
+      api.get(`/api/comunidades/${id}/miembros`),
     ])
-      .then(([c, p]) => {
+      .then(([c, p, m]) => {
         setComunidad(c.data)
-        setPublicaciones(Array.isArray(p.data) ? p.data : [])
+        setPublicaciones(Array.isArray(p.data.publicaciones) ? p.data.publicaciones : [])
+        setMiembros(Array.isArray(m.data) ? m.data : [])
       })
       .finally(() => setCargando(false))
-  }, [id])
+  }, [id, seccion])
 
   useEffect(() => { cargar() }, [cargar])
 
-  const publicar = async (titulo: string, contenido: string, imagenUrl?: string) => {
-    await api.post(`/api/comunidades/${id}/publicar`, { titulo, contenido, imagenUrl })
+  const publicar = async (datos: { tipo: string; titulo?: string; contenido?: string; imagenUrl?: string; opciones?: string[]; resenaId?: string; seccion?: string }) => {
+    await api.post(`/api/comunidades/${id}/publicar`, datos)
+    cargar()
+  }
+
+  const votar = async (opcionId: string) => {
+    await api.post(`/api/comunidades/votar-encuesta`, { opcionId })
     cargar()
   }
 
@@ -52,5 +62,20 @@ export function useComunidadDetalle(id: string | undefined) {
     cargar()
   }
 
-  return { comunidad, publicaciones, cargando, publicar, unirse, salir }
+  const expulsar = async (usuarioId: string) => {
+    await api.delete(`/api/comunidades/${id}/miembros/${usuarioId}`)
+    cargar()
+  }
+
+  const cambiarRol = async (usuarioId: string, rol: string) => {
+    await api.patch(`/api/comunidades/${id}/miembros/${usuarioId}/rol`, { rol })
+    cargar()
+  }
+
+  const eliminarPublicacion = async (pubId: string) => {
+    await api.delete(`/api/comunidades/publicaciones/${pubId}`)
+    cargar()
+  }
+
+  return { comunidad, publicaciones, miembros, cargando, publicar, unirse, salir, votar, expulsar, cambiarRol, eliminarPublicacion }
 }

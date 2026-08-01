@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
+import { logger } from '../../config/logger'
 
 export class AppError extends Error {
   constructor(
@@ -17,8 +18,10 @@ export const errorMiddleware = (
   _next: NextFunction
 ) => {
   if (err instanceof AppError) {
+    logger.warn({ err }, err.message)
     return res.status(err.statusCode).json({ error: err.message })
   }
-  console.error('[Error]', err)
+  
+  logger.error({ err }, 'Error interno del servidor')
   res.status(500).json({ error: 'Error interno del servidor' })
 }

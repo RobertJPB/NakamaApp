@@ -3,29 +3,43 @@ import { Link } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 import { Search, Sliders, Bell } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
+import { useNotificaciones } from '../../hooks/useNotificaciones'
 import { api } from '../../lib/axios'
 import styles from './Header.module.css'
+import { formatDistanceToNow } from 'date-fns'
+import { es } from 'date-fns/locale'
 
 export const Header: React.FC = () => {
-  const { usuario, estaAutenticado, signOut } = useAuth()
+  const { usuario, estaAutenticado, signOut, cargando } = useAuth()
+  const { notificaciones, noLeidas, marcarComoLeida, marcarTodasComoLeidas } = useNotificaciones()
   const navigate = useNavigate()
   const [busqueda, setBusqueda] = useState('')
-  const [resultados, setResultados] = useState<any[]>([])
+  const [animesRes, setAnimesRes] = useState<any[]>([])
+  const [usuariosRes, setUsuariosRes] = useState<any[]>([])
   const [buscando, setBuscando] = useState(false)
+  const [mostrarNotif, setMostrarNotif] = useState(false)
   
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const notifRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (busqueda.trim().length < 3) {
-      setResultados([])
+    if (busqueda.trim().length < 2) {
+      setAnimesRes([])
+      setUsuariosRes([])
       return
     }
-    const timer = setTimeout(() => {
+    const timer = setTimeout(async () => {
       setBuscando(true)
-      api.get(`/api/animes?busqueda=${busqueda}&limit=5`)
-        .then(res => setResultados(Array.isArray(res.data) ? res.data : (res.data.animes ?? [])))
-        .catch(() => {})
-        .finally(() => setBuscando(false))
+      try {
+        const [animesResp, usuariosResp] = await Promise.all([
+          api.get(`/api/animes?busqueda=${encodeURIComponent(busqueda)}&limit=4`).catch(() => ({ data: [] })),
+          api.get(`/api/usuarios/buscar?q=${encodeURIComponent(busqueda)}`).catch(() => ({ data: [] })),
+        ])
+        setAnimesRes(Array.isArray(animesResp.data) ? animesResp.data : (animesResp.data.animes ?? []))
+        setUsuariosRes(Array.isArray(usuariosResp.data) ? usuariosResp.data : [])
+      } finally {
+        setBuscando(false)
+      }
     }, 400)
     return () => clearTimeout(timer)
   }, [busqueda])
@@ -33,19 +47,24 @@ export const Header: React.FC = () => {
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setResultados([])
+        setAnimesRes([])
+        setUsuariosRes([])
+      }
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setMostrarNotif(false)
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    // Ya no navegamos a descubrir. Todo se maneja en el dropdown.
-    if (e.key === 'Enter' && busqueda.trim()) {
-      // Puedes forzar la búsqueda o simplemente no hacer nada y dejar que el dropdown haga su trabajo
-    }
+  const closeDropdown = () => {
+    setAnimesRes([])
+    setUsuariosRes([])
+    setBusqueda('')
   }
+
+  const hayResultados = animesRes.length > 0 || usuariosRes.length > 0
 
   return (
     <header className={styles.header}>
@@ -54,59 +73,141 @@ export const Header: React.FC = () => {
           <Search className={styles.searchIcon} size={18} />
           <input 
             type="text" 
-            placeholder="Buscar animes..." 
+            placeholder="Buscar animes o usuarios..." 
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
-            onKeyDown={handleSearch}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && busqueda.trim().length > 1) {
+                closeDropdown()
+                navigate(`/buscar?q=${encodeURIComponent(busqueda.trim())}`)
+              }
+            }}
           />
-          <button className={styles.filterBtn} onClick={() => navigate('/descubrir')}>
+          <button className={styles.filterBtn} onClick={() => navigate('/buscar')}>
             <Sliders size={18} />
           </button>
         </div>
         
-        {(resultados.length > 0 || buscando) && (
+        {(hayResultados || buscando) && (
           <div className={styles.searchDropdown}>
             {buscando ? (
               <div className={styles.searchLoading}>Buscando...</div>
             ) : (
-              resultados.map(anime => (
-                <div 
-                  key={anime.id || anime.anilistId} 
-                  className={styles.searchResultItem}
-                  onClick={() => {
-                    setResultados([])
-                    setBusqueda('')
-                    navigate(`/anime/${anime.anilistId}`)
-                  }}
-                >
-                  <img src={anime.imagenUrl} alt={anime.titulo} className={styles.searchResultImg} />
-                  <div className={styles.searchResultInfo}>
-                    <div className={styles.searchResultTitle}>{anime.titulo}</div>
-                    <div className={styles.searchResultYear}>{anime.temporadaAnio || anime.estadoEmision}</div>
+              <>
+                {/* Sección Usuarios */}
+                {usuariosRes.length > 0 && (
+                  <div>
+                    <div className={styles.searchSectionLabel}>Usuarios</div>
+                    {usuariosRes.map(user => (
+                      <div
+                        key={user.id}
+                        className={styles.searchResultItem}
+                        onClick={() => { closeDropdown(); navigate(`/perfil/${user.username}`) }}
+                      >
+                        <div className={styles.userAvatarWrap}>
+                          {user.avatarUrl
+                            ? <img src={user.avatarUrl} alt={user.username} className={styles.userAvatarImg} />
+                            : <div className={styles.userAvatarFallback}>{(user.nombreDisplay?.[0] || user.username?.[0] || 'U').toUpperCase()}</div>
+                          }
+                        </div>
+                        <div className={styles.searchResultInfo}>
+                          <div className={styles.searchResultTitle}>{user.nombreDisplay || user.username}</div>
+                          <div className={styles.searchResultYear}>@{user.username} · {user._count?.seguidores ?? 0} seguidores</div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                </div>
-              ))
-            )}
-            {!buscando && resultados.length > 0 && (
-              <div 
-                className={styles.searchVerTodos}
-                onClick={() => {
-                  setResultados([])
-                  navigate(`/descubrir?q=${encodeURIComponent(busqueda.trim())}`)
-                }}
-              >
-                Ver todos los resultados
-              </div>
+                )}
+
+                {/* Sección Animes */}
+                {animesRes.length > 0 && (
+                  <div>
+                    <div className={styles.searchSectionLabel}>Animes</div>
+                    {animesRes.map(anime => (
+                      <div 
+                        key={anime.id || anime.externalId} 
+                        className={styles.searchResultItem}
+                        onClick={() => { closeDropdown(); navigate(`/anime/${anime.externalId}`) }}
+                      >
+                        <img src={anime.imagenUrl} alt={anime.titulo} className={styles.searchResultImg} />
+                        <div className={styles.searchResultInfo}>
+                          <div className={styles.searchResultTitle}>{anime.titulo}</div>
+                          <div className={styles.searchResultYear}>{anime.temporadaAnio || anime.estadoEmision}</div>
+                        </div>
+                      </div>
+                    ))}
+                    <div 
+                      className={styles.searchVerTodos}
+                      onClick={() => { closeDropdown(); navigate(`/descubrir?q=${encodeURIComponent(busqueda.trim())}`) }}
+                    >
+                      Ver todos los animes →
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
         )}
       </div>
 
       <div className={styles.headerRight}>
-        <button className={styles.headerActionBtn} title="Notificaciones">
-          <Bell size={18} />
-          <span className={styles.badgeCount}>3</span>
-        </button>
+        {estaAutenticado && (
+          <div className={styles.notifWrapper} ref={notifRef}>
+            <button 
+              className={styles.headerActionBtn} 
+              title="Notificaciones"
+              onClick={() => setMostrarNotif(!mostrarNotif)}
+            >
+              <Bell size={18} />
+              {noLeidas > 0 && <span className={styles.badgeCount}>{noLeidas > 9 ? '+9' : noLeidas}</span>}
+            </button>
+
+            {mostrarNotif && (
+              <div className={styles.notifDropdown}>
+                <div className={styles.notifHeader}>
+                  <span>Notificaciones</span>
+                  {noLeidas > 0 && (
+                    <button className={styles.notifMarkAll} onClick={marcarTodasComoLeidas}>
+                      Marcar todas como leídas
+                    </button>
+                  )}
+                </div>
+                <div className={styles.notifList}>
+                  {notificaciones.length === 0 ? (
+                    <div className={styles.notifEmpty}>No tienes notificaciones.</div>
+                  ) : (
+                    notificaciones.map(n => (
+                      <button 
+                        key={n.id} 
+                        className={`${styles.notifItem} ${n.leida ? '' : styles.unread}`}
+                        onClick={() => {
+                          if (!n.leida) marcarComoLeida(n.id)
+                          setMostrarNotif(false)
+                          if (n.actor?.username) {
+                            navigate(n.referenciaId ? `/post/${n.referenciaId}` : `/perfil/${n.actor.username}`)
+                          }
+                        }}
+                      >
+                        <div className={styles.notifAvatar}>
+                          {n.actor?.avatarUrl 
+                            ? <img src={n.actor.avatarUrl} alt="" />
+                            : <div className={styles.notifAvatarFallback}>{(n.actor?.nombreDisplay?.[0] || 'U').toUpperCase()}</div>
+                          }
+                        </div>
+                        <div className={styles.notifContent}>
+                          <strong>{n.actor?.nombreDisplay}</strong> {n.mensaje}
+                          <span className={styles.notifTime}>
+                            {formatDistanceToNow(new Date(n.creadoEn), { addSuffix: true, locale: es })}
+                          </span>
+                        </div>
+                      </button>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
         
         {estaAutenticado ? (
           <div className={styles.profileWidgetContainer}>
@@ -139,19 +240,28 @@ export const Header: React.FC = () => {
                 Ver perfil
               </Link>
               <Link to="/perfil/editar" className={styles.dropdownItem}>
+                Editar perfil
+              </Link>
+              <Link to="/configuracion" className={styles.dropdownItem}>
                 Configuración
               </Link>
               <div className={styles.dropdownDivider}></div>
-              <button onClick={() => signOut()} className={`${styles.dropdownItem} ${styles.dropdownItemDanger}`}>
+              <button onClick={async () => {
+                sessionStorage.setItem('isLoggingOut', 'true')
+                await signOut()
+                navigate('/')
+              }} className={`${styles.dropdownItem} ${styles.dropdownItemDanger}`}>
                 Cerrar sesión
               </button>
             </div>
           </div>
-        ) : (
+        ) : !cargando ? (
           <div className={styles.authButtons}>
             <Link to="/auth" className={styles.btnLogin}>Entrar</Link>
             <Link to="/auth?register=true" className={styles.btnRegister}>Registrarse</Link>
           </div>
+        ) : (
+          <div style={{ width: 140 }}></div>
         )}
       </div>
     </header>

@@ -1,0 +1,502 @@
+.page {
+  padding: var(--space-2) var(--space-6) var(--space-6);
+  background-color: var(--color-fondo);
+  min-height: 100vh;
+  color: var(--color-texto);
+  zoom: 0.9;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-6);
+}
+
+.title {
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  margin: 0;
+}
+
+.subtitle {
+  color: var(--color-texto-suave);
+  margin-top: var(--space-2);
+}
+
+.exportBtn {
+  background: var(--color-acento);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: opacity 0.2s;
+}
+
+.exportBtn:hover {
+  opacity: 0.9;
+}
+
+.exportBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Botón de exportar en la esquina superior derecha */
+.btnDescargarTop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  background: var(--color-acento);
+  color: #1f2124;
+  border: none;
+  border-radius: 8px;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background var(--transition-fast), opacity var(--transition-fast);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.btnDescargarTop:hover:not(:disabled) {
+  background: var(--color-acento-hover, #e6a800);
+}
+.btnDescargarTop:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: var(--space-6);
+}
+
+.mainCol {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.tierBoard {
+  background: var(--color-surface-1);
+  border-radius: 12px;
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  border: 1px solid var(--color-borde);
+}
+
+.tierRow {
+  display: flex;
+  background: var(--color-surface-2);
+  border-radius: 8px;
+  min-height: 100px;
+  overflow: hidden;
+  border: 1px solid var(--color-borde-suave);
+}
+
+.tierLabel {
+  width: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-2xl);
+  font-weight: 900;
+  color: #1a1a1a;
+  text-shadow: 0px 1px 2px rgba(255,255,255,0.5);
+  border-right: 1px solid rgba(0,0,0,0.1);
+  flex-shrink: 0;
+}
+
+.exporting .tierLabel span {
+  padding-bottom: 12px; /* Compensación específica para el fallo de html2canvas */
+}
+
+.tierContent {
+  flex-grow: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px;
+  min-height: 100px;
+}
+
+/* Sidebar Search */
+.sidebar {
+  background: var(--color-surface-1);
+  border-radius: 12px;
+  padding: var(--space-4);
+  border: 1px solid var(--color-borde);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.searchBox {
+  position: relative;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 14px 10px 36px;
+  border-radius: 8px;
+  border: 1px solid var(--color-borde);
+  background: var(--color-surface-2);
+  color: var(--color-texto);
+}
+
+.searchIcon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-texto-suave);
+}
+
+.pool {
+  flex-grow: 1;
+  background: rgba(0, 0, 0, 0.45);
+  border-radius: 8px;
+  padding: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-content: flex-start;
+  min-height: 300px;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.animeCard {
+  width: 60px;
+  height: 85px;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: grab;
+  position: relative;
+  background: var(--color-surface-3);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.animeCard:active {
+  cursor: grabbing;
+}
+
+.animeImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none; /* Helps with drag */
+}
+
+/* Drag over states */
+.dragOver {
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px dashed var(--color-acento);
+}
+
+.removeBtn {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: rgba(0,0,0,0.6);
+  border: none;
+  color: white;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.animeCard:hover .removeBtn {
+  opacity: 1;
+}
+
+.removeBtn:hover {
+  background: rgba(255,0,0,0.8);
+}
+
+.searchResults {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid var(--color-borde);
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.resultItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.resultItem:hover {
+  background: var(--color-surface-2);
+}
+
+.resultImg {
+  width: 32px;
+  height: 45px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.resultTitle {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+/* Section header inside search results (Animes / Personajes) */
+.resultSection {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-acento);
+  padding: 4px 8px 2px;
+  border-bottom: 1px solid var(--color-borde-suave);
+}
+
+/* Subtitle below character name (anime title) */
+.resultAnime {
+  display: block;
+  font-size: 10px;
+  color: var(--color-texto-muted);
+  margin-top: 2px;
+  font-weight: 400;
+}
+
+/* Character image is circular */
+.resultImgChar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+}
+
+/* ── Acciones de Tablero (Debajo de la Tier List) ── */
+.boardActions {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.btnDescargar, .btnGuardar, .btnCompartir {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+
+.btnDescargar {
+  background: var(--color-surface-2);
+  color: var(--color-texto);
+  border: 1px solid var(--color-borde);
+}
+.btnDescargar:hover {
+  background: var(--color-surface-2);
+}
+
+.btnCompartir {
+  background: var(--color-acento);
+  color: #1a1a1a;
+}
+.btnCompartir:hover {
+  filter: brightness(1.1);
+}
+
+.btnGuardar {
+  background: var(--color-acento);
+  color: #000;
+}
+.btnGuardar:hover {
+  filter: brightness(1.1);
+}
+.btnGuardar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Modal Guardar Plantilla ── */
+.modalOverlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background: var(--color-fondo);
+  border: 1px solid var(--color-borde);
+  border-radius: 12px;
+  padding: 24px;
+  width: 400px;
+  max-width: 90vw;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.modalInput {
+  width: 100%;
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-borde);
+  color: var(--color-texto);
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+.modalInput:focus {
+  outline: none;
+  border-color: var(--color-acento);
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.btnCancel {
+  background: transparent;
+  border: none;
+  color: var(--color-texto-suave);
+  cursor: pointer;
+}
+.btnCancel:hover {
+  color: var(--color-texto);
+}
+
+.btnSubmit {
+  background: var(--color-acento);
+  color: #000;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.btnSubmit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Sección de Plantillas Públicas ── */
+.plantillasSeccion {
+  margin-top: var(--space-6);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-borde);
+}
+
+.plantillasTitulo {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: var(--space-4);
+}
+
+.plantillasGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-3);
+}
+
+.plantillaCard {
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-borde);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.plantillaCard:hover {
+  background: var(--color-surface-2);
+  border-color: var(--color-acento);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+}
+
+.plantillaPortada {
+  height: 140px;
+  width: 100%;
+  background: var(--color-surface-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.plantillaPortada img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.85;
+  transition: transform 0.3s, opacity 0.3s;
+}
+
+.plantillaCard:hover .plantillaPortada img {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.plantillaFallback {
+  color: var(--color-texto-muted);
+}
+
+.plantillaInfo {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+}
+
+.plantillaName {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0;
+  color: var(--color-texto);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.plantillaAuthor {
+  font-size: 13px;
+  color: var(--color-texto-suave);
+  margin-top: 4px;
+}

@@ -5,6 +5,28 @@ import { supabase }       from './lib/supabase'
 import { api }            from './lib/axios'
 import './styles/variables.css'
 
+// ─── Cache warm-up: fire API calls immediately on module load ─────────────────
+// These run before React even renders — by the time the user sees the UI,
+// data is already in cache or very close to arriving.
+const warmUp = () => {
+  const urls = [
+    // HomePage (useAnimes hook uses params object, but cache key includes them)
+    '/api/animes/populares',
+    // DescubrirPage categories (exact URL strings)
+    '/api/animes/populares?page=2',
+    '/api/animes/populares?genero=Action',
+    '/api/animes/populares?genero=Romance',
+    '/api/animes/populares?anio=1998',
+    // Feed
+    '/api/feed',
+  ]
+  urls.forEach(url => api.get(url).catch(() => {}))
+  
+  // Ranking (requires specific params to match cache key)
+  api.get('/api/ranking', { params: { limit: 100 } }).catch(() => {})
+}
+warmUp()
+
 const App: React.FC = () => {
   const setUsuario = useAuthStore(s => s.setUsuario)
 
@@ -28,6 +50,16 @@ const App: React.FC = () => {
           }
         }
         setUsuario(merged)
+
+        // Warm up user-specific data
+        const userUrls = [
+          `/api/biblioteca/${backendUser.id}`,
+          `/api/biblioteca/${backendUser.id}/stats`,
+          `/api/biblioteca/${backendUser.id}/columnas`,
+          `/api/usuarios/${backendUser.username}`
+        ]
+        userUrls.forEach(url => api.get(url).catch(() => {}))
+
       } catch (err) {
         console.error('Error syncing user profile:', err)
         setUsuario(sessionUser)

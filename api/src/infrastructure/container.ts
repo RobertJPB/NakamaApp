@@ -7,7 +7,7 @@ import { PrismaComunidadRepository } from './repositories/PrismaComunidadReposit
 import { PrismaColeccionRepository } from './repositories/PrismaColeccionRepository'
 
 // Servicios
-import { AniListService }            from './services/AniListService'
+import { KitsuService }            from './external/kitsu/KitsuService'
 
 // Casos de uso (Application)
 import { BuscarAnimes }        from '../application/usecases/anime/BuscarAnimes'
@@ -33,7 +33,7 @@ const comunidadRepo = new PrismaComunidadRepository()
 const coleccionRepo = new PrismaColeccionRepository()
 
 // Servicios instanciados
-const animeService  = new AniListService()
+const animeService  = new KitsuService()
 
 // Casos de uso con dependencias inyectadas
 export const container = {

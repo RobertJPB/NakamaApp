@@ -20,7 +20,7 @@ export const AnimeGrid: React.FC<AnimeGridProps> = ({ animes, titulo, cargando }
     ) : (
       <div className={styles.grid}>
         {animes.map((anime) => (
-          <AnimeCard key={anime.anilistId} {...anime} />
+          <AnimeCard key={anime.externalId} {...anime} />
         ))}
       </div>
     )}

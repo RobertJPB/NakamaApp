@@ -10,6 +10,7 @@ export interface EditarResenaInput {
   contenido?:       string
   contieneSpoiler?: boolean
   esPublica?:       boolean
+  etiquetas?:       string[]
 }
 
 export class EditarResena implements IUseCase<EditarResenaInput, any> {
@@ -30,6 +31,7 @@ export class EditarResena implements IUseCase<EditarResenaInput, any> {
       contenido:       input.contenido       ?? resena.contenido,
       contieneSpoiler: input.contieneSpoiler ?? resena.contieneSpoiler,
       esPublica:       input.esPublica       ?? resena.esPublica,
+      etiquetas:       input.etiquetas       ?? resena.etiquetas,
     })
   }
 }

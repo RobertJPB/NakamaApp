@@ -43,7 +43,7 @@ async function asegurarUsuarioDB(user: any) {
     await prisma.usuario.create({
       data: {
         id: user.id,
-        email: user.email || '',
+        email: user.email || `${user.id}@placeholder.com`,
         username,
         nombreDisplay,
         avatarUrl: null, // No importar avatar de Google por defecto

@@ -1,5 +1,5 @@
 import { prisma }             from '../database/prisma/client'
-import { IAnimeRepository, AnimeFilters } from '../../domain/repositories/IAnimeRepository'
+import { IAnimeRepository, AnimeFilters, RankingItem } from '../../domain/repositories/IAnimeRepository'
 import { Anime }              from '../../domain/entities/Anime'
 
 export class PrismaAnimeRepository implements IAnimeRepository {
@@ -7,7 +7,7 @@ export class PrismaAnimeRepository implements IAnimeRepository {
   private mapear(raw: any): Anime {
     return {
       id:                   raw.id,
-      anilistId:            raw.anilistId,
+      externalId:           raw.externalId,
       titulo:               raw.titulo,
       tituloJapones:        raw.tituloJapones  ?? undefined,
       tituloRomaji:         raw.tituloRomaji   ?? undefined,
@@ -36,8 +36,8 @@ export class PrismaAnimeRepository implements IAnimeRepository {
     return raw ? this.mapear(raw) : null
   }
 
-  async findByAniListId(anilistId: number): Promise<Anime | null> {
-    const raw = await prisma.anime.findUnique({ where: { anilistId } })
+  async findByExternalId(externalId: string): Promise<Anime | null> {
+    const raw = await prisma.anime.findUnique({ where: { externalId } })
     return raw ? this.mapear(raw) : null
   }
 
@@ -94,8 +94,8 @@ export class PrismaAnimeRepository implements IAnimeRepository {
       calificacionPromedio: data.calificacionPromedio,
     }
     const raw = await prisma.anime.upsert({
-      where:  { anilistId: data.anilistId! },
-      create: { anilistId: data.anilistId!, ...payload },
+      where:  { externalId: data.externalId! },
+      create: { externalId: data.externalId!, ...payload },
       update: payload,
     })
     return this.mapear(raw)
@@ -119,5 +119,36 @@ export class PrismaAnimeRepository implements IAnimeRepository {
       take:    50,
     })
     return rows.map(this.mapear)
+  }
+  async getRankingMasVistos(limit: number): Promise<RankingItem[]> {
+    const rows = await prisma.listaUsuario.groupBy({
+      by: ['animeId'],
+      where: { estados: { has: 'Viendo' } },
+      _count: { animeId: true },
+      orderBy: { _count: { animeId: 'desc' } },
+      take: limit,
+    })
+    const animeIds = rows.map(r => r.animeId)
+    const animes = await prisma.anime.findMany({ where: { id: { in: animeIds } } })
+    const animeMap = new Map(animes.map(a => [a.id, a]))
+    return rows
+      .map(r => ({ anime: this.mapear(animeMap.get(r.animeId)!), count: r._count.animeId }))
+      .filter(r => r.anime)
+  }
+
+  async getRankingMasGustados(limit: number): Promise<RankingItem[]> {
+    const rows = await prisma.listaUsuario.groupBy({
+      by: ['animeId'],
+      where: { estados: { has: 'Me gusta' } },
+      _count: { animeId: true },
+      orderBy: { _count: { animeId: 'desc' } },
+      take: limit,
+    })
+    const animeIds = rows.map(r => r.animeId)
+    const animes = await prisma.anime.findMany({ where: { id: { in: animeIds } } })
+    const animeMap = new Map(animes.map(a => [a.id, a]))
+    return rows
+      .map(r => ({ anime: this.mapear(animeMap.get(r.animeId)!), count: r._count.animeId }))
+      .filter(r => r.anime)
   }
 }

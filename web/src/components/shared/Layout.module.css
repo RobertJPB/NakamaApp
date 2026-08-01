@@ -1,14 +1,17 @@
 /* Layout Base Grid */
 .appLayout {
   display: grid;
-  grid-template-columns: 240px 1fr;
-  min-height: 100vh;
+  grid-template-columns: 15rem 1fr;
+  min-height: 111.111vh;
   background-color: #0d0d0d;
   color: #f1f2f6;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   overflow-x: hidden;
 }
 
+.appLayoutCollapsed {
+  grid-template-columns: 80px 1fr;
+}
 /* MAIN CONTENT CONTAINER */
 .mainContent {
   padding: 0 40px 24px 40px;
@@ -17,5 +20,21 @@
   flex-direction: column;
   gap: 20px;
   overflow-y: auto;
-  height: 100vh;
+  overflow-x: hidden;
+  height: 111.111vh;
 }
+
+@media (max-width: 768px) {
+  .appLayout {
+    grid-template-columns: 1fr;
+  }
+  .appLayoutCollapsed {
+    grid-template-columns: 1fr;
+  }
+  .mainContent {
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: calc(70px + env(safe-area-inset-bottom));
+  }
+}
+

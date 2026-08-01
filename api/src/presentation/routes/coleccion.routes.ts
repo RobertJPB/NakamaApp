@@ -7,6 +7,7 @@ const ctrl   = new ColeccionController()
 
 router.get('/editoriales',                       ctrl.editoriales)
 router.get('/usuario/:usuarioId',                ctrl.porUsuario)
+router.get('/buscar',                            ctrl.buscar)
 router.get('/:id',                               ctrl.detalle)
 router.post('/',                  authMiddleware, ctrl.crear)
 router.put('/:id',                authMiddleware, ctrl.editar)

@@ -1,54 +1,144 @@
-.wrap { padding: var(--space-10) 0 var(--space-16); display: flex; flex-direction: column; gap: var(--space-8); }
+/* ── Contenedor principal ───────────────────────────── */
+.wrap {
+  padding: var(--space-10) 0 var(--space-16);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
 
+/* ── Header ─────────────────────────────────────────── */
 .header {
-  display: flex; justify-content: space-between; align-items: flex-end;
-  flex-wrap: wrap; gap: var(--space-4);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: var(--space-5);
 }
 .titulo    { font-size: var(--text-3xl); font-weight: 800; }
 .subtitulo { font-size: var(--text-sm); color: var(--color-texto-muted); margin-top: var(--space-1); }
 
-.toggles { display: flex; background: var(--color-surface); border-radius: var(--radius-full); padding: 3px; gap: 2px; }
-.toggle {
-  padding: var(--space-2) var(--space-5); border-radius: var(--radius-full);
-  font-size: var(--text-sm); font-weight: 600; color: var(--color-texto-suave);
-  transition: all var(--transition-fast);
+/* ── Tabs ────────────────────────────────────────────── */
+.toggles {
+  display: flex;
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+  padding: 4px;
+  gap: 3px;
+  flex-wrap: wrap;
 }
-.toggle:hover { color: var(--color-texto); }
-.toggleActivo { background: var(--color-acento); color: #1f2124 !important; }
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: var(--space-2) var(--space-5);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-texto-suave);
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+.toggle:hover { color: var(--color-texto); background: rgba(255,255,255,0.05); }
+.toggleActivo { background: var(--color-acento) !important; color: #1f2124 !important; }
+.tabIcon { display: flex; align-items: center; }
 
-.lista { display: flex; flex-direction: column; gap: var(--space-3); }
+/* ── Lista ───────────────────────────────────────────── */
+.lista { display: flex; flex-direction: column; gap: var(--space-2); }
 
 .fila {
-  display: flex; align-items: center; gap: var(--space-4);
-  background: var(--color-surface); border-radius: var(--radius-lg);
-  padding: var(--space-3); border: 1px solid var(--color-borde-suave);
-  transition: border-color var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  background: #18191c;
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid rgba(255,255,255,0.06);
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+  cursor: pointer;
 }
-.fila:hover { border-color: var(--color-borde); }
+.fila:hover { border-color: var(--color-acento); background: #1e2024; }
 
+/* Número de posición */
 .posicion {
-  font-size: var(--text-2xl); font-weight: 900; color: var(--color-texto-muted);
-  min-width: 40px; text-align: center;
+  font-size: var(--text-xl);
+  font-weight: 900;
+  color: var(--color-texto-muted);
+  min-width: 44px;
+  text-align: center;
+  flex-shrink: 0;
 }
 .top3 { color: var(--color-acento); }
 
-.cardWrap { width: 60px; flex-shrink: 0; }
+/* Poster */
+.poster {
+  width: 52px;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  aspect-ratio: 2/3;
+  background: var(--color-surface-2);
+}
+.poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-.filaDatos { flex: 1; display: flex; flex-direction: column; gap: var(--space-1); }
-.filaTitulo { font-size: var(--text-base); font-weight: 700; color: var(--color-texto); }
+/* Datos textuales */
+.filaDatos { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.filaTitulo {
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--color-texto);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .filaMeta   { font-size: var(--text-xs); color: var(--color-texto-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-.filaRating { display: flex; align-items: center; gap: var(--space-3); margin-top: var(--space-1); }
-.filaEstrellas { color: var(--color-acento); letter-spacing: 2px; }
+.filaRating { display: flex; align-items: center; gap: var(--space-2); margin-top: 2px; }
+.filaEstrellas { color: var(--color-acento); letter-spacing: 1px; font-size: 0.8rem; }
 .filaNumero { font-size: var(--text-sm); font-weight: 700; color: var(--color-acento); }
 .filaTotal  { font-size: var(--text-xs); color: var(--color-texto-muted); }
 
-.grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: var(--space-4);
+/* Métrica destacada (lado derecho) */
+.metrica {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 80px;
+  flex-shrink: 0;
+  padding-left: var(--space-4);
+  border-left: 1px solid var(--color-borde-suave);
 }
-.skeleton {
-  aspect-ratio: 2/3; border-radius: var(--radius-md);
+.metricaValor {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: var(--color-acento);
+  line-height: 1;
+}
+.metricaLabel {
+  font-size: 0.7rem;
+  color: var(--color-texto-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+/* ── Skeleton ────────────────────────────────────────── */
+.skeletonList { display: flex; flex-direction: column; gap: var(--space-2); }
+.skeletonRow {
+  height: 72px;
+  border-radius: var(--radius-lg);
   background: linear-gradient(90deg, var(--color-surface) 25%, var(--color-surface-2) 50%, var(--color-surface) 75%);
-  background-size: 200% 100%; animation: shimmer 1.5s infinite;
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
 }
 @keyframes shimmer { to { background-position: -200% 0; } }
+
+/* ── Vacío ───────────────────────────────────────────── */
+.vacio {
+  text-align: center;
+  padding: 60px 0;
+  color: var(--color-texto-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.vacio p    { font-size: var(--text-lg); font-weight: 600; color: var(--color-texto); }
+.vacio span { font-size: var(--text-sm); }

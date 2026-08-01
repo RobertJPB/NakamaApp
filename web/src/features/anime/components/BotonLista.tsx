@@ -2,7 +2,8 @@ import React, { useState } from 'react'
 import { useBiblioteca } from '../../../hooks/useBiblioteca'
 import { useAuthStore }    from '../../../store/authStore'
 import styles              from './BotonLista.module.css'
-import { Heart, Clock, Eye, CheckSquare, Tv, Film, Folder } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Heart, Clock, Eye, CheckSquare, Tv, Film, Folder, Library } from 'lucide-react'
 
 const getIconForList = (nombre: string) => {
   const nombreLower = nombre.toLowerCase()
@@ -15,23 +16,61 @@ const getIconForList = (nombre: string) => {
   return <Folder size={16} color="#a4b0be" />
 }
 
-export const BotonLista: React.FC<{ animeId: string }> = ({ animeId }) => {
+export const BotonLista: React.FC<{ animeId: string, onListaChange?: () => void }> = ({ animeId, onListaChange }) => {
   const usuario                                 = useAuthStore(s => s.usuario)
   const { columnas, agregar, lista }            = useBiblioteca(usuario?.id ?? null)
   const [abierto,   setAbierto]                 = useState(false)
+  const navigate                                = useNavigate()
 
   // Find if this anime is already in any list
   const entradaActual = lista?.find((e: any) => e.animeId === animeId)
-  const estadosActivos = entradaActual?.estados || []
+  const [optimisticEstados, setOptimisticEstados] = useState<string[] | null>(null)
+  
+  // Usar el estado optimista si existe, de lo contrario la fuente de verdad
+  const estadosActivos = optimisticEstados !== null ? optimisticEstados : (entradaActual?.estados || [])
+
+  // Limpiar el estado optimista cuando la lista real se sincroniza
+  React.useEffect(() => {
+    setOptimisticEstados(null)
+  }, [lista])
 
   const seleccionar = async (estado: string) => {
-    await agregar(animeId, estado)
+    // UI Optimista inmediata
+    let nuevosEstados = [...estadosActivos]
+    if (nuevosEstados.includes(estado)) {
+      nuevosEstados = nuevosEstados.filter(e => e !== estado)
+    } else {
+      nuevosEstados.push(estado)
+    }
+    setOptimisticEstados(nuevosEstados)
+    
+    try {
+      await agregar(animeId, estado)
+      if (onListaChange) onListaChange()
+    } catch (error) {
+      console.error("Error al actualizar la lista", error)
+      setOptimisticEstados(estadosActivos)
+    }
   }
+
+  const botonTexto = 'Añadir a Lista'
+  let Icono = <Library size={16} />
+
 
   return (
     <div className={styles.wrap}>
-      <button className={`${styles.btn} ${abierto ? styles.btnAbierto : ''}`} onClick={() => setAbierto(p => !p)}>
-        Añadir a Lista
+      <button 
+        className={`${styles.btn} ${abierto ? styles.btnAbierto : ''} ${estadosActivos.length > 0 ? styles.btnAdded : ''}`} 
+        onClick={() => {
+          if (!usuario) {
+            return navigate('/auth', { state: { message: 'Debes iniciar sesión para acceder a esta función' } })
+          } else {
+            setAbierto(p => !p)
+          }
+        }}
+      >
+        {Icono}
+        {botonTexto}
       </button>
 
       {abierto && (

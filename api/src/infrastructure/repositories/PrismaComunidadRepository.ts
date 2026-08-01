@@ -41,9 +41,11 @@ export class PrismaComunidadRepository implements IComunidadRepository {
         nombre:       data.nombre!,
         descripcion:  data.descripcion,
         imagenUrl:    data.imagenUrl,
+        bannerUrl:    data.bannerUrl,
         tipo:         data.tipo!,
         referenciaId: data.referenciaId,
         creadoPor:    data.creadoPor,
+        totalMiembros: data.creadoPor ? 1 : 0,
       },
     })
     // El creador se une automáticamente como admin
@@ -58,7 +60,12 @@ export class PrismaComunidadRepository implements IComunidadRepository {
   async update(id: string, data: Partial<Comunidad>): Promise<Comunidad> {
     const raw = await prisma.comunidad.update({
       where: { id },
-      data:  { nombre: data.nombre, descripcion: data.descripcion, imagenUrl: data.imagenUrl },
+      data:  { 
+        descripcion: data.descripcion, 
+        imagenUrl: data.imagenUrl,
+        bannerUrl: data.bannerUrl,
+        tipo: data.tipo 
+      },
     })
     return this.mapear(raw)
   }
@@ -68,15 +75,31 @@ export class PrismaComunidadRepository implements IComunidadRepository {
   }
 
   async unirse(usuarioId: string, comunidadId: string): Promise<void> {
-    await prisma.miembro.upsert({
-      where:  { usuarioId_comunidadId: { usuarioId, comunidadId } },
-      create: { usuarioId, comunidadId },
-      update: {},
-    })
+    const yaEs = await this.esMiembro(usuarioId, comunidadId)
+    if (!yaEs) {
+      await prisma.miembro.create({
+        data: { usuarioId, comunidadId }
+      })
+      const total = await prisma.miembro.count({ where: { comunidadId } })
+      await prisma.comunidad.update({
+        where: { id: comunidadId },
+        data: { totalMiembros: total }
+      })
+    }
   }
 
   async salir(usuarioId: string, comunidadId: string): Promise<void> {
-    await prisma.miembro.deleteMany({ where: { usuarioId, comunidadId } })
+    const yaEs = await this.esMiembro(usuarioId, comunidadId)
+    if (yaEs) {
+      await prisma.miembro.delete({
+        where: { usuarioId_comunidadId: { usuarioId, comunidadId } }
+      })
+      const total = await prisma.miembro.count({ where: { comunidadId } })
+      await prisma.comunidad.update({
+        where: { id: comunidadId },
+        data: { totalMiembros: total }
+      })
+    }
   }
 
   async esMiembro(usuarioId: string, comunidadId: string): Promise<boolean> {

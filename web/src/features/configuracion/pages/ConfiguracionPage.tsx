@@ -38,7 +38,7 @@ const COLORES_BANNER = [
 
 export const ConfiguracionPage: React.FC = () => {
   const navigate = useNavigate()
-  const { usuario: usuarioAuth, estaAutenticado } = useAuth()
+  const { usuario: usuarioAuth, estaAutenticado, signOut } = useAuth()
   const setUsuario = useAuthStore(s => s.setUsuario)
   const [cargando, setCargando]   = useState(true)
   const [guardando, setGuardando] = useState(false)
@@ -104,6 +104,16 @@ export const ConfiguracionPage: React.FC = () => {
 
   const guardar = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!form.nombreDisplay.trim()) {
+      setError('El nombre de visualización es obligatorio')
+      return
+    }
+    if (!form.username.trim() || form.username.trim().length < 3) {
+      setError('El username debe tener al menos 3 caracteres')
+      return
+    }
+
     setGuardando(true)
     setError('')
     setExito(false)
@@ -135,15 +145,50 @@ export const ConfiguracionPage: React.FC = () => {
 
   // Pantalla de carga eliminada para permitir carga optimista instantánea
   return (
-    <Layout>
+    <Layout hideNav={!usuarioAuth?.username || !usuarioAuth?.nombreDisplay}>
       <div className={styles.page}>
         <div className={styles.container}>
 
-          {/* Cabecera */}
           <div className={styles.pageHeader}>
             <h1 className={styles.pageTitle}>Configuración de perfil</h1>
             <p className={styles.pageSubtitle}>Personaliza cómo te ven los demás en Nakama</p>
           </div>
+
+          {(!usuarioAuth?.username || !usuarioAuth?.nombreDisplay) && (
+            <div style={{
+              backgroundColor: 'rgba(239, 68, 68, 0.1)',
+              color: '#ef4444',
+              padding: '16px',
+              borderRadius: '8px',
+              marginBottom: '24px',
+              border: '1px solid rgba(239, 68, 68, 0.2)',
+              fontSize: '14px',
+              lineHeight: '1.5',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '12px'
+            }}>
+              <p style={{ margin: 0 }}>¡Atención! Tu perfil no tiene un nombre de usuario asignado. Por favor, escribe un Username y un Nombre de visualización para poder continuar navegando por la aplicación.</p>
+              <button 
+                type="button" 
+                onClick={async () => {
+                  await signOut()
+                  navigate('/auth')
+                }}
+                style={{ 
+                  background: 'transparent', 
+                  color: 'var(--color-acento)', 
+                  border: 'none', 
+                  cursor: 'pointer', 
+                  textDecoration: 'underline',
+                  alignSelf: 'flex-start',
+                  padding: 0,
+                  fontSize: '14px'
+                }}>
+                ¿Problemas? Cerrar sesión e intentar de nuevo
+              </button>
+            </div>
+          )}
 
           <form onSubmit={guardar} className={styles.form} style={{ pointerEvents: cargando ? 'none' : 'auto', opacity: cargando ? 0.7 : 1, transition: 'opacity 0.2s' }}>
             {/* === AVATAR + NOMBRE === */}
@@ -274,58 +319,11 @@ export const ConfiguracionPage: React.FC = () => {
               </div>
             </section>
 
-            {/* === PRIVACIDAD === */}
-            <section className={styles.section}>
-              <h2 className={styles.sectionTitle}>Privacidad</h2>
-
-              <div className={styles.toggleList}>
-                <div className={styles.toggleItem}>
-                  <div>
-                    <p className={styles.toggleLabel}>Perfil privado</p>
-                    <p className={styles.toggleDesc}>Solo tus seguidores aceptados pueden ver tu perfil</p>
-                  </div>
-                  <button
-                    type="button"
-                    className={`${styles.toggle} ${form.perfilPrivado ? styles.toggleOn : ''}`}
-                    onClick={() => setForm(f => ({ ...f, perfilPrivado: !f.perfilPrivado }))}
-                  >
-                    <span className={styles.toggleThumb} />
-                  </button>
-                </div>
-
-                <div className={styles.toggleItem}>
-                  <div>
-                    <p className={styles.toggleLabel}>Reseñas públicas</p>
-                    <p className={styles.toggleDesc}>Cualquier usuario puede ver tus reseñas</p>
-                  </div>
-                  <button
-                    type="button"
-                    className={`${styles.toggle} ${form.resenasPublicas ? styles.toggleOn : ''}`}
-                    onClick={() => setForm(f => ({ ...f, resenasPublicas: !f.resenasPublicas }))}
-                  >
-                    <span className={styles.toggleThumb} />
-                  </button>
-                </div>
-
-                <div className={styles.toggleItem}>
-                  <div>
-                    <p className={styles.toggleLabel}>Listas públicas</p>
-                    <p className={styles.toggleDesc}>Cualquier usuario puede ver tu biblioteca de animes</p>
-                  </div>
-                  <button
-                    type="button"
-                    className={`${styles.toggle} ${form.listasPublicas ? styles.toggleOn : ''}`}
-                    onClick={() => setForm(f => ({ ...f, listasPublicas: !f.listasPublicas }))}
-                  >
-                    <span className={styles.toggleThumb} />
-                  </button>
-                </div>
-              </div>
-            </section>
+{/* Privacidad movida a /configuracion */}
 
             {/* === BOTONES === */}
             {error  && <p className={styles.errorMsg}>{error}</p>}
-            {exito  && <p className={styles.exitoMsg}>✓ Perfil actualizado correctamente</p>}
+            {exito  && <p className={styles.exitoMsg}>Perfil actualizado correctamente</p>}
 
             <div className={styles.actions}>
               <a href="/" className={styles.btnCancel}>Cancelar</a>

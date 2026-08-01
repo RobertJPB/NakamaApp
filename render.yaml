@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: nakama-api
+    runtime: node
+    rootDir: api
+    buildCommand: npm install -g pnpm && pnpm install && pnpm prisma generate && pnpm build
+    startCommand: node dist/server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        sync: false   # Lo pegas manualmente en el dashboard de Render
+      - key: FRONTEND_URL
+        sync: false   # La URL de Vercel, ej: https://nakama.vercel.app
+      - key: LOG_LEVEL
+        value: info
+    healthCheckPath: /health
+    plan: free

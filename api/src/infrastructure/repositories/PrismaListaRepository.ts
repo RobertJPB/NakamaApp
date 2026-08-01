@@ -1,7 +1,5 @@
 import { prisma }           from '../database/prisma/client'
 import { IListaRepository, EntradaLista } from '../../domain/repositories/IListaRepository'
-import { EstadoListaType }  from '../../domain/value-objects/EstadoLista'
-
 export class PrismaListaRepository implements IListaRepository {
 
   private mapear(raw: any): EntradaLista {
@@ -23,7 +21,7 @@ export class PrismaListaRepository implements IListaRepository {
     const rows = await prisma.listaUsuario.findMany({
       where:   { usuarioId, ...(estado ? { estados: { has: estado } } : {}) },
       orderBy: { actualizadoEn: 'desc' },
-      include: { anime: { select: { titulo: true, imagenUrl: true, anilistId: true, episodios: true, tipo: true, estadoEmision: true, demografia: true, calificacionPromedio: true } } },
+      include: { anime: { select: { titulo: true, imagenUrl: true, externalId: true, episodios: true, tipo: true, estadoEmision: true, demografia: true, calificacionPromedio: true } } },
     })
     return rows.map(this.mapear)
   }
@@ -79,7 +77,7 @@ export class PrismaListaRepository implements IListaRepository {
   async getParaRuleta(usuarioId: string): Promise<EntradaLista[]> {
     const rows = await prisma.listaUsuario.findMany({
       where:   { usuarioId, estados: { has: 'pendiente' }, esPrivada: false },
-      include: { anime: { select: { titulo: true, imagenUrl: true, anilistId: true } } },
+      include: { anime: { select: { titulo: true, imagenUrl: true, externalId: true } } },
     })
     return rows.map(this.mapear)
   }

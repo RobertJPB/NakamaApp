@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Search, Star, X } from 'lucide-react'
+import { Search, X } from 'lucide-react'
 import { api } from '../../../lib/axios'
 import styles from './ReviewComposer.module.css'
 
@@ -48,7 +48,7 @@ export const ReviewComposer: React.FC<{ onReviewPosted?: (review: any) => void }
     setEnviando(true)
     try {
       const res = await api.post('/api/resenas', {
-        animeId: animeSeleccionado.id ?? animeSeleccionado.anilistId.toString(),
+        animeId: animeSeleccionado.id ?? animeSeleccionado.externalId.toString(),
         calificacion,
         contenido,
         contieneSpoiler: spoiler,
@@ -89,7 +89,7 @@ export const ReviewComposer: React.FC<{ onReviewPosted?: (review: any) => void }
             <div className={styles.dropdown}>
               {resultados.map(anime => (
                 <button 
-                  key={anime.anilistId} 
+                  key={anime.externalId} 
                   className={styles.dropdownItem}
                   onClick={() => {
                     setAnimeSeleccionado(anime)

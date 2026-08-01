@@ -79,8 +79,8 @@
 }
 
 .favItem {
-  width: 80px;
-  height: 115px;
+  width: 88px;
+  height: 127px;
   border-radius: var(--radius-sm);
   overflow: hidden;
   box-shadow: var(--shadow-sm);
@@ -106,6 +106,16 @@
 .statsRow { display: flex; gap: var(--space-6); align-items: center; }
 .statItem { font-size: var(--text-sm); color: var(--color-texto-suave); }
 .statItem strong { color: var(--color-texto); font-weight: 700; margin-right: 4px; }
+.statClickable {
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.statClickable:hover {
+  color: var(--color-texto);
+}
+.statClickable:hover strong {
+  text-decoration: underline;
+}
 
 .actionsRow { display: flex; gap: var(--space-3); align-items: center; }
 
@@ -117,13 +127,14 @@
   cursor: pointer;
   transition: all var(--transition-fast);
   display: flex; align-items: center; justify-content: center;
+  min-width: 110px; /* Evita que el botón cambie de tamaño bruscamente al cambiar el texto */
 }
 .btnActionSolid {
-  background: var(--color-surface-2);
-  color: var(--color-texto);
-  border: none;
+  background: var(--color-acento);
+  color: #1f2124;
+  border: 1px solid transparent; /* Mantiene la misma geometría que el outlined */
 }
-.btnActionSolid:hover { background: var(--color-surface-3); }
+.btnActionSolid:hover { opacity: 0.9; }
 
 .btnActionOutlined {
   background: transparent;

@@ -1,8 +1,8 @@
 /* Layout Base Grid */
 .appLayout {
   display: grid;
-  grid-template-columns: 240px 1fr;
-  min-height: 100vh;
+  grid-template-columns: 15rem 1fr;
+  min-height: 111.111vh;
   background-color: #0d0d0d;
   color: #f1f2f6;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -18,7 +18,7 @@
   padding: 22px;
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 111.111vh;
   position: sticky;
   top: 0;
   box-sizing: border-box;
@@ -229,7 +229,7 @@
   flex-direction: column;
   gap: 20px;
   overflow-y: auto;
-  height: 100vh;
+  height: 111.111vh;
 }
 
 /* Header */
@@ -454,13 +454,13 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  margin-top: 10px;
+  margin-top: -10px;
 }
 
 .carouselContainer {
   position: relative;
   width: 100%;
-  height: 420px;
+  height: 23.5rem;
   perspective: 1200px;
   display: flex;
   align-items: center;
@@ -479,6 +479,8 @@
   transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
   background-color: #0d0c15;
   border: 1px solid rgba(255, 255, 255, 0.08);
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+  isolation: isolate;
 }
 
 .cardBgImage {
@@ -488,6 +490,9 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  color: transparent;
+  transform: scale(1.02);
 }
 
 .cardOverlayGlow {
@@ -642,9 +647,9 @@
 }
 
 .sliderArrow:hover {
-  background-color: #ffc107;
-  border-color: #ffc107;
-  color: #0b0d12;
+  background-color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
 }
 
 .arrowLeft {
@@ -660,9 +665,9 @@
    ══════════════════════════════════════════ */
 .bottomGrid {
   display: grid;
-  grid-template-columns: 1fr 300px;
+  grid-template-columns: 1fr 18.75rem;
   gap: 32px;
-  margin-top: 10px;
+  margin-top: -5px;
 }
 
 .mainGridContent {
@@ -715,8 +720,24 @@
 /* Anime Grid */
 .animeGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
   gap: 16px;
+  grid-template-columns: repeat(8, 1fr);
+}
+
+@media (max-width: 1800px) {
+  .animeGrid { grid-template-columns: repeat(6, 1fr); }
+}
+
+@media (max-width: 1100px) {
+  .animeGrid { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (max-width: 700px) {
+  .animeGrid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 450px) {
+  .animeGrid { grid-template-columns: repeat(2, 1fr); }
 }
 
 .animeCard {
@@ -729,8 +750,8 @@
 
 .animeCard:hover {
   transform: translateY(-6px);
-  border-color: rgba(255, 204, 0, 0.35);
-  box-shadow: 0 8px 24px rgba(255, 204, 0, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8);
 }
 
 .cardPoster {
@@ -743,6 +764,8 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  color: transparent; /* Oculta el texto "alt" (y el icono de imagen rota en algunos navegadores) mientras la imagen se descarga */
+  background-color: rgba(255, 255, 255, 0.03);
 }
 
 .cardHoverOverlay {
@@ -900,9 +923,9 @@
 }
 
 .pageBtn:hover:not(:disabled) {
-  background: rgba(255, 204, 0, 0.12);
-  border-color: rgba(255, 204, 0, 0.3);
-  color: #ffc107;
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
 }
 
 .pageBtn:disabled {
@@ -920,7 +943,7 @@
 .rankingsSidebar {
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
+  border-radius: 8px;
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -949,12 +972,13 @@
   background: rgba(255, 255, 255, 0.01);
   border: 1px solid rgba(255, 255, 255, 0.03);
   padding: 12px;
-  border-radius: 8px;
-  transition: background 0.2s;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
 .rankingItem:hover {
-  background: rgba(255, 204, 0, 0.06);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .rankNumber {

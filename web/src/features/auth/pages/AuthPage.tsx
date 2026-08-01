@@ -1,16 +1,30 @@
 import React, { useState, useEffect } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth }         from '../../../hooks/useAuth'
 import styles              from './AuthPage.module.css'
 
 export const AuthPage: React.FC = () => {
-  const { signIn, signUp, signInWithGoogle, estaAutenticado } = useAuth()
+  const { signIn, signUp, signInWithGoogle, estaAutenticado, usuario } = useAuth()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const messageFromState = location.state?.message
   const [modo,     setModo]          = useState<'login' | 'registro'>('login')
 
   useEffect(() => {
-    if (estaAutenticado) {
-      window.location.href = '/'
+    // Clear flag so it doesn't affect subsequent navigations
+    sessionStorage.removeItem('isLoggingOut')
+    
+    if (estaAutenticado && usuario) {
+      // Check if user was created in the last 15 seconds (new Google sign up)
+      const isNewUser = new Date().getTime() - new Date(usuario.created_at).getTime() < 15000;
+      
+      if (isNewUser) {
+        navigate('/perfil/editar')
+      } else {
+        navigate('/')
+      }
     }
-  }, [estaAutenticado])
+  }, [estaAutenticado, usuario, navigate])
   const [email,    setEmail]         = useState('')
   const [password, setPassword]      = useState('')
   const [username, setUsername]      = useState('')
@@ -20,17 +34,23 @@ export const AuthPage: React.FC = () => {
 
   const enviar = async () => {
     setError(''); setCargando(true)
+    let exitoso = false
     try {
       if (modo === 'login') {
         await signIn(email, password)
+        navigate('/')
+        exitoso = true
       } else {
         await signUp(email, password, username, nombre)
+        navigate('/perfil/editar')
+        exitoso = true
       }
-      window.location.href = '/'
     } catch (e: any) {
       setError(e.message)
     } finally {
-      setCargando(false)
+      if (!exitoso) {
+        setCargando(false)
+      }
     }
   }
 
@@ -44,10 +64,34 @@ export const AuthPage: React.FC = () => {
     }
   }
 
+  if (estaAutenticado || cargando) {
+    return (
+      <div className={styles.page}>
+        <div className={styles.hero} style={{ color: 'var(--color-texto)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <h2>Iniciando sesión...</h2>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className={styles.page}>
       <div className={styles.hero}>
         <div className={styles.heroPanel}>
+          {messageFromState && (
+            <div style={{
+              backgroundColor: 'rgba(255, 165, 0, 0.1)',
+              color: '#ffa500',
+              padding: '12px 16px',
+              borderRadius: '8px',
+              textAlign: 'center',
+              fontSize: '14px',
+              border: '1px solid rgba(255, 165, 0, 0.2)',
+              marginBottom: '8px'
+            }}>
+              {messageFromState}
+            </div>
+          )}
           <div className={styles.brand}>
             <span className={styles.logoTexto}>Nakama</span>
             <p className={styles.tagline}>Accede al feed de reseñas de anime</p>
@@ -121,7 +165,7 @@ export const AuthPage: React.FC = () => {
           {error && <p className={styles.error}>{error}</p>}
 
           <button type="button" className={styles.btn} onClick={enviar} disabled={cargando}>
-            {cargando ? 'Cargando...' : modo === 'login' ? 'Entrar' : 'Crear cuenta'}
+            {cargando ? (modo === 'login' ? 'Iniciando sesión...' : 'Creando cuenta...') : modo === 'login' ? 'Entrar' : 'Crear cuenta'}
           </button>
         </div>
       </div>

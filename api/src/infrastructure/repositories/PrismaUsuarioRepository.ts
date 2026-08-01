@@ -103,6 +103,18 @@ export class PrismaUsuarioRepository implements IUsuarioRepository {
     await prisma.seguidor.create({
       data: { seguidorId, seguidoId, estado },
     })
+
+    if (estado === 'aceptado') {
+      await prisma.notificacion.create({
+        data: {
+          usuarioId: seguidoId,
+          tipo: 'nuevo_seguidor',
+          actorId: seguidorId,
+          mensaje: 'Ha comenzado a seguirte'
+        }
+      })
+    }
+
     return { accion: estado === 'pendiente' ? 'pendiente' as const : 'seguido' as const }
   }
 }

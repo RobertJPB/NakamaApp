@@ -9,11 +9,18 @@ export interface AnimeFilters {
   tipo?:       string
 }
 
+export interface RankingItem {
+  anime: Anime
+  count: number
+}
+
 export interface IAnimeRepository {
   findById(id: string): Promise<Anime | null>
-  findByAniListId(anilistId: number): Promise<Anime | null>
+  findByExternalId(externalId: string): Promise<Anime | null>
   findMany(filters: AnimeFilters, page: number, limit: number): Promise<Anime[]>
   upsert(data: Partial<Anime>): Promise<Anime>
   getRanking(limit: number): Promise<Anime[]>
   getRankingTemporada(): Promise<Anime[]>
+  getRankingMasVistos(limit: number): Promise<RankingItem[]>
+  getRankingMasGustados(limit: number): Promise<RankingItem[]>
 }

@@ -1,0 +1,121 @@
+.container {
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+}
+
+.title {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--color-texto);
+}
+
+.seeAll {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-texto);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+.seeAll:hover {
+  text-decoration: underline;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.userRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.avatarContainer {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--color-surface-2);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: var(--color-texto);
+  position: relative;
+}
+
+.avatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.userInfo {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0; /* allows truncation */
+}
+
+.userName {
+  font-size: var(--text-sm);
+  font-weight: 800; /* Bold name like the reference image */
+  color: var(--color-texto);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.userName:hover {
+  text-decoration: underline;
+}
+
+.userDesc {
+  font-size: var(--text-xs);
+  color: var(--color-texto-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+
+.btnFollow {
+  background: transparent;
+  color: var(--color-acento); /* Yellow/Orange Follow button */
+  border: none;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.btnFollow:hover {
+  background: rgba(255, 165, 0, 0.1);
+}
+
+.btnFollowed {
+  color: var(--color-texto-muted);
+}
+.btnFollowed:hover {
+  background: transparent;
+  text-decoration: underline;
+}

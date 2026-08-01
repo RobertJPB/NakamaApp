@@ -7,16 +7,28 @@ interface NewsSectionProps {
   title?: string;
   compact?: boolean;
   limit?: number;
+  forceLoading?: boolean;
 }
 
-export function NewsSection({ title = "Noticias de Anime", compact = false, limit }: NewsSectionProps) {
+export function NewsSection({ title = "Noticias de Anime", compact = false, limit, forceLoading }: NewsSectionProps) {
   const { noticias, cargando } = useNoticias(limit || (compact ? 6 : 60), compact ? 'popular' : 'default')
 
-  if (cargando) {
+  if (cargando || forceLoading) {
     return (
       <div className={`${styles.newsContainer} ${compact ? styles.compactContainer : ''}`}>
         <h2 className={styles.title}>{title}</h2>
-        <div className={styles.loading}>Cargando noticias...</div>
+        <div className={`${styles.newsList} ${compact ? styles.compactList : ''}`}>
+          {Array.from({ length: limit || (compact ? 6 : 60) }).map((_, i) => (
+            <div key={i} className={`${styles.newsCard} ${compact ? styles.compactCard : ''}`} style={{ display: 'flex', gap: '12px' }}>
+              <div className={styles.newsImageWrapper} style={{ background: 'var(--color-surface-2)', animation: 'pulse 1.5s ease-in-out infinite' }} />
+              <div className={styles.newsContent}>
+                <div style={{ height: 14, width: '100%', background: 'var(--color-surface-2)', borderRadius: 4, marginBottom: 8, animation: 'pulse 1.5s ease-in-out infinite' }} />
+                <div style={{ height: 14, width: '80%', background: 'var(--color-surface-2)', borderRadius: 4, marginBottom: 8, animation: 'pulse 1.5s ease-in-out infinite' }} />
+                {!compact && <div style={{ height: 12, width: '40%', background: 'var(--color-surface-2)', borderRadius: 4, animation: 'pulse 1.5s ease-in-out infinite' }} />}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     )
   }

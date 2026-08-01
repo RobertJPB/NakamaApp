@@ -9,6 +9,55 @@ import { AppError }                from '../middlewares/error.middleware'
  */
 export class ResenaController {
 
+  recientes = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+      const limit = Number(req.query.limit) || 8
+      const { prisma } = require('../../infrastructure/database/prisma/client')
+      
+      const resenas = await prisma.resena.findMany({
+        where: { esPublica: true },
+        orderBy: { creadoEn: 'desc' },
+        take: limit,
+        include: {
+          anime: { select: { titulo: true, externalId: true, imagenUrl: true } },
+          usuario: { select: { username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true } }
+        }
+      })
+      
+      res.json(resenas)
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  buscar = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+      const q = String(req.query.q ?? '').trim()
+      if (q.length < 2) return res.json([])
+
+      const { prisma } = require('../../infrastructure/database/prisma/client')
+      const resenas = await prisma.resena.findMany({
+        where: {
+          esPublica: true,
+          OR: [
+            { contenido: { contains: q, mode: 'insensitive' } },
+            { anime: { titulo: { contains: q, mode: 'insensitive' } } }
+          ]
+        },
+        orderBy: { creadoEn: 'desc' },
+        take: 50,
+        include: {
+          anime: { select: { titulo: true, externalId: true, imagenUrl: true } },
+          usuario: { select: { username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true } }
+        }
+      })
+      
+      res.json(resenas)
+    } catch (error) {
+      next(error)
+    }
+  }
+
   porAnime = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const { animeId } = req.params
@@ -24,7 +73,7 @@ export class ResenaController {
         skip: (page - 1) * limit,
         take: limit,
         include: {
-          anime: { select: { titulo: true, anilistId: true, imagenUrl: true } },
+          anime: { select: { titulo: true, externalId: true, imagenUrl: true } },
           usuario: { select: { username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true } }
         }
       })
@@ -43,7 +92,7 @@ export class ResenaController {
         where: { usuarioId, esPublica: true },
         orderBy: { creadoEn: 'desc' },
         include: {
-          anime: { select: { titulo: true, anilistId: true, imagenUrl: true } },
+          anime: { select: { titulo: true, externalId: true, imagenUrl: true } },
           usuario: { select: { username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true } }
         }
       })
@@ -57,9 +106,9 @@ export class ResenaController {
       if (!req.userId) throw new AppError('No autenticado', 401)
       
       let animeIdEnDb = req.body.animeId
-      // Si el frontend envía un ID de Anilist (número), debemos asegurar que el anime exista
-      if (typeof animeIdEnDb === 'number' || (!isNaN(Number(animeIdEnDb)) && String(animeIdEnDb).length < 10)) {
-        const { anime } = await container.obtenerDetalleAnime.execute(Number(animeIdEnDb))
+      // Si el frontend envía un ID de Kitsu (string), debemos asegurar que el anime exista
+      if (animeIdEnDb && !animeIdEnDb.includes('-')) { // Si no es un UUID, asume que es externalId
+        const { anime } = await container.obtenerDetalleAnime.execute(String(animeIdEnDb))
         animeIdEnDb = anime.id
       }
 
@@ -77,6 +126,20 @@ export class ResenaController {
     } catch (err) { next(err) }
   }
 
+  eliminar = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+      if (!req.userId) throw new AppError('No autenticado', 401)
+      const { prisma } = require('../../infrastructure/database/prisma/client')
+      
+      const resena = await prisma.resena.findUnique({ where: { id: req.params.id } })
+      if (!resena) throw new AppError('Reseña no encontrada', 404)
+      if (resena.usuarioId !== req.userId) throw new AppError('No autorizado', 403)
+
+      await prisma.resena.delete({ where: { id: req.params.id } })
+      res.json({ mensaje: 'Reseña eliminada correctamente' })
+    } catch (err) { next(err) }
+  }
+
   editar = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       if (!req.userId) throw new AppError('No autenticado', 401)
@@ -87,21 +150,13 @@ export class ResenaController {
         contenido:       req.body.contenido,
         contieneSpoiler: req.body.contieneSpoiler,
         esPublica:       req.body.esPublica,
+        etiquetas:       req.body.etiquetas,
       })
       res.json(resena)
     } catch (err) { next(err) }
   }
 
-  eliminar = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    try {
-      if (!req.userId) throw new AppError('No autenticado', 401)
-      await container.eliminarResena.execute({
-        resenaId:  req.params.id,
-        usuarioId: req.userId,
-      })
-      res.status(204).send()
-    } catch (err) { next(err) }
-  }
+
 
   toggleLike = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {

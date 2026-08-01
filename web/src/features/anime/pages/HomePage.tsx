@@ -1,33 +1,35 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { 
-  Home, 
-  Compass, 
-  MessageSquare, 
-  Heart, 
-  Bell, 
   Calendar, 
   Tv, 
   Star, 
   Trophy, 
-  Search, 
-  Sliders,
-  BookMarked,
-  Users,
-  Shuffle,
-  Settings,
   MessageCircle,
-  BarChart2
 } from 'lucide-react'
 import { Layout } from '../../../components/shared/Layout'
 import { NewsSection } from '../../feed/components/NewsSection'
 import styles from './HomePage.module.css'
 import { useAuth } from '../../../hooks/useAuth'
 import { useAnimes } from '../../../hooks/useAnimes'
+import { prefetchAnimeDetalle } from '../../../hooks/useAnime'
+import { useNavigate, Link } from 'react-router-dom'
+import { api } from '../../../lib/axios'
+
+const getTimeAgo = (dateStr: string) => {
+  const diff = Date.now() - new Date(dateStr).getTime()
+  const minutes = Math.floor(diff / 60000)
+  const hours = Math.floor(minutes / 60)
+  const days = Math.floor(hours / 24)
+  if (minutes < 1) return 'hace un momento'
+  if (minutes < 60) return `hace ${minutes}m`
+  if (hours < 24) return `hace ${hours}h`
+  return `hace ${days}d`
+}
 
 /* ─── Animes destacados (hero rotativo - 3D Stack) ─────────────────────────── */
 const FEATURED = [
   {
-    id: 101922,
+    id: 41370,
     badge: 'Anime destacado',
     titulo: 'Kimetsu no Yaiba',
     subtitulo: 'Demon Slayer: Kimetsu no Yaiba',
@@ -37,12 +39,12 @@ const FEATURED = [
     episodios: '26 eps',
     genero: 'Acción · Sobrenatural',
     puntuacion: '9.0',
-    imagen: '/hero-kimetsu.jpg',
+    imagen: 'https://i.blogs.es/e2f53f/kimetsu/1200_800.webp',
     color: 'rgba(160, 28, 28, 0.4)',
     slug: 'kimetsu-no-yaiba',
   },
   {
-    id: 113415,
+    id: 42765,
     badge: 'Muy valorado',
     titulo: 'Jujutsu Kaisen',
     subtitulo: 'Jujutsu Kaisen',
@@ -57,7 +59,7 @@ const FEATURED = [
     slug: 'jujutsu-kaisen',
   },
   {
-    id: 21,
+    id: 12,
     badge: 'Clásico',
     titulo: 'One Piece',
     subtitulo: 'One Piece',
@@ -67,7 +69,7 @@ const FEATURED = [
     episodios: '1000+ eps',
     genero: 'Aventura · Comedia',
     puntuacion: '8.7',
-    imagen: '/hero-onepiece.jpg',
+    imagen: 'https://5motivi.it/wp-content/uploads/2025/04/One-Piece-Cappello-di-Paglia-cose-da-sapere-ciurma-Monkey-D-Luffy-1-1024x576.jpg',
     color: 'rgba(160, 100, 18, 0.4)',
     slug: 'one-piece',
   },
@@ -75,42 +77,65 @@ const FEATURED = [
 
 /* ─── Pinned / Fast Launch (Seguimiento Rápido en Sidebar) ──────────────── */
 const FAST_LAUNCH = [
-  { id: 1, titulo: 'Demon Slayer', ep: 'Ep 12/26', pct: 46, imagen: '/hero-kimetsu.jpg' },
-  { id: 2, titulo: 'Jujutsu Kaisen', ep: 'Ep 22/24', pct: 91, imagen: 'https://static0.colliderimages.com/wordpress/wp-content/uploads/2023/10/jujutsu-kaisen-poster.jpg?q=50&fit=crop&w=1232&h=693&dpr=1.5' },
-  { id: 3, titulo: 'One Piece', ep: 'Ep 950/1000', pct: 95, imagen: '/hero-onepiece.jpg' },
+  { id: 41370, titulo: 'Demon Slayer', ep: 'Ep 12/26', pct: 46, imagen: 'https://i.blogs.es/e2f53f/kimetsu/1200_800.webp' },
+  { id: 42765, titulo: 'Jujutsu Kaisen', ep: 'Ep 22/24', pct: 91, imagen: 'https://static0.colliderimages.com/wordpress/wp-content/uploads/2023/10/jujutsu-kaisen-poster.jpg?q=50&fit=crop&w=1232&h=693&dpr=1.5' },
+  { id: 12, titulo: 'One Piece', ep: 'Ep 950/1000', pct: 95, imagen: 'https://5motivi.it/wp-content/uploads/2025/04/One-Piece-Cappello-di-Paglia-cose-da-sapere-ciurma-Monkey-D-Luffy-1-1024x576.jpg' },
 ]
 
 
 
 /* ─── Populares (top 10) ────────────────────────────────────────── */
 const POPULARES = [
-  { id: 1,  titulo: 'Fullmetal Alchemist: Brotherhood', genero: 'Acción · Aventura',    nota: '9.2' },
-  { id: 2,  titulo: 'Steins;Gate',                      genero: 'Sci-Fi · Thriller',     nota: '9.1' },
-  { id: 3,  titulo: 'Frieren',                          genero: 'Fantasía · Drama',      nota: '9.1' },
-  { id: 4,  titulo: 'Kimetsu no Yaiba',                 genero: 'Acción · Sobrenatural', nota: '9.0' },
-  { id: 5,  titulo: 'Attack on Titan',                  genero: 'Acción · Drama',        nota: '9.0' },
-  { id: 6,  titulo: 'Hunter x Hunter (2011)',            genero: 'Aventura · Fantasía',   nota: '8.9' },
-  { id: 7,  titulo: 'Jujutsu Kaisen 2',                 genero: 'Acción · Oscuro',       nota: '8.9' },
-  { id: 8,  titulo: 'Violet Evergarden',                genero: 'Drama · Slice of Life', nota: '8.8' },
-  { id: 9,  titulo: 'Vinland Saga',                     genero: 'Acción · Historia',     nota: '8.8' },
-  { id: 10, titulo: 'Made in Abyss',                    genero: 'Aventura · Oscuro',     nota: '8.7' },
+  { id: 3936,   titulo: 'Fullmetal Alchemist: Brotherhood', genero: 'Acción · Aventura',    nota: '9.2' },
+  { id: 5646,   titulo: 'Steins;Gate',                      genero: 'Sci-Fi · Thriller',     nota: '9.1' },
+  { id: 46474, titulo: 'Frieren',                          genero: 'Fantasía · Drama',      nota: '9.1' },
+  { id: 41370, titulo: 'Kimetsu no Yaiba',                 genero: 'Acción · Sobrenatural', nota: '9.0' },
+  { id: 7442,  titulo: 'Attack on Titan',                  genero: 'Acción · Drama',        nota: '9.0' },
+  { id: 6448,  titulo: 'Hunter x Hunter (2011)',           genero: 'Aventura · Fantasía',   nota: '8.9' },
+  { id: 45857, titulo: 'Jujutsu Kaisen 2',                 genero: 'Acción · Oscuro',       nota: '8.9' },
+  { id: 12230,  titulo: 'Violet Evergarden',                genero: 'Drama · Slice of Life', nota: '8.8' },
+  { id: 41084, titulo: 'Vinland Saga',                     genero: 'Acción · Historia',     nota: '8.8' },
+  { id: 13273,  titulo: 'Made in Abyss',                    genero: 'Aventura · Oscuro',     nota: '8.7' },
 ]
 
-/* ─── Reseñas recientes ─────────────────────────────────────────── */
-const RESENAS_RECIENTES = [
-  { id: 1, usuario: 'xX_Guts_Xx',  avatar: 'G', anime: 'Frieren',           nota: 5, texto: 'bro pensé que me iba a aburrir porque es puro diálogo pero terminé llorando a las 3 am 😭 10/10', hace: 'hace 2h' },
-  { id: 2, usuario: 'SatoruFan99', avatar: 'S', anime: 'Jujutsu Kaisen 2',  nota: 4, texto: 'uf la animacion en el capitulo de sukuna vs mahoraga es una locura, mappa carreado a la industria de nuevo', hace: 'hace 5h' },
-  { id: 3, usuario: 'kiritokun',   avatar: 'K', anime: 'Sword Art Online',  nota: 3, texto: 'el primer arco goood, despues se vuelve un zzz zzz la verdad, solo lo veo por la nostalgia', hace: 'hace 1d' },
-  { id: 4, usuario: 'AnyaPeanuts', avatar: 'A', anime: 'Spy x Family',      nota: 5, texto: 'Anya es literalmente yo jajajaja que anime más wholesome por dios, necesito 5 temporadas más', hace: 'hace 1d' },
-  { id: 5, usuario: 'eren_tatakae',avatar: 'E', anime: 'Attack on Titan',   nota: 5, texto: 'simplemente peak fiction. dejen de pelear por el final y disfruten el tremendo viaje q nos dio isayama', hace: 'hace 2d' },
-  { id: 6, usuario: 'ChainsawBro', avatar: 'C', anime: 'Chainsaw Man',      nota: 4, texto: 'muy buena adaptacion pero sigo esperando q animen el arco de bomb girl plsss', hace: 'hace 2d' },
-]
+
 
 export const HomePage: React.FC = () => {
   const [featuredIdx,  setFeaturedIdx]  = useState(0)
   const [tabActivo,    setTabActivo]    = useState<'hoy' | 'semana' | 'mes'>('hoy')
   const { usuario, estaAutenticado, signOut } = useAuth()
   const { animes, cargando, error, pagina, setPagina, totalPaginas } = useAnimes()
+  const navigate = useNavigate()
+  
+  const animesMostrados = React.useMemo(() => {
+    if (tabActivo === 'hoy') return animes
+    if (tabActivo === 'semana') return [...animes].reverse()
+    if (tabActivo === 'mes') {
+      const mitad = Math.floor(animes.length / 2)
+      return [...animes.slice(mitad), ...animes.slice(0, mitad)]
+    }
+    return animes
+  }, [animes, tabActivo])
+  
+  const [resenasRecientes, setResenasRecientes] = useState<any[]>([])
+  const [cargandoResenas, setCargandoResenas] = useState(true)
+
+  useEffect(() => {
+    api.get('/api/resenas/recientes')
+      .then(res => setResenasRecientes(res.data))
+      .catch(err => console.error('Error al cargar reseñas recientes:', err))
+      .finally(() => setCargandoResenas(false))
+  }, [])
+
+  // Auto-avance del carrusel cada 5 segundos
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setFeaturedIdx((prev) => (prev + 1) % FEATURED.length)
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [])
+
+  console.log('[DEBUG] HomePage render -> animes.length:', animes.length, 'cargando:', cargando, 'error:', error)
 
   const nextSlide = () => {
     setFeaturedIdx((prev) => (prev + 1) % FEATURED.length)
@@ -166,7 +191,14 @@ export const HomePage: React.FC = () => {
                       <p className={styles.cardDesc}>{item.descripcion}</p>
                       
                       <div className={styles.cardActions}>
-                        <a href={`/anime/${item.id}`} className={styles.btnPrimary}>Ver Ficha</a>
+                        <Link 
+                          to={`/anime/${item.id}`} 
+                          state={{ initialAnime: { externalId: item.id, titulo: item.titulo, imagenUrl: item.imagen, calificacionPromedio: Number(item.puntuacion), sinopsis: item.descripcion } }}
+                          className={styles.btnPrimary}
+                          onMouseEnter={() => prefetchAnimeDetalle(item.id)}
+                        >
+                          Ver Ficha
+                        </Link>
                         <button className={styles.btnSecondary}>Seguir Actividad</button>
                       </div>
                     </div>
@@ -199,6 +231,7 @@ export const HomePage: React.FC = () => {
               </div>
             </div>
 
+
             {/* Anime Grid */}
             {error && (
               <p className={styles.apiError}>⚠ {error}</p>
@@ -214,13 +247,21 @@ export const HomePage: React.FC = () => {
                       </div>
                     </div>
                   ))
-                : animes.slice(0, Math.floor(animes.length / 6) * 6).map(anime => (
-                    <a href={`/anime/${anime.anilistId}`} key={anime.anilistId} className={styles.animeCard}>
+                : animesMostrados.map(anime => (
+                    <Link 
+                      to={`/anime/${anime.externalId}`} 
+                      state={{ initialAnime: anime }} 
+                      key={anime.externalId} 
+                      className={styles.animeCard}
+                      onMouseEnter={() => prefetchAnimeDetalle(anime.externalId)}
+                    >
                       <div className={styles.cardPoster}>
                         <img
                           src={anime.imagenUrl ?? '/hero-kimetsu.jpg'}
                           alt={anime.titulo}
                           className={styles.cardPosterImg}
+                          loading="lazy"
+                          decoding="async"
                         />
                       </div>
                       <div className={styles.cardInfo}>
@@ -232,7 +273,7 @@ export const HomePage: React.FC = () => {
                           </span>
                         </div>
                       </div>
-                    </a>
+                    </Link>
                   ))
               }
             </div>
@@ -264,11 +305,15 @@ export const HomePage: React.FC = () => {
           {/* TOP 10 RANKING — full list */}
           <aside className={styles.rankingsSidebar}>
             <h3 className={styles.sidebarTitle}>
-              <Trophy className={styles.trophyIcon} size={16} /> Mejor Valorados
+              <Trophy className={styles.trophyIcon} size={16} fill="currentColor" /> Mejor Valorados
             </h3>
             <div className={styles.rankingList}>
               {POPULARES.map((anime, index) => (
-                <div key={anime.id} className={styles.rankingItem}>
+                <div 
+                  key={anime.id} 
+                  className={styles.rankingItem}
+                  onClick={() => navigate(`/anime/${anime.id}`)}
+                >
                   <span className={`${styles.rankNumber} ${index < 3 ? styles.rankTop3 : ''}`}>{String(index + 1).padStart(2, '0')}</span>
                   <div className={styles.rankDetails}>
                     <p className={styles.rankName}>{anime.titulo}</p>
@@ -280,7 +325,7 @@ export const HomePage: React.FC = () => {
                 </div>
               ))}
             </div>
-            <a href="/ranking" className={styles.rankingViewMore} style={{ marginTop: 8 }}>Ver ranking completo</a>
+            <Link to="/ranking" className={styles.rankingViewMore} style={{ marginTop: 8 }}>Ver ranking completo</Link>
           </aside>
         </section>
 
@@ -291,34 +336,41 @@ export const HomePage: React.FC = () => {
               <MessageCircle size={18} style={{ marginRight: 8, verticalAlign: 'middle', color: '#ffc107' }} />
               Reseñas Recientes
             </h2>
-            <a href="/feed" className={styles.rankingViewMore}>Ver todas</a>
+            <Link to="/feed" className={styles.rankingViewMore}>Ver todas</Link>
           </div>
           <div className={styles.resenasGrid}>
-            {RESENAS_RECIENTES.map(r => (
-              <article key={r.id} className={styles.resenaCard}>
-                <div className={styles.resenaHeader}>
-                  <div className={styles.resenaAvatar}>{r.avatar}</div>
-                  <div className={styles.resenaUserInfo}>
-                    <span className={styles.resenaUsuario}>{r.usuario}</span>
-                    <span className={styles.resenaAnime}>{r.anime}</span>
+            {cargandoResenas ? (
+              <p style={{ color: 'var(--color-texto-muted)', fontSize: 'var(--text-sm)' }}>Cargando reseñas...</p>
+            ) : resenasRecientes.length === 0 ? (
+              <p style={{ color: 'var(--color-texto-muted)', fontSize: 'var(--text-sm)' }}>No hay reseñas aún.</p>
+            ) : (
+              resenasRecientes.slice(0, 6).map(r => (
+                <article key={r.id} className={styles.resenaCard}>
+                  <div className={styles.resenaHeader}>
+                    <div className={styles.resenaAvatar}>
+                      {r.usuario.avatarUrl ? <img src={r.usuario.avatarUrl} alt="" style={{width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%'}} /> : r.usuario.username.charAt(0).toUpperCase()}
+                    </div>
+                    <div className={styles.resenaUserInfo}>
+                      <span className={styles.resenaUsuario}>{r.usuario.username}</span>
+                      <span className={styles.resenaAnime}>{r.anime.titulo}</span>
+                    </div>
+                    <div className={styles.resenaStars}>
+                      {Array.from({ length: 5 }).map((_, i) => {
+                        const estrellas = Math.round(((r.calificacion ?? 0) / 10) * 5);
+                        return <Star key={i} size={12} className={i < estrellas ? styles.starYellow : styles.starEmpty} fill={i < estrellas ? '#ffc107' : 'none'} />
+                      })}
+                    </div>
                   </div>
-                  <div className={styles.resenaStars}>
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star key={i} size={12} className={i < r.nota ? styles.starYellow : styles.starEmpty} fill={i < r.nota ? '#ffc107' : 'none'} />
-                    ))}
-                  </div>
-                </div>
-                <p className={styles.resenaTexto}>{r.texto}</p>
-                <span className={styles.resenaHace}>{r.hace}</span>
-              </article>
-            ))}
+                  <p className={styles.resenaTexto}>{r.contenido}</p>
+                  <span className={styles.resenaHace}>{getTimeAgo(r.creadoEn)}</span>
+                </article>
+              ))
+            )}
           </div>
         </section>
 
         {/* NOTICIAS */}
-        <section className={styles.resenasSection}>
-          <NewsSection />
-        </section>
+        <NewsSection />
     </Layout>
   )
 }
