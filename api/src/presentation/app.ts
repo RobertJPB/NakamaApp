@@ -43,6 +43,11 @@ app.use(cors({ origin: (origin, cb) => {
     return cb(null, true)
   }
 
+  // Allow Vercel preview/production deployments
+  if (origin.endsWith('.vercel.app')) {
+    return cb(null, true)
+  }
+
   cb(new Error(`CORS: origin ${origin} not allowed`))
 }, credentials: true }))
 app.use(express.json({ limit: '5mb' }))
