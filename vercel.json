@@ -1,9 +1,8 @@
 {
   "version": 2,
-  "buildCommand": "cd web && npm run build",
-  "outputDirectory": "web/dist",
   "installCommand": "npm install -g pnpm && pnpm install",
-  "framework": "vite",
+  "buildCommand": "pnpm --filter @nakama/web... build",
+  "outputDirectory": "web/dist",
   "rewrites": [
     { "source": "/(.*)", "destination": "/" }
   ]
