@@ -347,12 +347,12 @@ export const HomePage: React.FC = () => {
               resenasRecientes.slice(0, 6).map(r => (
                 <article key={r.id} className={styles.resenaCard}>
                   <div className={styles.resenaHeader}>
-                    <div className={styles.resenaAvatar}>
+                    <Link to={`/perfil/${r.usuario.username}`} className={styles.resenaAvatar} style={{ textDecoration: 'none' }}>
                       {r.usuario.avatarUrl ? <img src={r.usuario.avatarUrl} alt="" style={{width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%'}} /> : r.usuario.username.charAt(0).toUpperCase()}
-                    </div>
+                    </Link>
                     <div className={styles.resenaUserInfo}>
-                      <span className={styles.resenaUsuario}>{r.usuario.username}</span>
-                      <span className={styles.resenaAnime}>{r.anime.titulo}</span>
+                      <Link to={`/perfil/${r.usuario.username}`} className={styles.resenaUsuario} style={{ textDecoration: 'none' }}>{r.usuario.username}</Link>
+                      <Link to={`/anime/${r.anime.externalId}`} className={styles.resenaAnime} style={{ textDecoration: 'none' }}>{r.anime.titulo}</Link>
                     </div>
                     <div className={styles.resenaStars}>
                       {Array.from({ length: 5 }).map((_, i) => {
