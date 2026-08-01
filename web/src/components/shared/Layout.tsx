@@ -10,16 +10,6 @@ interface LayoutProps {
 }
 
 export const Layout: React.FC<LayoutProps> = ({ children, hideNav }) => {
-  const [isCollapsed, setIsCollapsed] = useState(() => {
-    return localStorage.getItem('sidebar_collapsed') === 'true'
-  })
-
-  const toggleCollapse = () => {
-    const newState = !isCollapsed
-    setIsCollapsed(newState)
-    localStorage.setItem('sidebar_collapsed', String(newState))
-  }
-
   if (hideNav) {
     return (
       <div className={styles.appLayoutCollapsed} style={{ gridTemplateColumns: '1fr' }}>
@@ -31,8 +21,8 @@ export const Layout: React.FC<LayoutProps> = ({ children, hideNav }) => {
   }
 
   return (
-    <div className={`${styles.appLayout} ${isCollapsed ? styles.appLayoutCollapsed : ''}`}>
-      <Sidebar isCollapsed={isCollapsed} onToggleCollapse={toggleCollapse} />
+    <div className={`${styles.appLayout} ${styles.appLayoutCollapsed}`}>
+      <Sidebar />
       <main className={styles.mainContent}>
         <Header />
         {children}

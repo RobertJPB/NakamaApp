@@ -45,12 +45,7 @@ const FAST_LAUNCH = [
   { id: 3, titulo: 'One Piece', ep: 'Ep 950/1000', pct: 95, imagen: '/hero-onepiece.jpg' },
 ]
 
-interface SidebarProps {
-  isCollapsed: boolean;
-  onToggleCollapse: () => void;
-}
-
-export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggleCollapse }) => {
+export const Sidebar: React.FC = () => {
   const location = useLocation()
   const { usuario } = useAuth()
   
@@ -62,69 +57,48 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggleCollapse 
   }
 
   return (
-    <aside className={`${styles.sidebar} ${isCollapsed ? styles.sidebarCollapsed : ''}`}>
+    <aside className={`${styles.sidebar} ${styles.sidebarCollapsed}`}>
       <Link to="/" className={styles.sidebarBrand} style={{ textDecoration: 'none' }}>
         <img src="/nakama-cat.png" alt="Nakama Logo" className={styles.logoIconImg} />
-        {!isCollapsed && <span className={styles.logoText}>Nakama</span>}
       </Link>
 
       <nav className={styles.sidebarMenu}>
         <Link to="/" onMouseEnter={() => prefetch('/')} className={`${styles.menuLink} ${isActive('/') ? styles.menuLinkActive : ''}`} title="Inicio">
-          <Home className={styles.menuIcon} size={18} /> {!isCollapsed && <span>Inicio</span>}
+          <Home className={styles.menuIcon} size={18} />
         </Link>
         <Link to="/feed" onMouseEnter={() => prefetch('/feed')} className={`${styles.menuLink} ${isActive('/feed') ? styles.menuLinkActive : ''}`} title="Feed">
-          <MessageSquare className={styles.menuIcon} size={18} /> {!isCollapsed && <span>Feed</span>}
+          <MessageSquare className={styles.menuIcon} size={18} />
         </Link>
         <Link to="/descubrir" onMouseEnter={() => prefetch('/descubrir')} className={`${styles.menuLink} ${isActive('/descubrir') ? styles.menuLinkActive : ''}`} title="Descubrir">
-          <Compass className={styles.menuIcon} size={18} /> {!isCollapsed && <span>Descubrir</span>}
+          <Compass className={styles.menuIcon} size={18} />
         </Link>
         <Link to="/mi-lista" className={`${styles.menuLink} ${isActive('/mi-lista') ? styles.menuLinkActive : ''}`} title="Mis Listas">
-          <Library className={styles.menuIcon} size={18} /> {!isCollapsed && <span>Mis Listas</span>}
+          <Library className={styles.menuIcon} size={18} />
         </Link>
         <Link to="/comunidades" className={`${styles.menuLink} ${isActive('/comunidades') ? styles.menuLinkActive : ''}`} title="Comunidad">
-          <Users className={styles.menuIcon} size={18} /> {!isCollapsed && <span>Comunidad</span>}
+          <Users className={styles.menuIcon} size={18} />
         </Link>
         <Link to="/ruleta" className={`${styles.menuLink} ${isActive('/ruleta') ? styles.menuLinkActive : ''}`} title="Ruleta">
-          <RuletaIcon className={styles.menuIcon} size={18} /> {!isCollapsed && <span>Ruleta</span>}
+          <RuletaIcon className={styles.menuIcon} size={18} />
         </Link>
         <Link to="/tierlist" className={`${styles.menuLink} ${isActive('/tierlist') ? styles.menuLinkActive : ''}`} title="Tier Lists">
-          <Table2 className={styles.menuIcon} size={18} /> {!isCollapsed && <span>Tier Lists</span>}
+          <Table2 className={styles.menuIcon} size={18} />
         </Link>
         <Link to="/ranking" onMouseEnter={() => prefetch('/ranking')} className={`${styles.menuLink} ${isActive('/ranking') ? styles.menuLinkActive : ''}`} title="Ranking">
-          <Trophy className={styles.menuIcon} size={18} /> {!isCollapsed && <span>Ranking</span>}
+          <Trophy className={styles.menuIcon} size={18} />
         </Link>
 
         <div className={styles.menuDivider} />
 
         <Link to={perfilPath} className={`${styles.menuLink} ${isActive('/perfil') ? styles.menuLinkActive : ''}`} title="Perfil">
-          <User className={styles.menuIcon} size={18} /> {!isCollapsed && <span>Perfil</span>}
+          <User className={styles.menuIcon} size={18} />
         </Link>
         <Link to="/configuracion" className={`${styles.menuLink} ${isActive('/configuracion') ? styles.menuLinkActive : ''}`} title="Configuración">
-          <Settings className={styles.menuIcon} size={18} /> {!isCollapsed && <span>Configuración</span>}
+          <Settings className={styles.menuIcon} size={18} />
         </Link>
       </nav>
 
-      {!isCollapsed && (
-        <div className={styles.fastLaunch}>
-          <p className={styles.sidebarSectionTitle}>SEGUIMIENTO RÁPIDO</p>
-          <div className={styles.fastLaunchList}>
-            {FAST_LAUNCH.map((item) => (
-              <div key={item.id} className={styles.fastLaunchItem}>
-                <img src={item.imagen} alt={item.titulo} className={styles.fastLaunchThumb} />
-                <div className={styles.fastLaunchInfo}>
-                  <p className={styles.fastLaunchName}>{item.titulo}</p>
-                  <p className={styles.fastLaunchEp}>{item.ep}</p>
-                  <div className={styles.progressBarBg}>
-                    <div className={styles.progressBarFill} style={{ width: `${item.pct}%` }} />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
-      {/* Toggle button removed as requested */}
     </aside>
   )
 }
