@@ -170,9 +170,13 @@
 .contador { font-size: var(--text-sm); color: var(--color-texto-muted); }
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--space-4);
 }
+@media (min-width: 768px) { .grid { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 1024px) { .grid { grid-template-columns: repeat(5, 1fr); } }
+@media (min-width: 1280px) { .grid { grid-template-columns: repeat(6, 1fr); } }
+@media (min-width: 1600px) { .grid { grid-template-columns: repeat(7, 1fr); } }
 .skeleton {
   aspect-ratio: 2/3; border-radius: var(--radius-md);
   background: linear-gradient(90deg, var(--color-surface) 25%, var(--color-surface-2) 50%, var(--color-surface) 75%);

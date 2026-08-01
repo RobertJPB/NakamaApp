@@ -160,7 +160,7 @@ export const DescubrirPage: React.FC = () => {
     if (demografia) params.set('demografia', demografia)
     if (anio)       params.set('anio',       anio)
     params.set('page', page.toString())
-    params.set('perPage', '40')
+    params.set('perPage', '60')
     
     // Usamos populares para que busque en AniList
     api.get(`/api/animes/populares?${params.toString()}`)
