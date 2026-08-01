@@ -195,7 +195,7 @@ export const HomePage: React.FC = () => {
                           to={`/anime/${item.id}`} 
                           state={{ initialAnime: { externalId: item.id, titulo: item.titulo, imagenUrl: item.imagen, calificacionPromedio: Number(item.puntuacion), sinopsis: item.descripcion } }}
                           className={styles.btnPrimary}
-                          onMouseEnter={() => prefetchAnimeDetalle(item.id)}
+                          onMouseEnter={() => prefetchAnimeDetalle(String(item.id))}
                         >
                           Ver Ficha
                         </Link>

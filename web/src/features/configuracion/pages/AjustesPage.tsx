@@ -7,12 +7,12 @@ import { supabase } from '../../../lib/supabase'
 import styles from './AjustesPage.module.css'
 
 export const AjustesPage: React.FC = () => {
-  const { usuario, logout } = useAuth()
+  const { usuario, signOut } = useAuth()
   const [activeTab, setActiveTab] = useState<'cuenta' | 'privacidad' | 'notificaciones'>('cuenta')
 
   const handleLogout = async () => {
     sessionStorage.setItem('isLoggingOut', 'true')
-    await logout()
+    await signOut()
   }
 
   return (

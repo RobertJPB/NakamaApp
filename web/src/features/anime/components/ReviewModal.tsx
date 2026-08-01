@@ -59,7 +59,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ animeIdInicial, animeI
     if (!contenido.trim()) { setError('El contenido no puede estar vacío'); return }
     setEnviando(true); setError('')
     try {
-      const etiquetas = tagsInput.split(',').map(t => t.trim()).filter(Boolean)
+      const etiquetas = tagsInput.split(',').map((t: string) => t.trim()).filter(Boolean)
       
       let res;
       if (resenaToEdit) {

@@ -16,7 +16,7 @@ export const AnimePage: React.FC = () => {
   const location                  = useLocation()
   const navigate                  = useNavigate()
   const { initialAnime }          = location.state || {}
-  const { detalle, cargando, isFetching, recargar } = useAnimeDetalle(Number(id), initialAnime)
+  const { detalle, cargando, isFetching, recargar } = useAnimeDetalle(id ?? null, initialAnime)
   const { usuario, estaAutenticado } = useAuth()
   const { lista, toggleFavorito } = useBiblioteca(usuario?.id ?? null)
   const [showReviewForm, setShowReviewForm] = useState(false)
@@ -234,7 +234,7 @@ export const AnimePage: React.FC = () => {
                     let text = (anime.sinopsis || 'Sin sinopsis disponible.').trim();
                     // Eliminar notas de fuente como "(Fuente: ...)" o "(Source: ...)"
                     text = text.replace(/\(?(Fuente|Source):[^\)]+\)?/gi, '').trim();
-                    let paragraphs = text.split(/\n+/).map(p => p.trim()).filter(p => p.length > 0);
+                    let paragraphs = text.split(/\n+/).map((p: string) => p.trim()).filter((p: string) => p.length > 0);
                     
                     if (paragraphs.length >= 2) {
                       return `<p style="margin-bottom: 12px;">${paragraphs[0]}</p><p>${paragraphs.slice(1).join(' ')}</p>`;
@@ -242,7 +242,7 @@ export const AnimePage: React.FC = () => {
                     
                     // Si solo hay un párrafo pero contiene <br>, lo separamos por ahí
                     if (text.toLowerCase().includes('<br')) {
-                      paragraphs = text.split(/<br\s*\/?>/gi).map(p => p.trim()).filter(p => p.length > 0);
+                      paragraphs = text.split(/<br\s*\/?>/ as any).map((p: string) => p.trim()).filter((p: string) => p.length > 0);
                       if (paragraphs.length >= 2) {
                         return `<p style="margin-bottom: 12px;">${paragraphs[0]}</p><p>${paragraphs.slice(1).join(' ')}</p>`;
                       }

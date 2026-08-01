@@ -262,7 +262,7 @@ const DetalleComunidad: React.FC<{ id: string }> = ({ id }) => {
 
           {/* Formulario nueva publicación */}
           {estaAutenticado && (
-            <NuevaPublicacion key={seccion} onPublicar={publicar} usuarioAvatar={usuario?.avatarUrl || undefined} seccionActiva={seccion} />
+            <NuevaPublicacion key={seccion} onPublicar={publicar as any} usuarioAvatar={usuario?.avatarUrl || undefined} seccionActiva={seccion} />
           )}
 
           {/* Lista de publicaciones */}

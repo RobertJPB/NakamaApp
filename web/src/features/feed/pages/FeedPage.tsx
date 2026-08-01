@@ -91,7 +91,7 @@ export const FeedPage: React.FC = () => {
       // Revertir podría ser implementado aquí (por simplicidad, podríamos forzar un fetch de la publicación o solo mostrar error)
       alert(err.response?.data?.error || 'Error al votar')
       // revert (simplificado):
-      fetchFeed()
+      window.location.reload()
     }
   }
 

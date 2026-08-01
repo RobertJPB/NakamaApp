@@ -67,7 +67,7 @@ export const NuevaPublicacion: React.FC<Props> = ({ onPublicar, usuarioAvatar, s
     setError('')
     if (tipo === 'texto' && !contenido.trim()) { setError('El contenido no puede estar vacío'); return }
     if (tipo === 'resena' && !titulo.trim()) { setError('Debes incluir un título para tu reseña'); return }
-    if (tipo === 'encuesta' && (!titulo.trim() || opciones.some(o => !o.trim()))) { setError('Completa el título y todas las opciones'); return }
+    if (tipo === 'encuesta' && (!titulo.trim() || opciones.some(o => !o.texto.trim()))) { setError('Completa el título y todas las opciones'); return }
     
     setEnviando(true)
     try {

@@ -45,6 +45,7 @@ export const TierListPage: React.FC = () => {
   const [modalAbierto, setModalAbierto] = useState(false)
   const [nombrePlantilla, setNombrePlantilla] = useState('')
   const [guardando, setGuardando] = useState(false)
+  const [titulo, setTitulo] = useState('')
 
   const boardRef = useRef<HTMLDivElement>(null)
 
@@ -61,7 +62,7 @@ export const TierListPage: React.FC = () => {
     }
   }
 
-  const searchTimeout = useRef<NodeJS.Timeout | null>(null)
+  const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // -- Buscador unificado --
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
