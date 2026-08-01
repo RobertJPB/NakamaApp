@@ -30,11 +30,12 @@ const Categoria = ({ titulo, animes, layout = 'grid', onVerMas }: { titulo: stri
   if (!Array.isArray(animes) || animes.length === 0) return null;
   
   // Usaremos un tamaño uniforme: 7 columnas en PC grande, 5 en mediano, 3 en móvil
-  let columnas = 4;
-  if (windowWidth >= 1600) columnas = 11;
-  else if (windowWidth >= 1280) columnas = 9;
-  else if (windowWidth >= 768) columnas = 7;
-  else columnas = 4;
+  let columnas = 3;
+  if (windowWidth >= 1600) columnas = 7;
+  else if (windowWidth >= 1280) columnas = 6;
+  else if (windowWidth >= 1024) columnas = 5;
+  else if (windowWidth >= 768) columnas = 4;
+  else columnas = 3;
 
   
   // Calculamos cuántas filas enteras podemos llenar como máximo (hasta 2 filas)
