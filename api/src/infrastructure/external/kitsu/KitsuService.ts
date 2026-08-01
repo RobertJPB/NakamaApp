@@ -46,7 +46,7 @@ async function translateText(text: string): Promise<string> {
   if (!text) return text;
   try {
     const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=es&dt=t&q=${encodeURIComponent(text)}`);
-    const data = await res.json();
+    const data = await res.json() as any;
     return data[0].map((item: any) => item[0]).join('');
   } catch (err) {
     console.error("Translation error:", err);
@@ -302,7 +302,7 @@ export class KitsuService implements IAnimeExternalService {
         })
       });
       
-      const json = await response.json();
+      const json = await response.json() as any;
       
       const charsFromName = json.data?.CharSearch?.characters || [];
       const animes = json.data?.AnimeSearch?.media || [];
