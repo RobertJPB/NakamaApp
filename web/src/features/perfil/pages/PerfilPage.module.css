@@ -194,9 +194,9 @@
    ══════════════════════════════════════════ */
 @media (max-width: 768px) {
   .bannerWrap {
-    margin: 0;
-    height: 120px;
-    border-radius: var(--radius-lg);
+    margin: 0 -16px;
+    height: 100px;
+    border-radius: 0;
   }
   
   .header {

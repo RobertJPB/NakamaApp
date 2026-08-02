@@ -146,22 +146,22 @@ export const HomePage: React.FC = () => {
 
   return (
     <Layout>
-      {/* ─── QUICK ACTIONS (MOBILE ONLY) ─── */}
-      <div className={styles.mobileQuickActions}>
-        <Link to="/comunidades" className={styles.quickActionCard}>
-          <div className={`${styles.quickActionIcon} ${styles.bgBlue}`}><Users size={18} /></div>
+      {/* Accesos rápidos (sencillos y sin colores llamativos) */}
+      <div className={styles.mobileShortcutsRow}>
+        <Link to="/comunidades" className={styles.mobileShortcutItem}>
+          <Users size={16} />
           <span>Comunidades</span>
         </Link>
-        <Link to="/ruleta" className={styles.quickActionCard}>
-          <div className={`${styles.quickActionIcon} ${styles.bgPurple}`}><RuletaIcon size={18} /></div>
+        <Link to="/ruleta" className={styles.mobileShortcutItem}>
+          <RuletaIcon size={16} />
           <span>Ruleta</span>
         </Link>
-        <Link to="/tierlist" className={styles.quickActionCard}>
-          <div className={`${styles.quickActionIcon} ${styles.bgGreen}`}><Table2 size={18} /></div>
+        <Link to="/tierlist" className={styles.mobileShortcutItem}>
+          <Table2 size={16} />
           <span>Tier Lists</span>
         </Link>
-        <Link to="/mi-lista" className={styles.quickActionCard}>
-          <div className={`${styles.quickActionIcon} ${styles.bgOrange}`}><Library size={18} /></div>
+        <Link to="/mi-lista" className={styles.mobileShortcutItem}>
+          <Library size={16} />
           <span>Mi Lista</span>
         </Link>
       </div>

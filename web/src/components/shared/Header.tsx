@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
-import { Search, Sliders, Bell } from 'lucide-react'
+import { Search, Sliders, Bell, Users, Table2, Library } from 'lucide-react'
+import { RuletaIcon } from '../icons/RuletaIcon'
 import { useAuth } from '../../hooks/useAuth'
 import { useNotificaciones } from '../../hooks/useNotificaciones'
 import { api } from '../../lib/axios'
@@ -152,15 +153,34 @@ export const Header: React.FC = () => {
 
       <div className={styles.headerRight}>
         {estaAutenticado && (
-          <div className={styles.notifWrapper} ref={notifRef}>
-            <button 
-              className={styles.headerActionBtn} 
-              title="Notificaciones"
-              onClick={() => setMostrarNotif(!mostrarNotif)}
-            >
-              <Bell size={18} />
-              {noLeidas > 0 && <span className={styles.badgeCount}>{noLeidas > 9 ? '+9' : noLeidas}</span>}
-            </button>
+          <>
+            {/* Pequeños accesos rápidos en móvil */}
+            <div className={styles.mobileShortcuts}>
+              <Link to="/comunidades" className={styles.headerActionBtn} title="Comunidades">
+                <Users size={18} />
+              </Link>
+              <Link to="/ruleta" className={styles.headerActionBtn} title="Ruleta">
+                <RuletaIcon size={18} />
+              </Link>
+              <Link to="/tierlist" className={styles.headerActionBtn} title="Tier Lists">
+                <Table2 size={18} />
+              </Link>
+              <Link to="/mi-lista" className={styles.headerActionBtn} title="Mi Lista">
+                <Library size={18} />
+              </Link>
+            </div>
+
+            <div className={styles.notifWrapper} ref={notifRef}>
+              <button 
+                className={styles.headerActionBtn} 
+                title="Notificaciones"
+                onClick={() => setMostrarNotif(!mostrarNotif)}
+              >
+                <Bell size={18} />
+                {noLeidas > 0 && <span className={styles.badgeCount}>{noLeidas > 9 ? '+9' : noLeidas}</span>}
+              </button>
+          </>
+        )}
 
             {mostrarNotif && (
               <div className={styles.notifDropdown}>

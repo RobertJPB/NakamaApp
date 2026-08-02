@@ -117,26 +117,28 @@ export const AnimePage: React.FC = () => {
             
             {/* ── COLUMNA IZQUIERDA (Póster y Stats) ── */}
             <aside className={styles.leftCol}>
-              <div className={styles.posterWrapper}>
-                <img src={anime.imagenUrl} alt={anime.titulo} className={styles.poster} />
-              </div>
-              
-              <div className={styles.statsPanel}>
-                <div className={styles.statItem} title="Estrellas">
-                  <span className={styles.statIconTextStar}>★</span>
-                  <span>{promedioVisual}</span>
+              <div className={styles.posterAndStats}>
+                <div className={styles.posterWrapper}>
+                  <img src={anime.imagenUrl} alt={anime.titulo} className={styles.poster} />
                 </div>
-                <div className={styles.statItem} title="Viendo">
-                  <Eye size={16} color="#27ae60" />
-                  <span>{anime.stats?.viendo ?? 0}</span>
-                </div>
-                <div className={styles.statItem} title="Por Ver">
-                  <Clock size={16} className={styles.statIcon} />
-                  <span>{anime.stats?.porVer ?? 0}</span>
-                </div>
-                <div className={styles.statItem} title="Gustan">
-                  <Heart size={16} color="#ff4757" />
-                  <span>{anime.stats?.favoritos ?? 0}</span>
+                
+                <div className={styles.statsPanel}>
+                  <div className={styles.statItem} title="Estrellas">
+                    <span className={styles.statIconTextStar}>★</span>
+                    <span>{promedioVisual}</span>
+                  </div>
+                  <div className={styles.statItem} title="Viendo">
+                    <Eye size={16} color="#27ae60" />
+                    <span>{anime.stats?.viendo ?? 0}</span>
+                  </div>
+                  <div className={styles.statItem} title="Por Ver">
+                    <Clock size={16} className={styles.statIcon} />
+                    <span>{anime.stats?.porVer ?? 0}</span>
+                  </div>
+                  <div className={styles.statItem} title="Gustan">
+                    <Heart size={16} color="#ff4757" />
+                    <span>{anime.stats?.favoritos ?? 0}</span>
+                  </div>
                 </div>
               </div>
 
