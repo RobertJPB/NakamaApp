@@ -70,3 +70,30 @@
 }
 .btnLike:hover { color: #ff4757; }
 .btnLike.liked { color: #ff4757; }
+
+/* ══════════════════════════════════════════
+   MÓVIL ≤ 768px
+   ══════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .entrada {
+    flex-wrap: wrap;
+    padding: var(--space-4);
+  }
+  .entradaContenido {
+    min-width: 200px;
+  }
+  .entradaMedia {
+    width: 100%;
+    margin-right: 0;
+    margin-left: 58px; /* 42px avatar + 16px gap */
+    margin-top: var(--space-2);
+    flex-direction: row;
+    align-items: center;
+  }
+  .entradaThumb {
+    width: 72px; /* Más pequeño para móvil */
+  }
+  .entradaRatingBox {
+    align-items: flex-start;
+  }
+}

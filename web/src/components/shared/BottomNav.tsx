@@ -1,12 +1,15 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Home, Compass, MessageSquare, Trophy } from 'lucide-react'
+import { Home, Compass, MessageSquare, LayoutGrid, X, Users, Table2, Library } from 'lucide-react'
+import { Trophy } from 'lucide-react'
+import { RuletaIcon } from '../icons/RuletaIcon'
 import { useAuth } from '../../hooks/useAuth'
 import styles from './BottomNav.module.css'
 
 export const BottomNav: React.FC = () => {
   const location = useLocation()
   const { usuario } = useAuth()
+  const [showMenu, setShowMenu] = React.useState(false)
   
   const perfilPath = usuario?.username ? `/perfil/${usuario.username}` : (usuario ? '/perfil/editar' : '/auth')
 
@@ -14,6 +17,11 @@ export const BottomNav: React.FC = () => {
     if (path === '/' && location.pathname !== '/') return false
     return location.pathname.startsWith(path)
   }
+
+  // Cierra el menú al cambiar de ruta
+  React.useEffect(() => {
+    setShowMenu(false)
+  }, [location.pathname])
 
   return (
     <nav className={styles.bottomNav}>
@@ -41,13 +49,16 @@ export const BottomNav: React.FC = () => {
         <span className={styles.label}>Feed</span>
       </Link>
 
-      {/* Ranking */}
-      <Link to="/ranking" className={`${styles.navItem} ${isActive('/ranking') ? styles.active : ''}`}>
+      {/* Botón Menú (Abre Bottom Sheet) */}
+      <button 
+        className={`${styles.navItem} ${styles.menuBtn} ${showMenu ? styles.active : ''}`}
+        onClick={() => setShowMenu(true)}
+      >
         <div className={styles.iconWrap}>
-          <Trophy size={22} strokeWidth={isActive('/ranking') ? 2.5 : 1.8} />
+          <LayoutGrid size={22} strokeWidth={showMenu ? 2.5 : 1.8} />
         </div>
-        <span className={styles.label}>Ranking</span>
-      </Link>
+        <span className={styles.label}>Explorar</span>
+      </button>
 
       {/* Perfil — muestra avatar si está logueado */}
       <Link to={perfilPath} className={`${styles.navItem} ${(isActive('/perfil') || isActive('/auth')) ? styles.active : ''}`}>
@@ -66,6 +77,43 @@ export const BottomNav: React.FC = () => {
         </div>
         <span className={styles.label}>Perfil</span>
       </Link>
+
+      {/* Bottom Sheet Modal */}
+      {showMenu && (
+        <div className={styles.bottomSheetOverlay} onClick={() => setShowMenu(false)}>
+          <div className={styles.bottomSheet} onClick={e => e.stopPropagation()}>
+            <div className={styles.sheetHeader}>
+              <h3>Explorar Nakama</h3>
+              <button className={styles.closeSheetBtn} onClick={() => setShowMenu(false)}>
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className={styles.sheetGrid}>
+              <Link to="/ranking" className={styles.sheetItem}>
+                <div className={`${styles.sheetIcon} ${styles.bgGold}`}><Trophy size={20} /></div>
+                <span>Ranking</span>
+              </Link>
+              <Link to="/comunidades" className={styles.sheetItem}>
+                <div className={`${styles.sheetIcon} ${styles.bgBlue}`}><Users size={20} /></div>
+                <span>Comunidades</span>
+              </Link>
+              <Link to="/ruleta" className={styles.sheetItem}>
+                <div className={`${styles.sheetIcon} ${styles.bgPurple}`}><RuletaIcon size={20} /></div>
+                <span>Ruleta</span>
+              </Link>
+              <Link to="/tierlist" className={styles.sheetItem}>
+                <div className={`${styles.sheetIcon} ${styles.bgGreen}`}><Table2 size={20} /></div>
+                <span>Tier Lists</span>
+              </Link>
+              <Link to="/mi-lista" className={styles.sheetItem}>
+                <div className={`${styles.sheetIcon} ${styles.bgOrange}`}><Library size={20} /></div>
+                <span>Mi Lista</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   )
 }
