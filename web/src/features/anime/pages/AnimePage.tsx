@@ -140,6 +140,7 @@ export const AnimePage: React.FC = () => {
                     <span>{anime.stats?.favoritos ?? 0}</span>
                   </div>
                 </div>
+              </div>
             </aside>
 
             {/* ── COLUMNA CENTRAL (Info Principal) ── */}
