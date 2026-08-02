@@ -62,14 +62,14 @@
   padding: 0 10px;
 }
 .statItem {
-  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  display: flex; align-items: center; gap: 4px;
   color: var(--color-acento);
-  font-size: 13px; font-weight: bold;
+  font-size: 11px; font-weight: bold;
 }
 .statItem svg {
-  width: 22px; height: 22px;
+  width: 14px; height: 14px;
 }
-.statItem span.statIconTextStar { font-size: 24px; color: var(--color-acento); line-height: 1; }
+.statItem span.statIconTextStar { font-size: 16px; color: var(--color-acento); line-height: 1; }
 .statItem span { color: var(--color-texto-muted); }
 
 .leftActions {
