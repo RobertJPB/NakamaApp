@@ -232,6 +232,18 @@
   height: 111.111vh;
 }
 
+@media (max-width: 900px) {
+  .mainContent {
+    padding: 0 20px 24px 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .mainContent {
+    padding: 0 12px 24px 12px;
+  }
+}
+
 /* Header */
 .header {
   display: flex;
@@ -246,6 +258,20 @@
   background-color: rgba(13, 13, 13, 0.95);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+@media (max-width: 900px) {
+  .header {
+    margin: 0 -20px 0 -20px;
+    padding: 12px 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .header {
+    margin: 0 -12px 0 -12px;
+    padding: 12px 12px;
+  }
 }
 
 .searchBar {
@@ -483,6 +509,18 @@
   isolation: isolate;
 }
 
+@media (max-width: 900px) {
+  .carouselCard {
+    width: 85%;
+  }
+}
+
+@media (max-width: 600px) {
+  .carouselCard {
+    width: 95%;
+  }
+}
+
 .cardBgImage {
   position: absolute;
   top: 0;
@@ -544,6 +582,13 @@
   text-align: left;
 }
 
+@media (max-width: 600px) {
+  .cardContent {
+    padding: 20px 16px;
+    gap: 4px;
+  }
+}
+
 .cardBadge {
   background-color: #ffc107;
   color: #0b0d12;
@@ -561,6 +606,12 @@
   font-weight: 800;
   margin: 0;
   color: #ffffff;
+}
+
+@media (max-width: 600px) {
+  .cardTitle {
+    font-size: 22px;
+  }
 }
 
 .cardSub {
@@ -587,6 +638,14 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+@media (max-width: 600px) {
+  .cardDesc {
+    font-size: 12px;
+    margin: 4px 0 12px 0;
+    max-width: 100%;
+  }
 }
 
 .cardActions {
@@ -660,6 +719,20 @@
   right: 20px;
 }
 
+@media (max-width: 600px) {
+  .sliderArrow {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+  .arrowLeft {
+    left: 8px;
+  }
+  .arrowRight {
+    right: 8px;
+  }
+}
+
 /* ══════════════════════════════════════════
    BOTTOM SECTIONS (GRID + SIDEBAR)
    ══════════════════════════════════════════ */
@@ -668,6 +741,12 @@
   grid-template-columns: 1fr 18.75rem;
   gap: 32px;
   margin-top: -5px;
+}
+
+@media (max-width: 900px) {
+  .bottomGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .mainGridContent {
