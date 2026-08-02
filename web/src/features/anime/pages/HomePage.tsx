@@ -126,6 +126,18 @@ export const HomePage: React.FC = () => {
       .finally(() => setCargandoResenas(false))
   }, [])
 
+  // Precargar imágenes del carrusel para evitar carga lenta
+  useEffect(() => {
+    FEATURED.forEach((item, i) => {
+      const link = document.createElement('link')
+      link.rel = 'preload'
+      link.as = 'image'
+      link.href = item.imagen
+      if (i === 0) (link as any).fetchpriority = 'high'
+      document.head.appendChild(link)
+    })
+  }, [])
+
   // Auto-avance del carrusel cada 5 segundos
   useEffect(() => {
     const interval = setInterval(() => {
@@ -168,7 +180,13 @@ export const HomePage: React.FC = () => {
                   className={`${styles.carouselCard} ${positionClass}`}
                   onClick={() => idx !== featuredIdx && setFeaturedIdx(idx)}
                 >
-                  <img src={item.imagen} alt={item.titulo} className={styles.cardBgImage} />
+                  <img
+                    src={item.imagen}
+                    alt={item.titulo}
+                    className={styles.cardBgImage}
+                    loading="eager"
+                    fetchPriority={idx === 0 ? 'high' : 'low'}
+                  />
                   <div className={styles.cardOverlayGlow} style={{ background: `linear-gradient(to top, rgba(6, 5, 10, 0.99) 25%, rgba(6, 5, 10, 0.7) 60%, rgba(6, 5, 10, 0.2) 100%)` }} />
                   
                   {idx === featuredIdx && (
