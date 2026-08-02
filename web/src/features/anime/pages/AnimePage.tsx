@@ -141,6 +141,69 @@ export const AnimePage: React.FC = () => {
                   </div>
                 </div>
               </div>
+
+              <div className={styles.leftActions}>
+                <BotonLista animeId={anime.id} onListaChange={recargar} />
+                <button className={styles.leftBtn} onClick={() => navigate('/comunidades')}>
+                  <Users size={16} /> Ver Comunidades
+                </button>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <button 
+                    className={`${styles.leftBtn} ${isFavoritoLocal ? styles.favBtnActive : ''}`}
+                    onClick={async () => {
+                      if (!estaAutenticado) {
+                        return navigate('/auth', { state: { message: 'Debes iniciar sesión para acceder a esta función' } })
+                      }
+                      
+                      const totalFavs = lista.filter((l: any) => l.esFavorito).length
+                      if (!isFavoritoLocal && totalFavs >= 5) {
+                        setFavError('Límite de 5 favoritos alcanzado.')
+                        setTimeout(() => setFavError(''), 3000)
+                        return
+                      }
+
+                      if (loadingFav) return
+                      setLoadingFav(true)
+                      
+                      // Optimistic UI Update local
+                      setIsFavoritoLocal(!isFavoritoLocal)
+
+                      try {
+                        const nuevoEstado = await toggleFavorito(anime.id)
+                        setIsFavoritoLocal(nuevoEstado)
+                      } catch (err: any) {
+                        setIsFavoritoLocal(isFavoritoLocal) // rollback
+                        setFavError(err.response?.data?.error || 'Error al actualizar favoritos')
+                        setTimeout(() => setFavError(''), 3000)
+                      } finally {
+                        setLoadingFav(false)
+                      }
+                    }}
+                    disabled={loadingFav}
+                  >
+                    <Star size={16} fill={isFavoritoLocal ? "currentColor" : "none"} /> 
+                    {isFavoritoLocal ? 'Favorito' : 'Añadir Favorito'}
+                  </button>
+                  {favError && (
+                    <span style={{ color: 'var(--color-error)', fontSize: '12px', textAlign: 'center' }}>
+                      {favError}
+                    </span>
+                  )}
+                </div>
+                
+                <button 
+                  className={`${styles.leftBtn} ${styles.reviewBtn}`}
+                  onClick={() => {
+                    if (!estaAutenticado) {
+                      return navigate('/auth', { state: { message: 'Debes iniciar sesión para acceder a esta función' } })
+                    }
+                    if (!showReviewForm) setShowReviewForm(true);
+                    setTimeout(() => document.getElementById('reviewSection')?.scrollIntoView({ behavior: 'smooth' }), 100);
+                  }}
+                >
+                  <Edit3 size={16} /> Escribir reseña
+                </button>
+              </div>
             </aside>
 
             {/* ── COLUMNA CENTRAL (Info Principal) ── */}
@@ -254,6 +317,14 @@ export const AnimePage: React.FC = () => {
                     </div>
                   ) : personajes && personajes.length > 0 ? (
                     <>
+                      {showLeftScroll && (
+                        <button className={`${styles.scrollBtn} ${styles.scrollBtnLeft}`} onClick={scrollLeft}>
+                          <ChevronLeft size={32} />
+                        </button>
+                      )}
+                      <button className={`${styles.scrollBtn} ${styles.scrollBtnRight}`} onClick={scrollRight}>
+                        <ChevronRight size={32} />
+                      </button>
                       <div className={styles.castGrid} ref={scrollRef} onScroll={handleScroll}>
                         {(personajes ?? []).map((p: any) => (
                           <div key={p.id} className={styles.castItem}>
@@ -271,70 +342,6 @@ export const AnimePage: React.FC = () => {
                 </div>
               </section>
             </main>
-
-            {/* ── COLUMNA DERECHA (Botones) ── */}
-            <aside className={styles.rightActionsCol}>
-                <BotonLista animeId={anime.id} onListaChange={recargar} />
-                <button className={styles.leftBtn} onClick={() => navigate('/comunidades')}>
-                  <Users size={16} /> Ver Comunidades
-                </button>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <button 
-                    className={`${styles.leftBtn} ${isFavoritoLocal ? styles.favBtnActive : ''}`}
-                    onClick={async () => {
-                      if (!estaAutenticado) {
-                        return navigate('/auth', { state: { message: 'Debes iniciar sesión para acceder a esta función' } })
-                      }
-                      
-                      const totalFavs = lista.filter((l: any) => l.esFavorito).length
-                      if (!isFavoritoLocal && totalFavs >= 5) {
-                        setFavError('Límite de 5 favoritos alcanzado.')
-                        setTimeout(() => setFavError(''), 3000)
-                        return
-                      }
-
-                      if (loadingFav) return
-                      setLoadingFav(true)
-                      
-                      // Optimistic UI Update local
-                      setIsFavoritoLocal(!isFavoritoLocal)
-
-                      try {
-                        const nuevoEstado = await toggleFavorito(anime.id)
-                        setIsFavoritoLocal(nuevoEstado)
-                      } catch (err: any) {
-                        setIsFavoritoLocal(isFavoritoLocal) // rollback
-                        setFavError(err.response?.data?.error || 'Error al actualizar favoritos')
-                        setTimeout(() => setFavError(''), 3000)
-                      } finally {
-                        setLoadingFav(false)
-                      }
-                    }}
-                    disabled={loadingFav}
-                  >
-                    <Star size={16} fill={isFavoritoLocal ? "currentColor" : "none"} /> 
-                    {isFavoritoLocal ? 'Favorito' : 'Añadir Favorito'}
-                  </button>
-                  {favError && (
-                    <span style={{ color: 'var(--color-error)', fontSize: '12px', textAlign: 'center' }}>
-                      {favError}
-                    </span>
-                  )}
-                </div>
-                
-                <button 
-                  className={`${styles.leftBtn} ${styles.reviewBtn}`}
-                  onClick={() => {
-                    if (!estaAutenticado) {
-                      return navigate('/auth', { state: { message: 'Debes iniciar sesión para acceder a esta función' } })
-                    }
-                    if (!showReviewForm) setShowReviewForm(true);
-                    setTimeout(() => document.getElementById('reviewSection')?.scrollIntoView({ behavior: 'smooth' }), 100);
-                  }}
-                >
-                  <Edit3 size={16} /> Escribir reseña
-                </button>
-            </aside>
           </div>
 
           {/* Formulario de Reseña (Toggle) */}
