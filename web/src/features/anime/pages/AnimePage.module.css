@@ -38,7 +38,7 @@
 
 .layoutGrid {
   display: grid;
-  grid-template-columns: 230px 1fr;
+  grid-template-columns: 280px 1fr 230px;
   gap: 40px;
   align-items: start;
 }
@@ -62,14 +62,17 @@
   padding: 0 10px;
 }
 .statItem {
-  display: flex; align-items: center; gap: 4px;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
   color: var(--color-acento);
-  font-size: 11px; font-weight: bold;
+  font-size: 13px; font-weight: bold;
 }
-.statItem span.statIconTextStar { font-size: 16px; color: var(--color-acento); line-height: 1; }
+.statItem svg {
+  width: 22px; height: 22px;
+}
+.statItem span.statIconTextStar { font-size: 24px; color: var(--color-acento); line-height: 1; }
 .statItem span { color: var(--color-texto-muted); }
 
-.leftActions {
+.rightActionsCol {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -134,7 +137,7 @@
 }
 .header { display: flex; flex-direction: column; gap: 4px; }
 .title {
-  font-size: 32px; font-weight: 800; color: var(--color-texto); line-height: 1.1; margin: 0;
+  font-size: 24px; font-weight: 800; color: var(--color-texto); line-height: 1.2; margin: 0;
 }
 .subtitle {
   display: flex; align-items: baseline; gap: 8px; font-size: 14px;
@@ -352,11 +355,16 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .layoutGrid { grid-template-columns: 1fr; gap: 15px; }
+  /* Stack all 3 columns vertically on mobile */
+  .layoutGrid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
   
+  /* On mobile: poster + stats row */
   .leftCol {
     display: grid;
-    grid-template-columns: 140px 1fr; /* Imagen y stats a la izquierda, botones a la derecha */
+    grid-template-columns: 140px 1fr;
     gap: 16px;
     align-items: start;
   }
@@ -369,21 +377,22 @@
   }
 
   .posterWrapper {
-    width: 100%; /* Toma todo el ancho de su columna (140px) */
+    width: 100%;
     max-width: 140px;
   }
 
   .statsPanel {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* 2x2 grid para iconos más espaciados */
+    grid-template-columns: repeat(2, 1fr);
     gap: 10px;
     padding: 0;
     width: 100%;
   }
 
   .statItem {
-    font-size: 13px; /* Más grandes */
+    font-size: 13px;
     font-weight: 700;
+    flex-direction: row;
     justify-content: flex-start;
     gap: 6px;
   }
@@ -397,7 +406,8 @@
     font-size: 20px;
   }
 
-  .leftActions {
+  /* Right actions col goes below the main info on mobile */
+  .rightActionsCol {
     margin-top: 0;
     display: flex;
     flex-direction: column;

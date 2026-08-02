@@ -146,25 +146,7 @@ export const HomePage: React.FC = () => {
 
   return (
     <Layout>
-      {/* Accesos rápidos (sencillos y sin colores llamativos) */}
-      <div className={styles.mobileShortcutsRow}>
-        <Link to="/comunidades" className={styles.mobileShortcutItem}>
-          <Users size={16} />
-          <span>Comunidades</span>
-        </Link>
-        <Link to="/ruleta" className={styles.mobileShortcutItem}>
-          <RuletaIcon size={16} />
-          <span>Ruleta</span>
-        </Link>
-        <Link to="/tierlist" className={styles.mobileShortcutItem}>
-          <Table2 size={16} />
-          <span>Tier Lists</span>
-        </Link>
-        <Link to="/mi-lista" className={styles.mobileShortcutItem}>
-          <Library size={16} />
-          <span>Mi Lista</span>
-        </Link>
-      </div>
+
 
       {/* 3D CAROUSEL BANNERS */}
         <section className={styles.carouselSection}>
