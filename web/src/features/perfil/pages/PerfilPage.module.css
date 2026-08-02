@@ -195,7 +195,7 @@
 @media (max-width: 768px) {
   .bannerWrap {
     margin: 0 -16px;
-    height: 100px;
+    height: 130px;
     border-radius: 0;
   }
   
@@ -208,7 +208,7 @@
   }
 
   .avatarWrap {
-    margin-top: -50px;
+    margin-top: -60px;
     margin-bottom: 0;
   }
 
