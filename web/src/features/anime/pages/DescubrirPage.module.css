@@ -378,3 +378,33 @@
   color: var(--color-texto-muted); 
   font-size: var(--text-sm); 
 }
+
+/* ══════════════════════════════════════════
+   MÓVIL ≤ 768px
+   ══════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .grid, .layoutgrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  
+  .searchGrande {
+    padding: var(--space-3) var(--space-10);
+    font-size: var(--text-base);
+  }
+  
+  .limpiarSearch {
+    right: 110px;
+  }
+
+  .toggleFiltrosBtn {
+    padding: 0 var(--space-4);
+    height: 46px;
+    font-size: 13px;
+  }
+
+  .filtrosDesplegados {
+    padding: var(--space-3);
+  }
+}
+

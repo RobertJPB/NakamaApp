@@ -5,9 +5,13 @@ import {
   Star, 
   Trophy, 
   MessageCircle,
+  Users,
+  Table2,
+  Library
 } from 'lucide-react'
 import { Layout } from '../../../components/shared/Layout'
 import { NewsSection } from '../../feed/components/NewsSection'
+import { RuletaIcon } from '../../../components/icons/RuletaIcon'
 import styles from './HomePage.module.css'
 import { useAuth } from '../../../hooks/useAuth'
 import { useAnimes } from '../../../hooks/useAnimes'
@@ -84,19 +88,7 @@ const FAST_LAUNCH = [
 
 
 
-/* ─── Populares (top 10) ────────────────────────────────────────── */
-const POPULARES = [
-  { id: 3936,   titulo: 'Fullmetal Alchemist: Brotherhood', genero: 'Acción · Aventura',    nota: '9.2' },
-  { id: 5646,   titulo: 'Steins;Gate',                      genero: 'Sci-Fi · Thriller',     nota: '9.1' },
-  { id: 46474, titulo: 'Frieren',                          genero: 'Fantasía · Drama',      nota: '9.1' },
-  { id: 41370, titulo: 'Kimetsu no Yaiba',                 genero: 'Acción · Sobrenatural', nota: '9.0' },
-  { id: 7442,  titulo: 'Attack on Titan',                  genero: 'Acción · Drama',        nota: '9.0' },
-  { id: 6448,  titulo: 'Hunter x Hunter (2011)',           genero: 'Aventura · Fantasía',   nota: '8.9' },
-  { id: 45857, titulo: 'Jujutsu Kaisen 2',                 genero: 'Acción · Oscuro',       nota: '8.9' },
-  { id: 12230,  titulo: 'Violet Evergarden',                genero: 'Drama · Slice of Life', nota: '8.8' },
-  { id: 41084, titulo: 'Vinland Saga',                     genero: 'Acción · Historia',     nota: '8.8' },
-  { id: 13273,  titulo: 'Made in Abyss',                    genero: 'Aventura · Oscuro',     nota: '8.7' },
-]
+
 
 
 
@@ -119,8 +111,15 @@ export const HomePage: React.FC = () => {
   
   const [resenasRecientes, setResenasRecientes] = useState<any[]>([])
   const [cargandoResenas, setCargandoResenas] = useState(true)
+  const [topRanking, setTopRanking] = useState<any[]>([])
+  const [cargandoRanking, setCargandoRanking] = useState(true)
 
   useEffect(() => {
+    api.get('/api/ranking', { params: { limit: 10 } })
+      .then(res => setTopRanking(res.data))
+      .catch(err => console.error('Error al cargar ranking:', err))
+      .finally(() => setCargandoRanking(false))
+
     api.get('/api/resenas/recientes')
       .then(res => setResenasRecientes(res.data))
       .catch(err => console.error('Error al cargar reseñas recientes:', err))
@@ -147,6 +146,26 @@ export const HomePage: React.FC = () => {
 
   return (
     <Layout>
+      {/* ─── QUICK ACTIONS (MOBILE ONLY) ─── */}
+      <div className={styles.mobileQuickActions}>
+        <Link to="/comunidades" className={styles.quickActionCard}>
+          <div className={`${styles.quickActionIcon} ${styles.bgBlue}`}><Users size={18} /></div>
+          <span>Comunidades</span>
+        </Link>
+        <Link to="/ruleta" className={styles.quickActionCard}>
+          <div className={`${styles.quickActionIcon} ${styles.bgPurple}`}><RuletaIcon size={18} /></div>
+          <span>Ruleta</span>
+        </Link>
+        <Link to="/tierlist" className={styles.quickActionCard}>
+          <div className={`${styles.quickActionIcon} ${styles.bgGreen}`}><Table2 size={18} /></div>
+          <span>Tier Lists</span>
+        </Link>
+        <Link to="/mi-lista" className={styles.quickActionCard}>
+          <div className={`${styles.quickActionIcon} ${styles.bgOrange}`}><Library size={18} /></div>
+          <span>Mi Lista</span>
+        </Link>
+      </div>
+
       {/* 3D CAROUSEL BANNERS */}
         <section className={styles.carouselSection}>
           <div className={styles.carouselContainer}>
@@ -308,19 +327,22 @@ export const HomePage: React.FC = () => {
               <Trophy className={styles.trophyIcon} size={16} fill="currentColor" /> Mejor Valorados
             </h3>
             <div className={styles.rankingList}>
-              {POPULARES.map((anime, index) => (
+              {cargandoRanking ? (
+                <p style={{ color: 'var(--color-texto-muted)', fontSize: 'var(--text-sm)', padding: '16px 0', textAlign: 'center' }}>Cargando ranking...</p>
+              ) : topRanking.map((anime, index) => (
                 <div 
-                  key={anime.id} 
+                  key={anime.externalId} 
                   className={styles.rankingItem}
-                  onClick={() => navigate(`/anime/${anime.id}`)}
+                  onClick={() => navigate(`/anime/${anime.externalId}`)}
+                  onMouseEnter={() => prefetchAnimeDetalle(String(anime.externalId))}
                 >
                   <span className={`${styles.rankNumber} ${index < 3 ? styles.rankTop3 : ''}`}>{String(index + 1).padStart(2, '0')}</span>
                   <div className={styles.rankDetails}>
                     <p className={styles.rankName}>{anime.titulo}</p>
-                    <p className={styles.rankGenre}>{anime.genero}</p>
+                    <p className={styles.rankGenre}>{[anime.tipo, anime.anio].filter(Boolean).join(' · ')}</p>
                   </div>
                   <span className={styles.rankScore}>
-                    <Star className={styles.starYellow} size={11} fill="currentColor" /> {anime.nota}
+                    <Star className={styles.starYellow} size={11} fill="currentColor" /> {Number(anime.calificacionPromedio).toFixed(1)}
                   </span>
                 </div>
               ))}

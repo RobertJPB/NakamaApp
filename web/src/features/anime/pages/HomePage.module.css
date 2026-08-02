@@ -472,6 +472,13 @@
 }
 
 /* ══════════════════════════════════════════
+   MOBILE QUICK ACTIONS
+   ══════════════════════════════════════════ */
+.mobileQuickActions {
+  display: none;
+}
+
+/* ══════════════════════════════════════════
    3D CAROUSEL BANNERS
    ══════════════════════════════════════════ */
 .carouselSection {
@@ -1223,31 +1230,99 @@
     padding: 10px 16px;
   }
 
-  /* ── Carrusel: una sola tarjeta centrada, sin las laterales ── */
-  .carouselContainer {
-    height: 18rem;
-    perspective: none;
+  /* ── Quick Actions (App-like pills) ── */
+  .mobileQuickActions {
+    display: flex;
+    overflow-x: auto;
+    gap: 12px;
+    padding: 4px 0 12px 0;
+    margin: 0 -16px; /* Bleed to edge */
+    padding-left: 16px;
+    padding-right: 16px;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE */
   }
-
-  /* Ocultar las tarjetas de los lados en móvil */
-  .slideNext,
-  .slidePrev {
+  .mobileQuickActions::-webkit-scrollbar {
     display: none;
   }
 
-  /* La tarjeta activa ocupa casi todo el ancho */
-  .slideActive {
-    width: 100%;
-    border-radius: 12px;
-    position: relative;
-    height: 100%;
+  .quickActionCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    min-width: 72px;
+  }
+
+  .quickActionIcon {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transition: transform 0.2s;
+  }
+
+  .quickActionCard:active .quickActionIcon {
+    transform: scale(0.95);
+  }
+
+  .bgBlue { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+  .bgPurple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+  .bgGreen { background: linear-gradient(135deg, #10b981, #059669); }
+  .bgOrange { background: linear-gradient(135deg, #f97316, #ea580c); }
+
+  .quickActionCard span {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-texto-suave);
+    white-space: nowrap;
+  }
+
+  /* ── Carrusel animado en móvil ── */
+  .carouselContainer {
+    height: 18rem;
+    perspective: none;
+    overflow: hidden; /* Evita que las tarjetas laterales expandan el layout */
   }
 
   .carouselCard {
     width: 100%;
     max-width: 100%;
-    position: relative;
+    position: absolute;
     border-radius: 12px;
+  }
+
+  /* Animaciones tipo "swipe" para móvil */
+  .slideActive {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+    z-index: 5;
+  }
+
+  .slideNext {
+    transform: translateX(110%) scale(0.9);
+    opacity: 0.3;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  .slidePrev {
+    transform: translateX(-110%) scale(0.9);
+    opacity: 0.3;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  .slideHidden {
+    transform: translateX(0) scale(0.5);
+    opacity: 0;
+    z-index: 1;
+    pointer-events: none;
   }
 
   /* Flechas del carrusel: más grandes y accesibles */
