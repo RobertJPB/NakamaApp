@@ -156,7 +156,8 @@ export class KitsuService implements IAnimeExternalService {
   }
 
   async obtenerDetalle(externalId: string) {
-    const data = await this.fetchKitsu(`/anime/${externalId}?include=categories,characters.character`)
+    // Primero obtenemos la data base del anime con géneros
+    const data = await this.fetchKitsu(`/anime/${externalId}?include=categories,characters,characters.character`)
     const animeData = data.data
     const included = data.included || []
 
@@ -200,13 +201,16 @@ export class KitsuService implements IAnimeExternalService {
     // Reemplazar nota de Kitsu por la nota real de MAL si se obtuvo
     if (malScore !== null) animeMapping.calificacionPromedio = malScore
 
+    // Kitsu devuelve los personajes en el array 'included' con type 'characters'
+    // El include correcto es 'characters.character' para traer la data del personaje
     const personajes = included
-      .filter((inc: any) => inc.type === 'characters')
+      .filter((inc: any) => inc.type === 'characters' || inc.type === 'anime-characters')
       .map((char: any) => ({
         id: char.id,
-        nombre: char.attributes?.names?.en || char.attributes?.canonicalName || 'Desconocido',
+        nombre: char.attributes?.names?.en || char.attributes?.canonicalName || char.attributes?.name || 'Desconocido',
         imagenUrl: char.attributes?.image?.original || char.attributes?.image?.large || null
-      }));
+      }))
+      .filter((p: any) => p.imagenUrl); // Solo los que tienen imagen
 
     if (personajes.length > 0) {
       const namesToTranslate = personajes.map((p: any) => p.nombre).join(' | ');
@@ -218,6 +222,36 @@ export class KitsuService implements IAnimeExternalService {
           p.nombre = translatedNamesArr[index].replace(/(^[\s,]+|[\s,]+$)/g, '');
         }
       });
+    } else {
+      // Fallback a Jikan (API pública de MyAnimeList) cuando Kitsu no tiene personajes
+      try {
+        const mappingRes = await fetch(
+          `${KITSU_URL}/mappings?filter[externalSite]=myanimelist/anime&filter[item_id]=${externalId}&filter[item_type]=Anime`,
+          { headers: { 'Accept': 'application/vnd.api+json' } }
+        )
+        if (mappingRes.ok) {
+          const mappingData = await mappingRes.json() as any
+          const malId = mappingData.data?.[0]?.attributes?.externalId
+          if (malId) {
+            const jikanRes = await fetch(`https://api.jikan.moe/v4/anime/${malId}/characters`)
+            if (jikanRes.ok) {
+              const jikanData = await jikanRes.json() as any
+              const jikanChars = (jikanData.data || [])
+                .filter((entry: any) => entry.character?.images?.webp?.image_url || entry.character?.images?.jpg?.image_url)
+                .slice(0, 20)
+              jikanChars.forEach((entry: any) => {
+                personajes.push({
+                  id: entry.character.mal_id.toString(),
+                  nombre: entry.character.name || 'Desconocido',
+                  imagenUrl: entry.character.images?.webp?.image_url || entry.character.images?.jpg?.image_url
+                })
+              })
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Jikan character fallback error:', err)
+      }
     }
 
     // Parche manual para "Orb: On the Movements of the Earth" ya que Kitsu no tiene personajes aún y su sinopsis es muy corta
@@ -265,76 +299,23 @@ export class KitsuService implements IAnimeExternalService {
   }
 
   async buscarPersonajes(busqueda: string) {
-    const query = `
-      query ($search: String) {
-        CharSearch: Page(page: 1, perPage: 15) {
-          characters(search: $search, sort: [SEARCH_MATCH, FAVOURITES_DESC]) {
-            id
-            name { full }
-            image { large }
-            media(sort: POPULARITY_DESC, type: ANIME) {
-              nodes { title { romaji } }
-            }
-          }
-        }
-        AnimeSearch: Page(page: 1, perPage: 3) {
-          media(search: $search, type: ANIME, sort: [SEARCH_MATCH, POPULARITY_DESC]) {
-            title { romaji }
-            characters(sort: [FAVOURITES_DESC], page: 1, perPage: 25) {
-              nodes {
-                id
-                name { full }
-                image { large }
-              }
-            }
-          }
-        }
-      }
-    `;
-    
     try {
-      const response = await fetch('https://graphql.anilist.co', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({
-          query,
-          variables: { search: busqueda }
-        })
-      });
+      // Usamos Jikan (API pública de MAL) — sin restricciones comerciales
+      const res = await fetch(`https://api.jikan.moe/v4/characters?q=${encodeURIComponent(busqueda)}&limit=15&order_by=favorites&sort=desc`)
+      if (!res.ok) return []
+      const json = await res.json() as any
       
-      const json = await response.json() as any;
-      
-      const charsFromName = json.data?.CharSearch?.characters || [];
-      const animes = json.data?.AnimeSearch?.media || [];
-      
-      const charsFromAnime = animes.flatMap((anime: any) => {
-        return (anime.characters?.nodes || []).map((c: any) => ({
-          ...c,
-          media: { nodes: [{ title: anime.title }] }
-        }));
-      });
-      
-      // Combinar y deduplicar
-      const allChars = [...charsFromAnime, ...charsFromName];
-      const seen = new Set();
-      const uniqueChars = allChars.filter(c => {
-        if (seen.has(c.id)) return false;
-        seen.add(c.id);
-        return true;
-      });
-      
-      return uniqueChars.map((char: any) => ({
-        id: char.id.toString(),
-        nombre: char.name.full,
-        imagenUrl: char.image.large || null,
-        animeTitulo: char.media?.nodes?.[0]?.title?.romaji || null
-      }));
+      return (json.data || [])
+        .filter((c: any) => c.images?.webp?.image_url || c.images?.jpg?.image_url)
+        .map((c: any) => ({
+          id: c.mal_id.toString(),
+          nombre: c.name || 'Desconocido',
+          imagenUrl: c.images?.webp?.image_url || c.images?.jpg?.image_url || null,
+          animeTitulo: c.anime?.[0]?.anime?.title || null
+        }))
     } catch (e) {
-      console.error("Error fetching characters from AniList:", e);
-      return [];
+      console.error('Error fetching characters from Jikan:', e)
+      return []
     }
   }
 }

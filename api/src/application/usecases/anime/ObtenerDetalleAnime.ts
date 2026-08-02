@@ -22,6 +22,14 @@ export class ObtenerDetalleAnime {
     const anime = await this.animeRepo.upsert(datos);
     (anime as any).generos = generos;
 
+    // Usar la calificacion de la BD (actualizada por MAL) en lugar de la de Kitsu/Jikan en vivo
+    // para que sea coherente con el ranking global
+    if (animeLocal?.calificacionPromedio && Number(animeLocal.calificacionPromedio) > 0) {
+      (anime as any).calificacionPromedio = Number(animeLocal.calificacionPromedio);
+    } else if ((datos as any).calificacionPromedio) {
+      (anime as any).calificacionPromedio = (datos as any).calificacionPromedio;
+    }
+
     const [resenas, viendo, porVer, favoritos] = await Promise.all([
       this.resenaRepo.findByAnime(anime.id, 1, 10),
       prisma.listaUsuario.count({ where: { animeId: anime.id, estados: { has: 'Viendo' } } }),
