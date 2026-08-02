@@ -25,6 +25,7 @@
 }
 
 @media (max-width: 768px) {
+  /* Sidebar oculta → contenido ocupa todo el ancho */
   .appLayout {
     grid-template-columns: 1fr;
   }
@@ -32,9 +33,14 @@
     grid-template-columns: 1fr;
   }
   .mainContent {
-    padding-left: 20px;
-    padding-right: 20px;
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 0;
+    /* Espacio para el BottomNav */
     padding-bottom: calc(70px + env(safe-area-inset-bottom));
+    height: auto;
+    min-height: 100dvh;
+    overflow-y: unset;
   }
 }
 

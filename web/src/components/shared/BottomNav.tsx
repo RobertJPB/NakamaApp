@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Home, Compass, MessageSquare, Trophy, User } from 'lucide-react'
+import { Home, Compass, MessageSquare, Trophy } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import styles from './BottomNav.module.css'
 
@@ -15,32 +15,57 @@ export const BottomNav: React.FC = () => {
     return location.pathname.startsWith(path)
   }
 
-  const navItems = [
-    { path: '/', icon: <Home size={24} />, label: 'Inicio' },
-    { path: '/descubrir', icon: <Compass size={24} />, label: 'Descubrir' },
-    { path: '/feed', icon: <MessageSquare size={24} />, label: 'Feed' },
-    { path: '/ranking', icon: <Trophy size={24} />, label: 'Ranking' },
-    { path: perfilPath, icon: <User size={24} />, label: 'Perfil' }
-  ]
-
   return (
     <nav className={styles.bottomNav}>
-      {navItems.map((item) => {
-        const active = isActive(item.path)
-        return (
-          <Link
-            key={item.label}
-            to={item.path}
-            className={`${styles.navItem} ${active ? styles.active : ''}`}
-            title={item.label}
-          >
-            <div className={styles.iconContainer}>
-              {item.icon}
+      {/* Inicio */}
+      <Link to="/" className={`${styles.navItem} ${isActive('/') ? styles.active : ''}`}>
+        <div className={styles.iconWrap}>
+          <Home size={22} strokeWidth={isActive('/') ? 2.5 : 1.8} />
+        </div>
+        <span className={styles.label}>Inicio</span>
+      </Link>
+
+      {/* Descubrir */}
+      <Link to="/descubrir" className={`${styles.navItem} ${isActive('/descubrir') ? styles.active : ''}`}>
+        <div className={styles.iconWrap}>
+          <Compass size={22} strokeWidth={isActive('/descubrir') ? 2.5 : 1.8} />
+        </div>
+        <span className={styles.label}>Descubrir</span>
+      </Link>
+
+      {/* Feed — botón central destacado */}
+      <Link to="/feed" className={`${styles.navItem} ${styles.navItemCenter} ${isActive('/feed') ? styles.active : ''}`}>
+        <div className={styles.centerBtn}>
+          <MessageSquare size={22} strokeWidth={2} />
+        </div>
+        <span className={styles.label}>Feed</span>
+      </Link>
+
+      {/* Ranking */}
+      <Link to="/ranking" className={`${styles.navItem} ${isActive('/ranking') ? styles.active : ''}`}>
+        <div className={styles.iconWrap}>
+          <Trophy size={22} strokeWidth={isActive('/ranking') ? 2.5 : 1.8} />
+        </div>
+        <span className={styles.label}>Ranking</span>
+      </Link>
+
+      {/* Perfil — muestra avatar si está logueado */}
+      <Link to={perfilPath} className={`${styles.navItem} ${(isActive('/perfil') || isActive('/auth')) ? styles.active : ''}`}>
+        <div className={styles.iconWrap}>
+          {usuario?.avatarUrl ? (
+            <img
+              src={usuario.avatarUrl}
+              alt="perfil"
+              className={`${styles.avatarThumb} ${(isActive('/perfil') || isActive('/auth')) ? styles.avatarActive : ''}`}
+            />
+          ) : (
+            <div className={`${styles.avatarFallback} ${(isActive('/perfil') || isActive('/auth')) ? styles.avatarActive : ''}`}>
+              {(usuario?.nombreDisplay?.[0] || usuario?.username?.[0] || '?').toUpperCase()}
             </div>
-            <span className={styles.label}>{item.label}</span>
-          </Link>
-        )
-      })}
+          )}
+        </div>
+        <span className={styles.label}>Perfil</span>
+      </Link>
     </nav>
   )
 }

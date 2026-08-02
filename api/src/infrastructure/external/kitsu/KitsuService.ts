@@ -223,16 +223,21 @@ export class KitsuService implements IAnimeExternalService {
         }
       });
     } else {
-      // Fallback a Jikan (API pública de MyAnimeList) cuando Kitsu no tiene personajes
+      // Fallback a Jikan (API pública de MAL) cuando Kitsu no tiene personajes
       try {
+        // Usar el endpoint de relaciones /anime/{id}/mappings (más fiable que filter[item_id])
         const mappingRes = await fetch(
-          `${KITSU_URL}/mappings?filter[externalSite]=myanimelist/anime&filter[item_id]=${externalId}&filter[item_type]=Anime`,
+          `${KITSU_URL}/anime/${externalId}/mappings`,
           { headers: { 'Accept': 'application/vnd.api+json' } }
         )
         if (mappingRes.ok) {
           const mappingData = await mappingRes.json() as any
-          const malId = mappingData.data?.[0]?.attributes?.externalId
+          const malMapping = (mappingData.data || []).find(
+            (m: any) => m.attributes?.externalSite === 'myanimelist/anime'
+          )
+          const malId = malMapping?.attributes?.externalId
           if (malId) {
+            console.log(`[KitsuService] Fetching characters from Jikan for MAL ID: ${malId}`)
             const jikanRes = await fetch(`https://api.jikan.moe/v4/anime/${malId}/characters`)
             if (jikanRes.ok) {
               const jikanData = await jikanRes.json() as any
@@ -246,6 +251,7 @@ export class KitsuService implements IAnimeExternalService {
                   imagenUrl: entry.character.images?.webp?.image_url || entry.character.images?.jpg?.image_url
                 })
               })
+              console.log(`[KitsuService] Got ${personajes.length} characters from Jikan`)
             }
           }
         }

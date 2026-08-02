@@ -229,7 +229,7 @@ export const FeedItemInteractions: React.FC<FeedItemInteractionsProps> = ({
                 <MessageSquare size={14} />
               </button>
               {usuario && c.usuario?.id === usuario.id && (
-                <button className={styles.commentActionBtn} title="Eliminar comentario" style={{ color: 'var(--color-danger)' }} onClick={() => handleDeleteComment(c.id)}>
+                <button className={`${styles.commentActionBtn} ${styles.commentDeleteBtn}`} title="Eliminar comentario" onClick={() => handleDeleteComment(c.id)}>
                   <Trash2 size={14} />
                 </button>
               )}

@@ -1,57 +1,146 @@
+/* BottomNav — Solo visible en móvil (≤ 768px) */
 .bottomNav {
   display: none;
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 65px;
-  background: rgba(10, 10, 10, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  height: 62px;
+  background: rgba(10, 10, 12, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
   z-index: 1000;
-  justify-content: space-around;
-  align-items: center;
+  align-items: stretch;
   padding-bottom: env(safe-area-inset-bottom);
 }
 
+/* ─── Item base ─── */
 .navItem {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #a4b0be;
+  color: rgba(160, 170, 190, 0.7);
   text-decoration: none;
-  gap: 4px;
+  gap: 3px;
   flex: 1;
-  height: 100%;
+  position: relative;
   transition: color 0.2s ease;
+  padding-top: 6px;
 }
 
-.iconContainer {
+.navItem:active {
+  transform: scale(0.92);
+  transition: transform 0.1s ease;
+}
+
+/* ─── Icono normal ─── */
+.iconWrap {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.2s ease;
+  width: 40px;
+  height: 32px;
+  border-radius: 12px;
+  transition: background 0.2s ease, transform 0.2s ease;
 }
 
+/* ─── Label ─── */
 .label {
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 500;
+  letter-spacing: 0.2px;
+  transition: color 0.2s ease;
 }
 
-.navItem:hover {
-  color: #ffffff;
-}
-
+/* ─── Estado activo ─── */
 .navItem.active {
   color: #ffc107;
 }
 
-.navItem.active .iconContainer {
-  transform: scale(1.1);
+.navItem.active .iconWrap {
+  background: rgba(255, 193, 7, 0.12);
+  transform: translateY(-1px);
 }
 
+/* Línea activa arriba del icono */
+.navItem.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 2.5px;
+  background: #ffc107;
+  border-radius: 0 0 4px 4px;
+}
+
+/* ─── Botón central (Feed) ─── */
+.navItemCenter {
+  flex: 1.1;
+}
+
+.centerBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 36px;
+  background: linear-gradient(135deg, #ffc107, #ff9800);
+  border-radius: 14px;
+  color: #000;
+  box-shadow: 0 4px 14px rgba(255, 193, 7, 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin-bottom: 1px;
+}
+
+.navItemCenter.active .centerBtn {
+  transform: translateY(-2px) scale(1.06);
+  box-shadow: 0 6px 20px rgba(255, 193, 7, 0.5);
+}
+
+.navItemCenter.active .label {
+  color: #ffc107;
+}
+
+/* Quitar el ::before del botón central */
+.navItemCenter::before {
+  display: none;
+}
+
+/* ─── Avatar del perfil ─── */
+.avatarThumb {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.avatarFallback {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.avatarActive {
+  border-color: #ffc107;
+  transform: translateY(-1px) scale(1.08);
+}
+
+/* ─── Mostrar solo en móvil ─── */
 @media (max-width: 768px) {
   .bottomNav {
     display: flex;

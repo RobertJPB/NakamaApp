@@ -75,6 +75,10 @@ export class PrismaAnimeRepository implements IAnimeRepository {
   }
 
   async upsert(data: Partial<Anime>): Promise<Anime> {
+    // Verificar si ya existe con score guardado
+    const existing = await prisma.anime.findUnique({ where: { externalId: data.externalId! }, select: { calificacionPromedio: true } })
+    const hasExistingScore = existing && Number(existing.calificacionPromedio) > 0
+
     const payload = {
       titulo:               data.titulo!,
       tituloJapones:        data.tituloJapones,
@@ -91,11 +95,12 @@ export class PrismaAnimeRepository implements IAnimeRepository {
       estudio:              data.estudio,
       autor:                data.autor,
       demografia:           data.demografia,
-      calificacionPromedio: data.calificacionPromedio,
+      // Solo actualizar la calificacion si NO hay una existente ya guardada (para no pisarla con datos de Kitsu)
+      ...(hasExistingScore ? {} : { calificacionPromedio: data.calificacionPromedio }),
     }
     const raw = await prisma.anime.upsert({
       where:  { externalId: data.externalId! },
-      create: { externalId: data.externalId!, ...payload },
+      create: { externalId: data.externalId!, ...payload, calificacionPromedio: data.calificacionPromedio },
       update: payload,
     })
     return this.mapear(raw)
