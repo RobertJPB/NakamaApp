@@ -74,7 +74,7 @@ export class PrismaUsuarioRepository implements IUsuarioRepository {
       where:   { seguidoId: usuarioId, estado: 'aceptado' },
       include: { seguidor: true },
     })
-    return rows.map(r => this.mapear(r.seguidor))
+    return rows.map((r: any) => this.mapear(r.seguidor))
   }
 
   async getSiguiendo(usuarioId: string): Promise<Usuario[]> {
@@ -82,7 +82,7 @@ export class PrismaUsuarioRepository implements IUsuarioRepository {
       where:   { seguidorId: usuarioId, estado: 'aceptado' },
       include: { seguido: true },
     })
-    return rows.map(r => this.mapear(r.seguido))
+    return rows.map((r: any) => this.mapear(r.seguido))
   }
 
   async toggleSeguir(seguidorId: string, seguidoId: string) {

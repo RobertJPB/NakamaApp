@@ -66,8 +66,8 @@ export class PrismaListaRepository implements IListaRepository {
       select: { estados: true },
     })
     const stats: Record<string, number> = {}
-    rows.forEach(r => {
-      r.estados.forEach(e => {
+    rows.forEach((r: any) => {
+      r.estados.forEach((e: string) => {
         stats[e] = (stats[e] || 0) + 1
       })
     })
