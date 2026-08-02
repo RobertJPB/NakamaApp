@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
-import { Search, Sliders, Bell, Users, Table2, Library } from 'lucide-react'
-import { RuletaIcon } from '../icons/RuletaIcon'
+import { Search, Sliders, Bell } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { useNotificaciones } from '../../hooks/useNotificaciones'
 import { api } from '../../lib/axios'
@@ -153,83 +152,65 @@ export const Header: React.FC = () => {
 
       <div className={styles.headerRight}>
         {estaAutenticado && (
-          <>
-            {/* Pequeños accesos rápidos en móvil */}
-            <div className={styles.mobileShortcuts}>
-              <Link to="/comunidades" className={styles.headerActionBtn} title="Comunidades">
-                <Users size={18} />
-              </Link>
-              <Link to="/ruleta" className={styles.headerActionBtn} title="Ruleta">
-                <RuletaIcon size={18} />
-              </Link>
-              <Link to="/tierlist" className={styles.headerActionBtn} title="Tier Lists">
-                <Table2 size={18} />
-              </Link>
-              <Link to="/mi-lista" className={styles.headerActionBtn} title="Mi Lista">
-                <Library size={18} />
-              </Link>
-            </div>
+          <div className={styles.notifWrapper} ref={notifRef}>
+            <button 
+              className={styles.headerActionBtn} 
+              title="Notificaciones"
+              onClick={() => setMostrarNotif(!mostrarNotif)}
+            >
+              <Bell size={18} />
+              {noLeidas > 0 && <span className={styles.badgeCount}>{noLeidas > 9 ? '+9' : noLeidas}</span>}
+            </button>
 
-            <div className={styles.notifWrapper} ref={notifRef}>
-              <button 
-                className={styles.headerActionBtn} 
-                title="Notificaciones"
-                onClick={() => setMostrarNotif(!mostrarNotif)}
-              >
-                <Bell size={18} />
-                {noLeidas > 0 && <span className={styles.badgeCount}>{noLeidas > 9 ? '+9' : noLeidas}</span>}
-              </button>
-
-              {mostrarNotif && (
-                <div className={styles.notifDropdown}>
-                  <div className={styles.notifHeader}>
-                    <span>Notificaciones</span>
-                    {noLeidas > 0 && (
-                      <button className={styles.notifMarkAll} onClick={marcarTodasComoLeidas}>
-                        Marcar todas como leídas
-                      </button>
-                    )}
-                  </div>
-                  <div className={styles.notifList}>
-                    {notificaciones.length === 0 ? (
-                      <div className={styles.notifEmpty}>No tienes notificaciones.</div>
-                    ) : (
-                      notificaciones.map(n => (
-                        <button 
-                          key={n.id} 
-                          className={`${styles.notifItem} ${n.leida ? '' : styles.unread}`}
-                          onClick={() => {
-                            if (!n.leida) marcarComoLeida(n.id)
-                            setMostrarNotif(false)
-                            if (n.actor?.username) {
-                              if (n.tipo === 'like_resena' || n.tipo === 'comentario_publicacion') {
-                                navigate(`/perfil/${usuario?.username || usuario?.user_metadata?.username}`)
-                              } else {
-                                navigate(`/perfil/${n.actor.username}`)
-                              }
-                            }
-                          }}
-                        >
-                          <div className={styles.notifAvatar}>
-                            {n.actor?.avatarUrl 
-                              ? <img src={n.actor.avatarUrl} alt="" />
-                              : <div className={styles.notifAvatarFallback}>{(n.actor?.nombreDisplay?.[0] || 'U').toUpperCase()}</div>
-                            }
-                          </div>
-                          <div className={styles.notifContent}>
-                            <strong>{n.actor?.nombreDisplay}</strong> {n.mensaje}
-                            <span className={styles.notifTime}>
-                              {formatDistanceToNow(new Date(n.creadoEn), { addSuffix: true, locale: es })}
-                            </span>
-                          </div>
-                        </button>
-                      ))
-                    )}
-                  </div>
+            {mostrarNotif && (
+              <div className={styles.notifDropdown}>
+                <div className={styles.notifHeader}>
+                  <span>Notificaciones</span>
+                  {noLeidas > 0 && (
+                    <button className={styles.notifMarkAll} onClick={marcarTodasComoLeidas}>
+                      Marcar todas como leídas
+                    </button>
+                  )}
                 </div>
-              )}
-            </div>
-          </>
+                <div className={styles.notifList}>
+                  {notificaciones.length === 0 ? (
+                    <div className={styles.notifEmpty}>No tienes notificaciones.</div>
+                  ) : (
+                    notificaciones.map(n => (
+                      <button 
+                        key={n.id} 
+                        className={`${styles.notifItem} ${n.leida ? '' : styles.unread}`}
+                        onClick={() => {
+                          if (!n.leida) marcarComoLeida(n.id)
+                          setMostrarNotif(false)
+                          if (n.actor?.username) {
+                            if (n.tipo === 'like_resena' || n.tipo === 'comentario_publicacion') {
+                              navigate(`/perfil/${usuario?.username || usuario?.user_metadata?.username}`)
+                            } else {
+                              navigate(`/perfil/${n.actor.username}`)
+                            }
+                          }
+                        }}
+                      >
+                        <div className={styles.notifAvatar}>
+                          {n.actor?.avatarUrl 
+                            ? <img src={n.actor.avatarUrl} alt="" />
+                            : <div className={styles.notifAvatarFallback}>{(n.actor?.nombreDisplay?.[0] || 'U').toUpperCase()}</div>
+                          }
+                        </div>
+                        <div className={styles.notifContent}>
+                          <strong>{n.actor?.nombreDisplay}</strong> {n.mensaje}
+                          <span className={styles.notifTime}>
+                            {formatDistanceToNow(new Date(n.creadoEn), { addSuffix: true, locale: es })}
+                          </span>
+                        </div>
+                      </button>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         )}
         
         {estaAutenticado ? (

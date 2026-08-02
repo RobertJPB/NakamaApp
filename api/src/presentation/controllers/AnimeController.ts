@@ -29,7 +29,7 @@ export class AnimeController {
       if (animesList && animesList.length > 0) {
         const ids = animesList.map(a => a.externalId)
         const dbAnimes = await prisma.anime.findMany({ where: { externalId: { in: ids as string[] } } })
-        const dbMap = new Map(dbAnimes.map((a: any) => [a.externalId, a.calificacionPromedio]))
+        const dbMap = new Map(dbAnimes.map(a => [a.externalId, a.calificacionPromedio]))
         animesList.forEach(a => {
           if (dbMap.has(a.externalId)) {
             a.calificacionPromedio = Number(dbMap.get(a.externalId))
@@ -63,7 +63,7 @@ export class AnimeController {
       if (resultado && resultado.length > 0) {
         const ids = resultado.map((a: any) => a.externalId)
         const dbAnimes = await prisma.anime.findMany({ where: { externalId: { in: ids as string[] } } })
-        const dbMap = new Map(dbAnimes.map((a: any) => [a.externalId, a.calificacionPromedio]))
+        const dbMap = new Map(dbAnimes.map(a => [a.externalId, a.calificacionPromedio]))
         resultado.forEach((a: any) => {
           if (dbMap.has(a.externalId)) {
             a.calificacionPromedio = Number(dbMap.get(a.externalId))

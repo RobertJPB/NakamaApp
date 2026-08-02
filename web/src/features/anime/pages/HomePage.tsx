@@ -126,18 +126,6 @@ export const HomePage: React.FC = () => {
       .finally(() => setCargandoResenas(false))
   }, [])
 
-  // Precargar imágenes del carrusel para evitar carga lenta
-  useEffect(() => {
-    FEATURED.forEach((item, i) => {
-      const link = document.createElement('link')
-      link.rel = 'preload'
-      link.as = 'image'
-      link.href = item.imagen
-      if (i === 0) (link as any).fetchpriority = 'high'
-      document.head.appendChild(link)
-    })
-  }, [])
-
   // Auto-avance del carrusel cada 5 segundos
   useEffect(() => {
     const interval = setInterval(() => {
@@ -158,7 +146,25 @@ export const HomePage: React.FC = () => {
 
   return (
     <Layout>
-
+      {/* ─── QUICK ACTIONS (MOBILE ONLY) ─── */}
+      <div className={styles.mobileQuickActions}>
+        <Link to="/comunidades" className={styles.quickActionCard}>
+          <div className={`${styles.quickActionIcon} ${styles.bgBlue}`}><Users size={18} /></div>
+          <span>Comunidades</span>
+        </Link>
+        <Link to="/ruleta" className={styles.quickActionCard}>
+          <div className={`${styles.quickActionIcon} ${styles.bgPurple}`}><RuletaIcon size={18} /></div>
+          <span>Ruleta</span>
+        </Link>
+        <Link to="/tierlist" className={styles.quickActionCard}>
+          <div className={`${styles.quickActionIcon} ${styles.bgGreen}`}><Table2 size={18} /></div>
+          <span>Tier Lists</span>
+        </Link>
+        <Link to="/mi-lista" className={styles.quickActionCard}>
+          <div className={`${styles.quickActionIcon} ${styles.bgOrange}`}><Library size={18} /></div>
+          <span>Mi Lista</span>
+        </Link>
+      </div>
 
       {/* 3D CAROUSEL BANNERS */}
         <section className={styles.carouselSection}>
@@ -180,12 +186,7 @@ export const HomePage: React.FC = () => {
                   className={`${styles.carouselCard} ${positionClass}`}
                   onClick={() => idx !== featuredIdx && setFeaturedIdx(idx)}
                 >
-                  <img
-                    src={item.imagen}
-                    alt={item.titulo}
-                    className={styles.cardBgImage}
-                    loading="eager"
-                  />
+                  <img src={item.imagen} alt={item.titulo} className={styles.cardBgImage} />
                   <div className={styles.cardOverlayGlow} style={{ background: `linear-gradient(to top, rgba(6, 5, 10, 0.99) 25%, rgba(6, 5, 10, 0.7) 60%, rgba(6, 5, 10, 0.2) 100%)` }} />
                   
                   {idx === featuredIdx && (

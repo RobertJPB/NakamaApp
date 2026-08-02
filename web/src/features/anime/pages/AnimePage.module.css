@@ -38,7 +38,7 @@
 
 .layoutGrid {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 230px 1fr;
   gap: 40px;
   align-items: start;
 }
@@ -62,14 +62,11 @@
   padding: 0 10px;
 }
 .statItem {
-  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  display: flex; align-items: center; gap: 4px;
   color: var(--color-acento);
-  font-size: 13px; font-weight: bold;
+  font-size: 11px; font-weight: bold;
 }
-.statItem svg {
-  width: 18px; height: 18px;
-}
-.statItem span.statIconTextStar { font-size: 20px; color: var(--color-acento); line-height: 1; }
+.statItem span.statIconTextStar { font-size: 16px; color: var(--color-acento); line-height: 1; }
 .statItem span { color: var(--color-texto-muted); }
 
 .leftActions {
@@ -98,21 +95,20 @@
   transition: all 0.3s ease;
 }
 
-.leftBtn:hover:not(:disabled) {
+.leftBtn:hover {
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.2);
-  transform: translateY(-1px);
-}
-
-.leftBtn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  transform: translateY(-2px);
 }
 
 .favBtnActive {
-  background: rgba(255, 193, 7, 0.1);
-  border-color: rgba(255, 193, 7, 0.3);
-  color: #ffc107;
+  background: var(--color-acento);
+  color: #1f2124;
+}
+
+.favBtnActive:hover {
+  background: #00e054;
 }
 
 .reviewBtn {
@@ -356,81 +352,7 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .layoutGrid { grid-template-columns: 1fr; gap: 15px; }
-  
-  .leftCol {
-    display: grid;
-    grid-template-columns: 140px 1fr; /* Imagen y stats a la izquierda, botones a la derecha */
-    gap: 16px;
-    align-items: start;
-  }
-  
-  .posterAndStats {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    width: 100%;
-  }
-
-  .posterWrapper {
-    width: 100%; /* Toma todo el ancho de su columna (140px) */
-    max-width: 140px;
-  }
-
-  .statsPanel {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* 2x2 grid para iconos más espaciados */
-    gap: 10px;
-    padding: 0;
-    width: 100%;
-  }
-
-  .statItem {
-    font-size: 13px;
-    font-weight: 700;
-    flex-direction: row;
-    justify-content: flex-start;
-    gap: 6px;
-  }
-
-  .statItem svg {
-    width: 18px !important;
-    height: 18px !important;
-  }
-
-  .statItem span.statIconTextStar {
-    font-size: 20px;
-  }
-
-  .leftActions {
-    margin-top: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    width: 100%;
-  }
-
-  .leftBtn {
-    padding: 10px 8px;
-    font-size: 13px;
-  }
-
-  .reviewBtn {
-    margin-top: 0; /* Quitar margen para que se alinee con los demás botones */
-  }
-
-  .mainCol {
-    padding-top: 0;
-    gap: 16px;
-  }
-
-  .title {
-    font-size: 22px; /* Más pequeño */
-    font-weight: 700;
-    line-height: 1.2;
-  }
-
-  .subtitle {
-    font-size: 12px;
-  }
+  .layoutGrid { grid-template-columns: 1fr; gap: 20px; }
+  .leftCol { align-items: center; }
+  .posterWrapper { width: 150px; }
 }
