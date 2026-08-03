@@ -101,7 +101,7 @@ export class UsuarioController {
           seguidor: { select: { id: true, username: true, nombreDisplay: true, avatarUrl: true, bio: true } }
         }
       });
-      res.json({ usuarioId: id, usuarios: seguidores.map(s => s.seguidor) });
+      res.json({ usuarioId: id, usuarios: seguidores.map((s: any) => s.seguidor) });
     } catch (err) { next(err) }
   }
 
@@ -114,7 +114,7 @@ export class UsuarioController {
           seguido: { select: { id: true, username: true, nombreDisplay: true, avatarUrl: true, bio: true } }
         }
       });
-      res.json({ usuarioId: id, usuarios: siguiendo.map(s => s.seguido) });
+      res.json({ usuarioId: id, usuarios: siguiendo.map((s: any) => s.seguido) });
     } catch (err) { next(err) }
   }
   buscar = async (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -158,7 +158,7 @@ export class UsuarioController {
           where: { seguidorId: req.userId },
           select: { seguidoId: true }
         })
-        excludedIds.push(...siguiendo.map(s => s.seguidoId))
+        excludedIds.push(...siguiendo.map((s: any) => s.seguidoId))
       }
       
       const all = req.query.all === 'true'
@@ -245,7 +245,7 @@ export class UsuarioController {
         }
       })
 
-      const mappedResenas = resenas.map(r => ({
+      const mappedResenas = resenas.map((r: any) => ({
         id: r.id,
         tipo: 'resena',
         actorId: r.usuario.id,
@@ -269,7 +269,7 @@ export class UsuarioController {
         comentarios: r.comentarios
       }))
 
-      const mappedPublicaciones = publicaciones.map(p => ({
+      const mappedPublicaciones = publicaciones.map((p: any) => ({
         id: p.id,
         tipo: p.tipo,
         actorId: p.usuario.id,

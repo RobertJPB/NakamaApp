@@ -122,7 +122,7 @@ export class PrismaResenaRepository implements IResenaRepository {
       })
     ]);
     
-    const comunidadIds = misMembresias.map(m => m.comunidadId);
+    const comunidadIds = misMembresias.map((m: { comunidadId: string }) => m.comunidadId);
     
     // 2. Ejecutar la tercera consulta si hay comunidades
     let miembrosComunidad: { usuarioId: string }[] = [];
@@ -135,8 +135,8 @@ export class PrismaResenaRepository implements IResenaRepository {
 
     const usuariosIds = [
       usuarioId,
-      ...seguidos.map(s => s.seguidoId),
-      ...miembrosComunidad.map(m => m.usuarioId)
+      ...seguidos.map((s: { seguidoId: string }) => s.seguidoId),
+      ...miembrosComunidad.map((m: { usuarioId: string }) => m.usuarioId)
     ];
 
     const uniqueIds = Array.from(new Set(usuariosIds));
@@ -175,7 +175,7 @@ export class PrismaResenaRepository implements IResenaRepository {
       }
     });
 
-    const mappedResenas = resenas.map(r => ({
+    const mappedResenas = resenas.map((r: any) => ({
       id: r.id,
       tipo: 'resena',
       actorUsername: r.usuario.username,
@@ -196,7 +196,7 @@ export class PrismaResenaRepository implements IResenaRepository {
       hasLiked: r.reacciones.length > 0
     }));
 
-    const mappedPublicaciones = publicaciones.map(p => ({
+    const mappedPublicaciones = publicaciones.map((p: any) => ({
       id: p.id,
       tipo: p.tipo, // 'texto' | 'encuesta' | 'resena'
       actorUsername: p.usuario.username,
@@ -216,7 +216,7 @@ export class PrismaResenaRepository implements IResenaRepository {
         animeImagen: p.resena.anime.imagenUrl,
         calificacion: p.resena.calificacion
       } : null,
-      opciones: p.opciones?.map(opt => ({
+      opciones: p.opciones?.map((opt: any) => ({
         id: opt.id,
         texto: opt.texto,
         votos: opt.votos,
