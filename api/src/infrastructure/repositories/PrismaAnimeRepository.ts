@@ -126,34 +126,36 @@ export class PrismaAnimeRepository implements IAnimeRepository {
     return rows.map(this.mapear)
   }
   async getRankingMasVistos(limit: number): Promise<RankingItem[]> {
-    const rows = await prisma.listaUsuario.groupBy({
+    type ListaGroupRow = { animeId: string; _count: { animeId: number } }
+    const rows = (await prisma.listaUsuario.groupBy({
       by: ['animeId'],
       where: { estados: { has: 'Viendo' } },
       _count: { animeId: true },
       orderBy: { _count: { animeId: 'desc' } },
       take: limit,
-    })
-    const animeIds = rows.map(r => r.animeId)
+    })) as unknown as ListaGroupRow[]
+    const animeIds = rows.map((r: ListaGroupRow) => r.animeId)
     const animes = await prisma.anime.findMany({ where: { id: { in: animeIds } } })
-    const animeMap = new Map(animes.map(a => [a.id, a]))
+    const animeMap = new Map<string, any>(animes.map((a: any) => [a.id, a]))
     return rows
-      .map(r => ({ anime: this.mapear(animeMap.get(r.animeId)!), count: r._count.animeId }))
-      .filter(r => r.anime)
+      .map((r: ListaGroupRow) => ({ anime: this.mapear(animeMap.get(r.animeId)!), count: r._count.animeId }))
+      .filter((r: any) => r.anime)
   }
 
   async getRankingMasGustados(limit: number): Promise<RankingItem[]> {
-    const rows = await prisma.listaUsuario.groupBy({
+    type ListaGroupRow = { animeId: string; _count: { animeId: number } }
+    const rows = (await prisma.listaUsuario.groupBy({
       by: ['animeId'],
       where: { estados: { has: 'Me gusta' } },
       _count: { animeId: true },
       orderBy: { _count: { animeId: 'desc' } },
       take: limit,
-    })
-    const animeIds = rows.map(r => r.animeId)
+    })) as unknown as ListaGroupRow[]
+    const animeIds = rows.map((r: ListaGroupRow) => r.animeId)
     const animes = await prisma.anime.findMany({ where: { id: { in: animeIds } } })
-    const animeMap = new Map(animes.map(a => [a.id, a]))
+    const animeMap = new Map<string, any>(animes.map((a: any) => [a.id, a]))
     return rows
-      .map(r => ({ anime: this.mapear(animeMap.get(r.animeId)!), count: r._count.animeId }))
-      .filter(r => r.anime)
+      .map((r: ListaGroupRow) => ({ anime: this.mapear(animeMap.get(r.animeId)!), count: r._count.animeId }))
+      .filter((r: any) => r.anime)
   }
 }
