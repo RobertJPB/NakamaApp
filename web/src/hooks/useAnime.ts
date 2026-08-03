@@ -27,14 +27,18 @@ export function useAnimeDetalle(externalId: string | null, initialData?: any) {
 
   const fetchDetalle = () => {
     if (!externalId) return
-    if (!initialData) setCargando(true)
+    
+    // Evitar recarga visual (skeleton) si ya tenemos datos
+    setDetalle(prev => {
+      if (!prev) setCargando(true)
+      return prev
+    })
+    
     setIsFetching(true)
     
     api.get(`/api/animes/${externalId}`)
       .then(({ data }) => setDetalle(data))
-      .catch(() => {
-        if (!initialData) setError('No se pudo cargar el anime')
-      })
+      .catch(() => setError('No se pudo cargar el anime'))
       .finally(() => {
         setCargando(false)
         setIsFetching(false)
