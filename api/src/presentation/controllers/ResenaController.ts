@@ -64,10 +64,9 @@ export class ResenaController {
       const page  = Number(req.query.page)  || 1
       const limit = Number(req.query.limit) || 20
       
-      const prisma = require('../../infrastructure/database/prisma/client').default || require('@prisma/client').PrismaClient
-      const prismaClient = new prisma()
+      const { prisma } = require('../../infrastructure/database/prisma/client')
       
-      const resenas = await prismaClient.resena.findMany({
+      const resenas = await prisma.resena.findMany({
         where: { animeId, esPublica: true },
         orderBy: { creadoEn: 'desc' },
         skip: (page - 1) * limit,
@@ -85,10 +84,9 @@ export class ResenaController {
   porUsuario = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const { usuarioId } = req.params
-      const prisma = require('../../infrastructure/database/prisma/client').default || require('@prisma/client').PrismaClient
-      const prismaClient = new prisma()
+      const { prisma } = require('../../infrastructure/database/prisma/client')
 
-      const resenas = await prismaClient.resena.findMany({
+      const resenas = await prisma.resena.findMany({
         where: { usuarioId, esPublica: true },
         orderBy: { creadoEn: 'desc' },
         include: {

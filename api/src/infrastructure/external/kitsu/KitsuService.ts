@@ -324,22 +324,29 @@ export class KitsuService implements IAnimeExternalService {
 
   async buscarPersonajes(busqueda: string) {
     try {
-      // Usamos Jikan (API pública de MAL) — sin restricciones comerciales
-      const res = await fetch(`https://api.jikan.moe/v4/characters?q=${encodeURIComponent(busqueda)}&limit=15&order_by=favorites&sort=desc`)
-      if (!res.ok) return []
-      const json = await res.json() as any
+      // Usamos Kitsu para la búsqueda de personajes (Jikan falla mucho y AniList no permite uso comercial sin permiso)
+      const res = await fetch(`https://kitsu.io/api/edge/characters?filter[name]=${encodeURIComponent(busqueda)}&page[limit]=15`);
+      if (!res.ok) return [];
+      const json = await res.json() as any;
       
       return (json.data || [])
-        .filter((c: any) => c.images?.webp?.image_url || c.images?.jpg?.image_url)
-        .map((c: any) => ({
-          id: c.mal_id.toString(),
-          nombre: c.name || 'Desconocido',
-          imagenUrl: c.images?.webp?.image_url || c.images?.jpg?.image_url || null,
-          animeTitulo: c.anime?.[0]?.anime?.title || null
-        }))
+        .filter((c: any) => c.attributes?.image?.original || c.attributes?.image?.large)
+        .map((c: any) => {
+          let name = c.attributes?.canonicalName || c.attributes?.name || 'Desconocido';
+          // Si el nombre viene como "Apellido, Nombre", lo invertimos
+          if (name.includes(',')) {
+            name = name.split(',').map((s: string) => s.trim()).reverse().join(' ');
+          }
+          return {
+            id: c.id.toString(),
+            nombre: name,
+            imagenUrl: c.attributes?.image?.original || c.attributes?.image?.large || null,
+            animeTitulo: null // Kitsu no incluye esto en esta respuesta sin múltiples peticiones costosas
+          };
+        });
     } catch (e) {
-      console.error('Error fetching characters from Jikan:', e)
-      return []
+      console.error('Error fetching characters from Kitsu:', e);
+      return [];
     }
   }
 }

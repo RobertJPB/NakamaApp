@@ -20,11 +20,10 @@ export class FeedController {
   postFeed = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       if (!req.userId) throw new AppError('No autenticado', 401)
-      const prisma = require('../../infrastructure/database/prisma/client').default || require('@prisma/client').PrismaClient
-      const prismaClient = new prisma()
+      const { prisma } = require('../../infrastructure/database/prisma/client')
       const { contenido, tema, soloAmigos, tipo, opciones } = req.body
 
-      const nuevaPub = await prismaClient.publicacion.create({
+      const nuevaPub = await prisma.publicacion.create({
         data: {
           usuarioId: req.userId,
           contenido,
@@ -39,7 +38,7 @@ export class FeedController {
       })
 
       // Add to feed system
-      await prismaClient.feed.create({
+      await prisma.feed.create({
         data: {
           usuarioId: req.userId,
           tipo: 'publicacion',

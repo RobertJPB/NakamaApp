@@ -8,6 +8,7 @@ import { ResenaCard }   from '../../anime/components/ResenaCard'
 import { PublicacionCard } from '../../comunidad/components/PublicacionCard'
 import { FeedItemInteractions } from '../../feed/components/FeedItemInteractions'
 import { FollowListModal } from '../components/FollowListModal'
+import { Heart, Clock, Eye, CheckSquare, Layers } from 'lucide-react'
 import styles           from './PerfilPage.module.css'
 
 type Tab = 'resenas' | 'listas' | 'actividad' | 'medallas'
@@ -318,15 +319,27 @@ export const PerfilPage: React.FC = () => {
         {tab === 'listas' && (
           <div className={styles.listaWrap}>
             <div className={styles.filtros}>
-              {filtrosListas.map(e => (
-                <button
-                  key={e}
-                  className={`${styles.filtro} ${filtro === e ? styles.filtroActivo : ''}`}
-                  onClick={() => setFiltro(e)}
-                >
-                  {e === 'todos' ? 'Todos' : e}
-                </button>
-              ))}
+              {filtrosListas.map(e => {
+                const nombreLower = e.toLowerCase()
+                let Icon = null
+                let color = 'currentColor'
+                if (nombreLower === 'todos') { Icon = Layers; }
+                else if (nombreLower.includes('favorito') || nombreLower.includes('me gusta')) { Icon = Heart; color = '#ff4757'; }
+                else if (nombreLower.includes('por ver') || nombreLower.includes('plan to watch')) { Icon = Clock; color = '#ffa502'; }
+                else if (nombreLower.includes('viendo') || nombreLower.includes('watching')) { Icon = Eye; color = '#2ed573'; }
+                else if (nombreLower.includes('terminado') || nombreLower.includes('completed')) { Icon = CheckSquare; color = '#1e90ff'; }
+
+                return (
+                  <button
+                    key={e}
+                    className={`${styles.filtro} ${filtro === e ? styles.filtroActivo : ''}`}
+                    onClick={() => setFiltro(e)}
+                  >
+                    {Icon && <Icon size={14} color={color} />}
+                    {e === 'todos' ? 'Todos' : e}
+                  </button>
+                )
+              })}
               
               {!esMiPerfil && filtro !== 'todos' && yo && (
                 <button

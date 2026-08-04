@@ -1,7 +1,7 @@
-import { Request, Response } from 'express'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { Request, Response, NextFunction } from 'express'
+import { prisma } from '../../infrastructure/database/prisma/client'
+import { AuthRequest } from '../../infrastructure/auth/SupabaseAuthMiddleware'
+import { AppError } from '../middlewares/error.middleware'
 
 export class ReporteController {
   crearReporte = async (req: Request, res: Response): Promise<void> => {

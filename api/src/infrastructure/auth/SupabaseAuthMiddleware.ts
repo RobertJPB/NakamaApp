@@ -40,15 +40,24 @@ async function asegurarUsuarioDB(user: any) {
 
     const nombreDisplay = user.user_metadata?.full_name || user.user_metadata?.name || username
 
-    await prisma.usuario.create({
-      data: {
-        id: user.id,
-        email: user.email || `${user.id}@placeholder.com`,
-        username,
-        nombreDisplay,
-        avatarUrl: null, // No importar avatar de Google por defecto
+    try {
+      await prisma.usuario.create({
+        data: {
+          id: user.id,
+          email: user.email || `${user.id}@placeholder.com`,
+          username,
+          nombreDisplay,
+          avatarUrl: null, // No importar avatar de Google por defecto
+        }
+      })
+    } catch (e: any) {
+      if (e.code === 'P2002') {
+        // Ignorar colisión de ID o username.
+        // Ocurre por race conditions cuando el frontend envía múltiples peticiones simultáneas
+      } else {
+        throw e
       }
-    })
+    }
   }
 }
 

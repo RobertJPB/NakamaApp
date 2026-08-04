@@ -318,7 +318,17 @@ export const TierListPage: React.FC = () => {
                   onDrop={(e) => handleDrop(e, tier.id)}
                 >
                   <div className={styles.tierLabel} style={{ backgroundColor: tier.color }}>
-                    <span>{tier.label}</span>
+                    <span
+                      contentEditable
+                      suppressContentEditableWarning
+                      className={styles.tierLabelEditable}
+                      onBlur={(e) => {
+                        const val = e.currentTarget.textContent || '';
+                        setTiers(prev => prev.map(t => t.id === tier.id ? { ...t, label: val } : t));
+                      }}
+                    >
+                      {tier.label}
+                    </span>
                   </div>
                   <div className={styles.tierContent}>
                     {tier.items.map(item => (
