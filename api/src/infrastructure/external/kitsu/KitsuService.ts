@@ -156,6 +156,12 @@ export class KitsuService implements IAnimeExternalService {
   }
 
   async obtenerDetalle(externalId: string) {
+    const cacheKey = `detalle_${externalId}`
+    const cached = responseCache.get(cacheKey)
+    if (cached && Date.now() - cached.ts < RESPONSE_CACHE_TTL) {
+      return cached.data
+    }
+
     // Primero obtenemos la data base del anime con géneros
     const data = await this.fetchKitsu(`/anime/${externalId}?include=categories,characters,characters.character`)
     const animeData = data.data
@@ -276,11 +282,14 @@ export class KitsuService implements IAnimeExternalService {
       );
     }
 
-    return {
+    const result = {
       anime: animeMapping,
       generos,
       personajes
     }
+    
+    responseCache.set(cacheKey, { data: result, ts: Date.now() })
+    return result
   }
 
   async obtenerPopulares(pagina = 1, perPage = 18, genre?: string, seasonYear?: number) {

@@ -5,14 +5,25 @@
   bottom: 0;
   left: 0;
   right: 0;
-  height: 62px;
-  background: rgba(10, 10, 12, 0.92);
+  height: 64px;
+  background: rgba(10, 10, 12, 0.95);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-top: 1px solid rgba(255, 255, 255, 0.07);
   z-index: 1000;
-  align-items: stretch;
+  align-items: center;
   padding-bottom: env(safe-area-inset-bottom);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-left: 8px;
+  padding-right: 8px;
+  gap: 4px;
+}
+
+.bottomNav::-webkit-scrollbar {
+  display: none;
 }
 
 /* ─── Item base ─── */
@@ -24,7 +35,8 @@
   color: rgba(160, 170, 190, 0.7);
   text-decoration: none;
   gap: 3px;
-  flex: 1;
+  flex: 0 0 auto;
+  min-width: 60px;
   position: relative;
   transition: color 0.2s ease;
   padding-top: 6px;
@@ -75,37 +87,6 @@
   height: 2.5px;
   background: #ffc107;
   border-radius: 0 0 4px 4px;
-}
-
-/* ─── Botón central (Feed) ─── */
-.navItemCenter {
-  flex: 1.1;
-}
-
-.centerBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 46px;
-  height: 36px;
-  background: linear-gradient(135deg, #ffc107, #ff9800);
-  border-radius: 14px;
-  color: #000;
-  transition: transform 0.2s ease;
-  margin-bottom: 1px;
-}
-
-.navItemCenter.active .centerBtn {
-  transform: translateY(-2px) scale(1.06);
-}
-
-.navItemCenter.active .label {
-  color: #ffc107;
-}
-
-/* Quitar el ::before del botón central */
-.navItemCenter::before {
-  display: none;
 }
 
 /* ─── Avatar del perfil ─── */

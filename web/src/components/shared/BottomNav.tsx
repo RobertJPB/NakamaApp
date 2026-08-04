@@ -49,18 +49,47 @@ export const BottomNav: React.FC = () => {
         <span className={styles.label}>Feed</span>
       </Link>
 
-      {/* Botón Menú (Abre Bottom Sheet) */}
-      <button 
-        className={`${styles.navItem} ${styles.menuBtn} ${showMenu ? styles.active : ''}`}
-        onClick={() => setShowMenu(true)}
-      >
+      {/* Mis Listas */}
+      <Link to="/mi-lista" className={`${styles.navItem} ${isActive('/mi-lista') ? styles.active : ''}`}>
         <div className={styles.iconWrap}>
-          <LayoutGrid size={22} strokeWidth={showMenu ? 2.5 : 1.8} />
+          <Library size={22} strokeWidth={isActive('/mi-lista') ? 2.5 : 1.8} />
         </div>
-        <span className={styles.label}>Explorar</span>
-      </button>
+        <span className={styles.label}>Listas</span>
+      </Link>
 
-      {/* Perfil — muestra avatar si está logueado */}
+      {/* Comunidades */}
+      <Link to="/comunidades" className={`${styles.navItem} ${isActive('/comunidades') ? styles.active : ''}`}>
+        <div className={styles.iconWrap}>
+          <Users size={22} strokeWidth={isActive('/comunidades') ? 2.5 : 1.8} />
+        </div>
+        <span className={styles.label}>Comunidad</span>
+      </Link>
+      
+      {/* Tier Lists */}
+      <Link to="/tierlist" className={`${styles.navItem} ${isActive('/tierlist') ? styles.active : ''}`}>
+        <div className={styles.iconWrap}>
+          <Table2 size={22} strokeWidth={isActive('/tierlist') ? 2.5 : 1.8} />
+        </div>
+        <span className={styles.label}>Tier List</span>
+      </Link>
+
+      {/* Ruleta */}
+      <Link to="/ruleta" className={`${styles.navItem} ${isActive('/ruleta') ? styles.active : ''}`}>
+        <div className={styles.iconWrap}>
+          <RuletaIcon size={22} />
+        </div>
+        <span className={styles.label}>Ruleta</span>
+      </Link>
+
+      {/* Ranking */}
+      <Link to="/ranking" className={`${styles.navItem} ${isActive('/ranking') ? styles.active : ''}`}>
+        <div className={styles.iconWrap}>
+          <Trophy size={22} strokeWidth={isActive('/ranking') ? 2.5 : 1.8} />
+        </div>
+        <span className={styles.label}>Ranking</span>
+      </Link>
+
+      {/* Perfil */}
       <Link to={perfilPath} className={`${styles.navItem} ${(isActive('/perfil') || isActive('/auth')) ? styles.active : ''}`}>
         <div className={styles.iconWrap}>
           {usuario?.avatarUrl ? (
@@ -77,43 +106,6 @@ export const BottomNav: React.FC = () => {
         </div>
         <span className={styles.label}>Perfil</span>
       </Link>
-
-      {/* Bottom Sheet Modal */}
-      {showMenu && (
-        <div className={styles.bottomSheetOverlay} onClick={() => setShowMenu(false)}>
-          <div className={styles.bottomSheet} onClick={e => e.stopPropagation()}>
-            <div className={styles.sheetHeader}>
-              <h3>Explorar Nakama</h3>
-              <button className={styles.closeSheetBtn} onClick={() => setShowMenu(false)}>
-                <X size={20} />
-              </button>
-            </div>
-            
-            <div className={styles.sheetGrid}>
-              <Link to="/ranking" className={styles.sheetItem}>
-                <div className={`${styles.sheetIcon} ${styles.bgGold}`}><Trophy size={20} /></div>
-                <span>Ranking</span>
-              </Link>
-              <Link to="/comunidades" className={styles.sheetItem}>
-                <div className={`${styles.sheetIcon} ${styles.bgBlue}`}><Users size={20} /></div>
-                <span>Comunidades</span>
-              </Link>
-              <Link to="/ruleta" className={styles.sheetItem}>
-                <div className={`${styles.sheetIcon} ${styles.bgPurple}`}><RuletaIcon size={20} /></div>
-                <span>Ruleta</span>
-              </Link>
-              <Link to="/tierlist" className={styles.sheetItem}>
-                <div className={`${styles.sheetIcon} ${styles.bgGreen}`}><Table2 size={20} /></div>
-                <span>Tier Lists</span>
-              </Link>
-              <Link to="/mi-lista" className={styles.sheetItem}>
-                <div className={`${styles.sheetIcon} ${styles.bgOrange}`}><Library size={20} /></div>
-                <span>Mi Lista</span>
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
     </nav>
   )
 }
