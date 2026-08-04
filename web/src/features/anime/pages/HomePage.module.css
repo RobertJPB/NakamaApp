@@ -1135,7 +1135,8 @@
 
 .resenasGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-auto-rows: 160px;
   gap: 16px;
 }
 
@@ -1148,6 +1149,7 @@
   flex-direction: column;
   gap: 10px;
   height: 160px;
+  max-height: 160px;
   overflow: hidden;
   transition: border-color 0.2s, background 0.2s;
 }
@@ -1204,8 +1206,10 @@
   color: #ced6e0;
   line-height: 1.5;
   margin: 0;
+  flex: 1;
+  min-height: 0;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

@@ -224,9 +224,12 @@ export class KitsuService implements IAnimeExternalService {
       const translatedNamesArr = translatedNamesStr.split('|').map((s: string) => s.trim());
       
       personajes.forEach((p: any, index: number) => {
-        if (translatedNamesArr[index]) {
-          p.nombre = translatedNamesArr[index].replace(/(^[\s,]+|[\s,]+$)/g, '');
+        let name = translatedNamesArr[index] || p.nombre
+        // Jikan y algunos sources devuelven "Apellido, Nombre" → invertir a "Nombre Apellido"
+        if (name.includes(',')) {
+          name = name.split(',').map((s: string) => s.trim()).reverse().join(' ')
         }
+        p.nombre = name.trim()
       });
     } else {
       // Fallback a Jikan (API pública de MAL) cuando Kitsu no tiene personajes
@@ -251,9 +254,14 @@ export class KitsuService implements IAnimeExternalService {
                 .filter((entry: any) => entry.character?.images?.webp?.image_url || entry.character?.images?.jpg?.image_url)
                 .slice(0, 20)
               jikanChars.forEach((entry: any) => {
+                const rawName: string = entry.character.name || 'Desconocido'
+                // Jikan devuelve nombres en formato "Apellido, Nombre" → invertir a "Nombre Apellido"
+                const nombre = rawName.includes(',')
+                  ? rawName.split(',').map((s: string) => s.trim()).reverse().join(' ')
+                  : rawName
                 personajes.push({
                   id: entry.character.mal_id.toString(),
-                  nombre: entry.character.name || 'Desconocido',
+                  nombre,
                   imagenUrl: entry.character.images?.webp?.image_url || entry.character.images?.jpg?.image_url
                 })
               })
