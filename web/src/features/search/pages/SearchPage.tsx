@@ -180,9 +180,8 @@ export const SearchPage: React.FC = () => {
           <section className={styles.section}>
             <div className={styles.sectionHeader}>
               <h3>Animes</h3>
-              {resultados.animes.length > 4 && <button onClick={() => setTab('animes')}>Ver más</button>}
             </div>
-            {renderAnimes(4)}
+            {renderAnimes()}
           </section>
         )}
 
