@@ -1148,6 +1148,7 @@
   flex-direction: column;
   gap: 10px;
   height: 160px;
+  overflow: hidden;
   transition: border-color 0.2s, background 0.2s;
 }
 
