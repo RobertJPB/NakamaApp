@@ -51,7 +51,13 @@ async function translateText(text: string): Promise<string> {
   try {
     const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=es&dt=t&q=${encodeURIComponent(text)}`);
     const data = await res.json() as any;
-    return data[0].map((item: any) => item[0]).join('');
+    const raw: string = data[0].map((item: any) => item[0]).join('');
+    // Google Translate a veces inserta \n en medio de oraciones (ej: después de "U. A.")
+    // Reemplazamos saltos de línea SIMPLES por espacio, conservando párrafos dobles (\n\n)
+    return raw
+      .replace(/\r\n/g, '\n')
+      .replace(/([^\n])\n([^\n])/g, '$1 $2') // \n simple → espacio
+      .trim();
   } catch (err) {
     console.error("Translation error:", err);
     return text;
@@ -218,21 +224,15 @@ export class KitsuService implements IAnimeExternalService {
       }))
       .filter((p: any) => p.imagenUrl); // Solo los que tienen imagen
 
-    if (personajes.length > 0) {
-      const namesToTranslate = personajes.map((p: any) => p.nombre).join(' | ');
-      const translatedNamesStr = await translateText(namesToTranslate);
-      const translatedNamesArr = translatedNamesStr.split('|').map((s: string) => s.trim());
-      
-      personajes.forEach((p: any, index: number) => {
-        let name = translatedNamesArr[index] || p.nombre
-        // Jikan y algunos sources devuelven "Apellido, Nombre" → invertir a "Nombre Apellido"
-        if (name.includes(',')) {
-          name = name.split(',').map((s: string) => s.trim()).reverse().join(' ')
-        }
-        p.nombre = name.trim()
-      });
-    } else {
-      // Fallback a Jikan (API pública de MAL) cuando Kitsu no tiene personajes
+    // Normalizar nombres en formato "Apellido, Nombre" → "Nombre Apellido" (sin traducir)
+    personajes.forEach((p: any) => {
+      if (p.nombre.includes(',')) {
+        p.nombre = p.nombre.split(',').map((s: string) => s.trim()).reverse().join(' ')
+      }
+    })
+
+    // Fallback a Jikan (API pública de MAL) cuando Kitsu no tiene personajes
+    if (personajes.length === 0) {
       try {
         // Usar el endpoint de relaciones /anime/{id}/mappings (más fiable que filter[item_id])
         const mappingRes = await fetch(
@@ -273,6 +273,7 @@ export class KitsuService implements IAnimeExternalService {
         console.error('Jikan character fallback error:', err)
       }
     }
+
 
     // Parche manual para "Orb: On the Movements of the Earth" ya que Kitsu no tiene personajes aún y su sinopsis es muy corta
     if (animeMapping.titulo?.toLowerCase().includes("orb: on the movements")) {
