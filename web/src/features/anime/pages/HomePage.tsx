@@ -145,6 +145,20 @@ export const HomePage: React.FC = () => {
     return () => clearInterval(interval)
   }, [])
 
+  // Pre-calentar detalle de todos los animes del grid cuando carguen
+  // Escalonado cada 80ms para no saturar Kitsu/backend
+  useEffect(() => {
+    if (animes.length === 0) return
+    const timers: ReturnType<typeof setTimeout>[] = []
+    animes.forEach((anime, i) => {
+      const t = setTimeout(() => {
+        prefetchAnimeDetalle(anime.externalId)
+      }, i * 80)
+      timers.push(t)
+    })
+    return () => timers.forEach(clearTimeout)
+  }, [animes])
+
   console.log('[DEBUG] HomePage render -> animes.length:', animes.length, 'cargando:', cargando, 'error:', error)
 
   const nextSlide = () => {
