@@ -127,6 +127,17 @@ export const HomePage: React.FC = () => {
   }, [])
 
   // Auto-avance del carrusel cada 5 segundos
+  // Pre-cargar TODOS los slides al montar para que el primer clic sea instantáneo
+  useEffect(() => {
+    FEATURED.forEach(item => prefetchAnimeDetalle(String(item.id)))
+  }, [])
+
+  // Pre-calentar también el siguiente slide cuando cambia la selección
+  useEffect(() => {
+    const nextIdx = (featuredIdx + 1) % FEATURED.length
+    prefetchAnimeDetalle(String(FEATURED[nextIdx].id))
+  }, [featuredIdx])
+
   useEffect(() => {
     const interval = setInterval(() => {
       setFeaturedIdx((prev) => (prev + 1) % FEATURED.length)

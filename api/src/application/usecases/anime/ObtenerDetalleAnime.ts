@@ -4,6 +4,10 @@ import { IAnimeExternalService } from '../../interfaces/IAnimeExternalService'
 import { AppError } from '../../../presentation/middlewares/error.middleware'
 import { prisma } from '../../../infrastructure/database/prisma/client'
 
+// Cache de resultados completos para evitar DB upsert + counts en cada petición
+const resultCache = new Map<string, { data: any; ts: number }>()
+const RESULT_CACHE_TTL = 60 * 60 * 1000 // 1 hora
+
 export class ObtenerDetalleAnime {
   constructor(
     private readonly animeRepo: IAnimeRepository,
@@ -12,8 +16,15 @@ export class ObtenerDetalleAnime {
   ) { }
 
   async execute(externalId: string) {
+    // Devolver desde caché si está disponible (evita upsert + 4 queries de BD)
+    const cacheKey = `detalle_exec_${externalId}`
+    const cached = resultCache.get(cacheKey)
+    if (cached && Date.now() - cached.ts < RESULT_CACHE_TTL) {
+      return cached.data
+    }
+
     // Siempre hacemos el ciclo completo con Kitsu para obtener géneros y personajes actualizados
-    // y traducidos.
+    // y traducidos. (KitsuService ya tiene su propia caché de 1 hora)
     const animeLocal = await this.animeRepo.findByExternalId(externalId);
     const { anime: datos, personajes, generos } = await this.animeService.obtenerDetalle(externalId)
     if (!datos) throw new AppError('Anime no encontrado', 404)
@@ -40,6 +51,8 @@ export class ObtenerDetalleAnime {
     (anime as any).resenas = resenas;
     (anime as any).stats = { viendo, porVer, favoritos };
 
-    return { anime, personajes }
+    const result = { anime, personajes }
+    resultCache.set(cacheKey, { data: result, ts: Date.now() })
+    return result
   }
 }

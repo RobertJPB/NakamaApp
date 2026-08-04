@@ -53,7 +53,7 @@ supabase.auth.onAuthStateChange((event, session) => {
 
 // ─── In-memory GET cache ─────────────────────────────────────────────────────
 const cache = new Map<string, { data: any; expiresAt: number }>()
-const CACHE_TTL = 10 * 1000 // 10 segundos para desarrollo (antes era 2 mins)
+const CACHE_TTL = 5 * 60 * 1000 // 5 minutos — suficiente para que el usuario naviegue sin re-fetches
 
 // Inyectar token de Supabase en cada request y manejar la caché
 api.interceptors.request.use(async (config) => {
