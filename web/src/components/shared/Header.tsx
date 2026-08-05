@@ -147,7 +147,7 @@ export const Header: React.FC = () => {
             <div className={styles.searchBar}>
               <Search 
                 className={styles.searchIcon} 
-                size={window.innerWidth <= 768 ? 16 : 18} 
+                size={18} 
                 onClick={() => {
                   if (window.innerWidth <= 768) {
                     setSearchExpanded(true)
