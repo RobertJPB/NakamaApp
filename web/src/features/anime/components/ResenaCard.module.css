@@ -82,7 +82,7 @@
       "avatar header media"
       "detalle detalle media"
       "meta meta media";
-    gap: 16px 20px;
+    gap: 8px 20px;
     padding: var(--space-4);
     border-radius: 0;
     border: none;

@@ -47,17 +47,6 @@ export const ResenaCard: React.FC<ResenaCardProps> = ({ resena }) => {
               </a>
             )}
           </p>
-          <div className={styles.entradaRatingBox}>
-            <span className={styles.entradaEstrellas} style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
-              {Array.from({ length: 5 }).map((_, i) => {
-                const val = (resena.calificacion / 10) * 5
-                if (val >= i + 1) return <Star key={i} size={14} fill="currentColor" strokeWidth={0} />
-                if (val >= i + 0.5) return <StarHalf key={i} size={14} fill="currentColor" strokeWidth={0} />
-                return <Star key={i} size={14} fill="#4b5563" strokeWidth={0} /> // Empty star color
-              })}
-            </span>
-            <span className={styles.entradaCalificacion}>{resena.calificacion}/10</span>
-          </div>
         </div>
 
         {resena.contenido && (
@@ -108,6 +97,17 @@ export const ResenaCard: React.FC<ResenaCardProps> = ({ resena }) => {
             <img src={resena.anime.imagenUrl} alt={resena.anime.titulo} />
           </a>
         )}
+        <div className={styles.entradaRatingBox} style={{ marginTop: '8px', justifyContent: 'center' }}>
+          <span className={styles.entradaEstrellas} style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+            {Array.from({ length: 5 }).map((_, i) => {
+              const val = (resena.calificacion / 10) * 5
+              if (val >= i + 1) return <Star key={i} size={14} fill="currentColor" strokeWidth={0} />
+              if (val >= i + 0.5) return <StarHalf key={i} size={14} fill="currentColor" strokeWidth={0} />
+              return <Star key={i} size={14} fill="#4b5563" strokeWidth={0} /> // Empty star color
+            })}
+          </span>
+          <span className={styles.entradaCalificacion}>{resena.calificacion}/10</span>
+        </div>
       </div>
     </article>
   )
