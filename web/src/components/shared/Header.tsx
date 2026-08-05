@@ -198,6 +198,10 @@ export const Header: React.FC = () => {
                 <Link to="/ranking" className={styles.mobileMenuLink} onClick={() => setMenuMovilAbierto(false)}>
                   <Trophy size={18} /> Ranking
                 </Link>
+                <div className={styles.dropdownDivider} style={{ margin: '8px 0', backgroundColor: 'rgba(255,255,255,0.05)', height: '1px' }} />
+                <Link to="/configuracion" className={styles.mobileMenuLink} onClick={() => setMenuMovilAbierto(false)}>
+                  <Settings size={18} /> Configuración
+                </Link>
               </div>
             </>
           )}
