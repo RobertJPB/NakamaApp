@@ -76,9 +76,11 @@ export const Header: React.FC = () => {
 
       <div className={styles.headerMain}>
         <div className={styles.headerLeft}>
-          <Link to="/" className={styles.logoLink}>
-            <img src="/nakama-cat-new.jpg" alt="Nakama Logo" className={styles.logoImg} />
-          </Link>
+          {!searchExpanded && (
+            <Link to="/" className={styles.logoLink}>
+              <img src="/nakama-cat-new.jpg" alt="Nakama Logo" className={styles.logoImg} />
+            </Link>
+          )}
 
           <div className={`${styles.searchBarWrapper} ${searchExpanded ? styles.searchExpanded : ''}`} ref={dropdownRef}>
             <div className={styles.searchBar}>
@@ -177,9 +179,11 @@ export const Header: React.FC = () => {
         </div>
 
         <div className={styles.headerRightMobile}>
-          <button className={styles.mobileMenuBtn} onClick={() => setMenuMovilAbierto(!menuMovilAbierto)}>
-            <Menu size={24} className={`${styles.hamburgerIcon} ${menuMovilAbierto ? styles.hamburgerIconOpen : ''}`} />
-          </button>
+          {!searchExpanded && (
+            <button className={styles.mobileMenuBtn} onClick={() => setMenuMovilAbierto(!menuMovilAbierto)}>
+              <Menu size={24} className={`${styles.hamburgerIcon} ${menuMovilAbierto ? styles.hamburgerIconOpen : ''}`} />
+            </button>
+          )}
           
           {menuMovilAbierto && (
             <>

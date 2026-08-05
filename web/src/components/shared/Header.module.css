@@ -591,11 +591,8 @@
 
   /* Estado Expandido */
   .searchExpanded {
-    position: absolute;
-    top: 50%; right: 16px; left: 16px;
-    transform: translateY(-50%);
-    width: auto !important;
-    z-index: 10;
+    flex: 1;
+    width: 100% !important;
   }
   .searchExpanded .searchBar {
     width: 100%;
