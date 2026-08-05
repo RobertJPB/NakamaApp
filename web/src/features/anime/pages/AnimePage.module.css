@@ -352,6 +352,11 @@
 
 /* Responsive */
 @media (max-width: 768px) {
+  .backdrop {
+    top: -64px; /* Move backdrop up under the navbar */
+    height: 400px; /* Shorten slightly for mobile */
+  }
+
   .container {
     padding: 30px 16px 20px 16px;
   }
@@ -377,9 +382,15 @@
   .infoRow { order: 2; }
   .section { order: 3; }
   
+  .subtitle {
+    flex-wrap: wrap;
+    font-size: 12px;
+    gap: 6px;
+  }
+  
   .leftCol { 
     display: grid; 
-    grid-template-columns: 155px 1fr; 
+    grid-template-columns: 180px 1fr; 
     grid-template-areas: 
       "poster actions"
       "stats actions";
@@ -395,17 +406,17 @@
   
   .leftActions { 
     grid-area: actions; 
-    margin-top: 0;
+    margin-top: 16px; /* Push down slightly to center align with poster visually */
     display: flex; 
     flex-direction: column; 
-    justify-content: flex-start;
-    gap: 8px;
+    justify-content: center;
+    gap: 10px;
   }
   
   .leftBtn {
     padding: 0 4px;
-    height: 38px;
-    font-size: 11px;
+    height: 32px;
+    font-size: 10px;
     line-height: 1.1;
     white-space: nowrap;
   }

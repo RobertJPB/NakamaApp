@@ -46,8 +46,8 @@
 @media (max-width: 768px) {
   .btn {
     padding: 0 4px;
-    height: 38px;
-    font-size: 11px;
+    height: 32px;
+    font-size: 10px;
     line-height: 1.1;
     white-space: nowrap;
   }
