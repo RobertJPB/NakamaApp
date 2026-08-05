@@ -76,14 +76,23 @@ async function translateText(text: string): Promise<string | null> {
     console.error("Translation error (clients5):", err);
   }
 
-  // Fallback a MyMemory
+  // Fallback a MyMemory con chunking para evitar QUERY LENGTH LIMIT EXCEEDED
   try {
-    const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text.substring(0, 1500))}&langpair=en|es`);
-    if (res.ok) {
+    const chunks = text.match(/.{1,450}(?:\s|$)/g) || [text];
+    let translated = '';
+    let success = true;
+    for (const chunk of chunks) {
+      const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(chunk)}&langpair=en|es`);
+      if (!res.ok) { success = false; break; }
       const data = await res.json() as any;
-      if (data.responseData && data.responseData.translatedText) {
-        return data.responseData.translatedText.replace(/\r\n/g, '\n').replace(/([^\n])\n([^\n])/g, '$1 $2').trim();
+      if (data.responseData && data.responseData.translatedText && !data.responseData.translatedText.includes('QUERY LENGTH LIMIT')) {
+        translated += data.responseData.translatedText + ' ';
+      } else {
+        success = false; break;
       }
+    }
+    if (success && translated.trim().length > 0) {
+      return translated.replace(/\r\n/g, '\n').replace(/([^\n])\n([^\n])/g, '$1 $2').trim();
     }
   } catch (err) {
     console.error("Translation error (MyMemory):", err);
