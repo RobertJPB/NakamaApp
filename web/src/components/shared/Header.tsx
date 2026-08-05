@@ -19,7 +19,7 @@ export const Header: React.FC = () => {
   const [usuariosRes, setUsuariosRes] = useState<any[]>([])
   const [buscando, setBuscando] = useState(false)
   const [mostrarNotif, setMostrarNotif] = useState(false)
-  const [menuMovilAbierto, setMenuMovilAbierto] = useState(false)
+  const [searchExpanded, setSearchExpanded] = useState(false)
   
   const dropdownRef = useRef<HTMLDivElement>(null)
   const notifRef = useRef<HTMLDivElement>(null)
@@ -64,129 +64,113 @@ export const Header: React.FC = () => {
     setAnimesRes([])
     setUsuariosRes([])
     setBusqueda('')
+    setSearchExpanded(false)
   }
 
   const hayResultados = animesRes.length > 0 || usuariosRes.length > 0
+  const perfilPath = usuario?.username ? `/perfil/${usuario.username}` : (usuario ? '/perfil/editar' : '/auth')
 
   return (
-    <header className={styles.header}>
-      {/* Botón Menú Móvil */}
-      <button className={styles.mobileMenuBtn} onClick={() => setMenuMovilAbierto(true)}>
-        <Menu size={20} />
-      </button>
+    <header className={styles.headerContainer}>
+      <div className={styles.headerMain}>
+        <div className={styles.logoWrap}>
+          <Link to="/" className={styles.logoText}>Nakama</Link>
+        </div>
 
-      {/* Menú Móvil Overlay */}
-      {menuMovilAbierto && (
-        <div className={styles.mobileMenuOverlay}>
-          <div className={styles.mobileMenuDrawer}>
-            <div className={styles.mobileMenuHeader}>
-              <h2 className={styles.mobileMenuTitle}>Menú</h2>
-              <button className={styles.mobileMenuCloseBtn} onClick={() => setMenuMovilAbierto(false)}>
-                <X size={20} />
+        <div className={`${styles.searchBarWrapper} ${searchExpanded ? styles.searchExpanded : ''}`} ref={dropdownRef}>
+          <div className={styles.searchBar}>
+            <Search 
+              className={styles.searchIcon} 
+              size={18} 
+              onClick={() => {
+                if (window.innerWidth <= 768) {
+                  setSearchExpanded(true)
+                }
+              }}
+            />
+            <input 
+              type="text" 
+              placeholder="Buscar animes o usuarios..." 
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && busqueda.trim().length > 1) {
+                  closeDropdown()
+                  navigate(`/buscar?q=${encodeURIComponent(busqueda.trim())}`)
+                }
+              }}
+            />
+            {searchExpanded && (
+              <button className={styles.searchCloseBtn} onClick={(e) => { e.stopPropagation(); setSearchExpanded(false); }}>
+                <X size={18} />
               </button>
-            </div>
-            <div className={styles.mobileMenuContent}>
-              <Link to="/mi-lista" className={styles.mobileMenuLink} onClick={() => setMenuMovilAbierto(false)}>
-                <Library size={18} /> Mis Listas
-              </Link>
-              <Link to="/tierlist" className={styles.mobileMenuLink} onClick={() => setMenuMovilAbierto(false)}>
-                <Table2 size={18} /> Tier Lists
-              </Link>
-              <Link to="/ruleta" className={styles.mobileMenuLink} onClick={() => setMenuMovilAbierto(false)}>
-                <RuletaIcon size={18} /> Ruleta
-              </Link>
-              <Link to="/ranking" className={styles.mobileMenuLink} onClick={() => setMenuMovilAbierto(false)}>
-                <Trophy size={18} /> Ranking
-              </Link>
-              <Link to="/configuracion" className={styles.mobileMenuLink} onClick={() => setMenuMovilAbierto(false)}>
-                <Settings size={18} /> Configuración
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div className={styles.searchBarWrapper} ref={dropdownRef}>
-        <div className={styles.searchBar}>
-          <Search className={styles.searchIcon} size={18} />
-          <input 
-            type="text" 
-            placeholder="Buscar animes o usuarios..." 
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && busqueda.trim().length > 1) {
-                closeDropdown()
-                navigate(`/buscar?q=${encodeURIComponent(busqueda.trim())}`)
-              }
-            }}
-          />
-          <button className={styles.filterBtn} onClick={() => navigate('/buscar')}>
-            <Sliders size={18} />
-          </button>
-        </div>
-        
-        {(hayResultados || buscando) && (
-          <div className={styles.searchDropdown}>
-            {buscando ? (
-              <div className={styles.searchLoading}>Buscando...</div>
-            ) : (
-              <>
-                {/* Sección Usuarios */}
-                {usuariosRes.length > 0 && (
-                  <div>
-                    <div className={styles.searchSectionLabel}>Usuarios</div>
-                    {usuariosRes.map(user => (
-                      <div
-                        key={user.id}
-                        className={styles.searchResultItem}
-                        onClick={() => { closeDropdown(); navigate(`/perfil/${user.username}`) }}
-                      >
-                        <div className={styles.userAvatarWrap}>
-                          {user.avatarUrl
-                            ? <img src={user.avatarUrl} alt={user.username} className={styles.userAvatarImg} />
-                            : <div className={styles.userAvatarFallback}>{(user.nombreDisplay?.[0] || user.username?.[0] || 'U').toUpperCase()}</div>
-                          }
-                        </div>
-                        <div className={styles.searchResultInfo}>
-                          <div className={styles.searchResultTitle}>{user.nombreDisplay || user.username}</div>
-                          <div className={styles.searchResultYear}>@{user.username} · {user._count?.seguidores ?? 0} seguidores</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Sección Animes */}
-                {animesRes.length > 0 && (
-                  <div>
-                    <div className={styles.searchSectionLabel}>Animes</div>
-                    {animesRes.map(anime => (
-                      <div 
-                        key={anime.id || anime.externalId} 
-                        className={styles.searchResultItem}
-                        onClick={() => { closeDropdown(); navigate(`/anime/${anime.externalId}`) }}
-                      >
-                        <img src={anime.imagenUrl} alt={anime.titulo} className={styles.searchResultImg} />
-                        <div className={styles.searchResultInfo}>
-                          <div className={styles.searchResultTitle}>{anime.titulo}</div>
-                          <div className={styles.searchResultYear}>{anime.temporadaAnio || anime.estadoEmision}</div>
-                        </div>
-                      </div>
-                    ))}
-                    <div 
-                      className={styles.searchVerTodos}
-                      onClick={() => { closeDropdown(); navigate(`/descubrir?q=${encodeURIComponent(busqueda.trim())}`) }}
-                    >
-                      Ver todos los animes →
-                    </div>
-                  </div>
-                )}
-              </>
             )}
+            <button className={styles.filterBtn} onClick={() => navigate('/buscar')}>
+              <Sliders size={18} />
+            </button>
           </div>
-        )}
-      </div>
+          
+          {(hayResultados || buscando) && (
+            <div className={styles.searchDropdown}>
+              {buscando ? (
+                <div className={styles.searchLoading}>Buscando...</div>
+              ) : (
+                <>
+                  {/* Sección Usuarios */}
+                  {usuariosRes.length > 0 && (
+                    <div>
+                      <div className={styles.searchSectionLabel}>Usuarios</div>
+                      {usuariosRes.map(user => (
+                        <div
+                          key={user.id}
+                          className={styles.searchResultItem}
+                          onClick={() => { closeDropdown(); navigate(`/perfil/${user.username}`) }}
+                        >
+                          <div className={styles.userAvatarWrap}>
+                            {user.avatarUrl
+                              ? <img src={user.avatarUrl} alt={user.username} className={styles.userAvatarImg} />
+                              : <div className={styles.userAvatarFallback}>{(user.nombreDisplay?.[0] || user.username?.[0] || 'U').toUpperCase()}</div>
+                            }
+                          </div>
+                          <div className={styles.searchResultInfo}>
+                            <div className={styles.searchResultTitle}>{user.nombreDisplay || user.username}</div>
+                            <div className={styles.searchResultYear}>@{user.username} · {user._count?.seguidores ?? 0} seguidores</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Sección Animes */}
+                  {animesRes.length > 0 && (
+                    <div>
+                      <div className={styles.searchSectionLabel}>Animes</div>
+                      {animesRes.map(anime => (
+                        <div 
+                          key={anime.id || anime.externalId} 
+                          className={styles.searchResultItem}
+                          onClick={() => { closeDropdown(); navigate(`/anime/${anime.externalId}`) }}
+                        >
+                          <img src={anime.imagenUrl} alt={anime.titulo} className={styles.searchResultImg} />
+                          <div className={styles.searchResultInfo}>
+                            <div className={styles.searchResultTitle}>{anime.titulo}</div>
+                            <div className={styles.searchResultYear}>{anime.temporadaAnio || anime.estadoEmision}</div>
+                          </div>
+                        </div>
+                      ))}
+                      <div 
+                        className={styles.searchVerTodos}
+                        onClick={() => { closeDropdown(); navigate(`/descubrir?q=${encodeURIComponent(busqueda.trim())}`) }}
+                      >
+                        Ver todos los animes →
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          )}
+        </div>
 
       <div className={styles.headerRight}>
         {estaAutenticado && (
@@ -305,6 +289,18 @@ export const Header: React.FC = () => {
         ) : (
           <div style={{ width: 140 }}></div>
         )}
+      </div>
+      </div>
+      
+      {/* Top Nav (Mobile Only) */}
+      <div className={styles.mobileTopNav}>
+        <div className={styles.mobileTopNavScroll}>
+          <Link to="/mi-lista" className={styles.mobileTopNavLink}>Listas</Link>
+          <Link to="/comunidades" className={styles.mobileTopNavLink}>Comunidades</Link>
+          <Link to="/tierlist" className={styles.mobileTopNavLink}>Tier List</Link>
+          <Link to="/ruleta" className={styles.mobileTopNavLink}>Ruleta</Link>
+          <Link to={perfilPath} className={styles.mobileTopNavLink}>Perfil</Link>
+        </div>
       </div>
     </header>
   )

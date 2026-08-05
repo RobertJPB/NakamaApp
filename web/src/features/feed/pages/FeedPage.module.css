@@ -226,7 +226,7 @@
   }
   .entrada {
     display: grid;
-    grid-template-columns: 36px 1fr 90px;
+    grid-template-columns: 36px 1fr 120px;
     grid-template-areas:
       "avatar content media"
       ".      content media";
@@ -259,7 +259,7 @@
     justify-content: flex-start;
   }
   .entradaThumb {
-    width: 90px; /* Mas grande */
+    width: 120px; /* Mas grande */
   }
   .entradaRatingBox {
     align-items: center;

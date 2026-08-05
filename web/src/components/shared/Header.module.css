@@ -526,61 +526,110 @@
 
 /* ─── MÓVIL ≤ 768px ─── */
 @media (max-width: 768px) {
-  .header {
-    margin: 0 -20px;
-    padding: 10px 16px;
-    gap: 12px;
+  .headerContainer {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(11, 13, 16, 0.85); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--color-borde-suave);
+    display: flex; flex-direction: column;
+  }
+  .headerMain {
+    display: flex; align-items: center; justify-content: space-between; gap: var(--space-4);
+    padding: 0 16px; height: var(--navbar-height);
+    width: 100%;
+  }
+  .logoWrap { display: flex; align-items: center; }
+
+  /* Ocultar iconos secundarios para limpieza móvil */
+  .filterBtn, .headerRight {
+    display: none;
   }
 
-  /* Barra de búsqueda ocupa todo el ancho disponible */
   .searchBarWrapper {
-    max-width: 100%;
-    flex: 1;
+    width: auto;
+    flex-shrink: 1;
+    position: relative;
+    display: flex;
+    justify-content: flex-end;
   }
 
   .searchBar {
-    padding: 7px 12px;
-    border-radius: 10px;
-    gap: 8px;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    transition: all 0.3s ease;
   }
 
   .searchBar input {
+    display: none;
+  }
+
+  .searchIcon {
+    margin: 0;
+    color: #fff;
+    cursor: pointer;
+  }
+
+  /* Estado Expandido */
+  .searchExpanded {
+    position: absolute;
+    top: 50%; right: 16px; left: 16px;
+    transform: translateY(-50%);
+    width: auto !important;
+    z-index: 10;
+  }
+  .searchExpanded .searchBar {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--color-borde-suave);
+    padding: 0 12px;
+    justify-content: flex-start;
+  }
+  .searchExpanded .searchBar input {
+    display: block;
+    width: 100%;
+  }
+  .searchExpanded .searchIcon {
+    margin-right: 8px;
+    color: var(--color-texto-muted);
+  }
+  .searchCloseBtn {
+    background: transparent; border: none; color: #fff; padding: 4px; display: flex;
+  }
+
+  /* Mobile Top Nav */
+  .mobileTopNav {
+    display: block;
+    width: 100%;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    background: rgba(11, 13, 16, 0.95);
+  }
+  .mobileTopNavScroll {
+    display: flex;
+    overflow-x: auto;
+    padding: 0 16px;
+    gap: 20px;
+    scrollbar-width: none;
+  }
+  .mobileTopNavScroll::-webkit-scrollbar { display: none; }
+  .mobileTopNavLink {
+    color: var(--color-texto-suave);
     font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    padding: 12px 0;
+    white-space: nowrap;
   }
-
-  /* El dropdown de búsqueda ocupa ancho completo */
-  .searchDropdown {
-    width: 100vw;
-    left: -16px;
-    border-radius: 0 0 12px 12px;
-    margin-top: 4px;
-  }
-
-  /* Ocultar el widget de perfil completo en móvil (va al BottomNav) */
-  .profileWidgetContainer {
-    display: none;
-  }
-
-  /* Ocultar botones de auth en móvil también (van al BottomNav) */
-  .authButtons {
-    display: none;
-  }
-
-  /* Notificaciones: solo el icono, sin badge desbordado */
-  .headerActionBtn {
-    padding: 8px;
-    border-radius: 8px;
+  .mobileTopNavLink:hover {
+    color: var(--color-texto);
   }
 
   /* Dropdown notificaciones: posición ajustada para móvil */
   .notifDropdown {
     right: -8px;
     width: min(320px, 90vw);
-  }
-
-  /* Ocultar iconos secundarios para limpieza móvil */
-  .filterBtn, .headerRight {
-    display: none;
   }
 
   .mobileMenuBtn {
@@ -645,6 +694,12 @@
   
   .mobileMenuLink:hover {
     background: var(--color-surface-2);
+  }
+}
+
+@media (min-width: 769px) {
+  .mobileTopNav, .searchCloseBtn {
+    display: none;
   }
 }
 
