@@ -582,6 +582,7 @@
     position: relative;
     display: flex;
     justify-content: flex-end;
+    margin-left: auto;
   }
 
   .searchBar {
@@ -590,7 +591,7 @@
     padding: 0;
     justify-content: center;
     background: rgba(255, 255, 255, 0.03);
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 10px;
     transition: all 0.3s ease;
     flex-shrink: 0;

@@ -433,6 +433,10 @@
 }
 
 @media (max-width: 768px) {
+  .overlay {
+    align-items: flex-start;
+    padding: 10px;
+  }
   .composeLayout {
     display: grid;
     grid-template-columns: 180px 1fr;
