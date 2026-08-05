@@ -434,16 +434,27 @@
 
 @media (max-width: 768px) {
   .composeLayout {
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    grid-template-areas: 
+      "title title"
+      "poster date"
+      "poster spoiler"
+      "textarea textarea"
+      "meta meta";
     gap: 16px;
   }
-  .posterCol {
-    width: 140px;
-    margin: 0 auto;
-  }
-  .formCol {
-    width: 100%;
-  }
+  .posterCol { display: contents; }
+  .formCol { display: contents; }
+  
+  .poster { grid-area: poster; width: 100%; margin: 0; }
+  .spoilerBlock { grid-area: spoiler; margin-top: 0 !important; align-self: flex-start; }
+  .animeTitleBlock { grid-area: title; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+  .dateRow { grid-area: date; align-self: flex-end; }
+  .textarea { grid-area: textarea; }
+  .metaRow { grid-area: meta; flex-direction: column; gap: 16px; }
+  .tagsBlock, .ratingBlock { width: 100%; }
+
   .modal {
     max-height: 95vh;
     overflow-y: auto;

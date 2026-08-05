@@ -339,9 +339,14 @@
   }
   .ruletaColumn {
     width: 100%;
+    max-width: 100%;
   }
-  .configColumn {
+  .filtrosPanel {
     width: 100%;
+    margin-top: 0;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
   }
   .rouletteWindow {
     height: 280px;

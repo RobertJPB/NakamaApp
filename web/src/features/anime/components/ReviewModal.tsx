@@ -192,7 +192,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ animeIdInicial, animeI
                 <div className={styles.composeLayout}>
                   <div className={styles.posterCol}>
                     <img src={selectedAnime.imagenUrl || selectedAnime.imagen} alt="Poster" className={styles.poster} />
-                    <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-start' }}>
+                    <div className={styles.spoilerBlock} style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-start' }}>
                       <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: '#cdd', fontSize: '13px', fontWeight: 500 }}>
                         <input 
                           type="checkbox" 
