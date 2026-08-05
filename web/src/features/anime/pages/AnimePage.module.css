@@ -353,26 +353,27 @@
 /* Responsive */
 @media (max-width: 768px) {
   .container {
-    padding: 20px 16px;
+    padding: 30px 16px 20px 16px;
   }
 
   .layoutGrid { 
     display: flex;
     flex-direction: column;
-    gap: 12px; 
+    gap: 16px; 
   }
   
   .mainCol { display: contents; }
   
   .header { order: -1; margin-bottom: 0; }
   .leftCol { order: 0; width: 100%; }
+  
   .synopsis { 
     order: 1; 
-    display: -webkit-box;
-    -webkit-line-clamp: 5;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
   }
+  .synopsis p:not(:first-child) {
+    display: none;
+  }
+
   .infoRow { order: 2; }
   .section { order: 3; }
   
