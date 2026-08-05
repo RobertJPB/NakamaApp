@@ -197,9 +197,9 @@
    ══════════════════════════════════════════ */
 @media (max-width: 768px) {
   .bannerWrap {
-    margin: 0;
+    margin: 0 -16px;
     height: 120px;
-    border-radius: var(--radius-lg);
+    border-radius: 0;
   }
   
   .header {
@@ -211,8 +211,9 @@
   }
 
   .avatarWrap {
-    margin-top: -50px;
+    margin-top: -70px;
     margin-bottom: 0;
+    z-index: 2;
   }
 
   .avatar, .avatarFallback {

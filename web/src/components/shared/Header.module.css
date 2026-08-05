@@ -632,6 +632,12 @@
     padding: 8px;
     cursor: pointer;
     z-index: 1002;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  .mobileMenuBtn:active, .mobileMenuBtn:focus {
+    background: transparent;
+    outline: none;
   }
   
   .mobileMenuOverlay {
