@@ -184,7 +184,7 @@ export const Header: React.FC = () => {
               Iniciar Sesión
             </Link>
           )}
-          {!searchExpanded && (
+          {estaAutenticado && !searchExpanded && (
             <button className={styles.mobileMenuBtn} onClick={() => setMenuMovilAbierto(!menuMovilAbierto)}>
               <Menu size={24} className={`${styles.hamburgerIcon} ${menuMovilAbierto ? styles.hamburgerIconOpen : ''}`} />
             </button>
