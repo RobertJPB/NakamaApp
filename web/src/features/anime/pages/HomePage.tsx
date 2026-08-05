@@ -273,7 +273,7 @@ export const HomePage: React.FC = () => {
                       </div>
                     </div>
                   ))
-                : animesMostrados.map(anime => (
+                : (window.innerWidth <= 768 ? animesMostrados.slice(0, 10) : animesMostrados).map(anime => (
                     <Link 
                       to={`/anime/${anime.externalId}`} 
                       state={{ initialAnime: anime }} 
