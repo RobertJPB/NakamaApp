@@ -107,9 +107,9 @@
 }
 .detalleAvatar img { width: 100%; height: 100%; object-fit: cover; }
 
-.detalleInfo { flex: 1; padding-bottom: var(--space-2); }
+.detalleInfo { flex: 1; padding-bottom: 0; padding-top: 10px; }
 .detalleTop {
-  display: flex; justify-content: space-between; align-items: flex-start;
+  display: flex; justify-content: flex-start; gap: var(--space-4); align-items: flex-start;
 }
 .detalleTopLeft {
   display: flex; flex-direction: column; gap: 4px;
