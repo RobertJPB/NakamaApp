@@ -21,7 +21,7 @@ export class FeedController {
     try {
       if (!req.userId) throw new AppError('No autenticado', 401)
       const { prisma } = require('../../infrastructure/database/prisma/client')
-      const { contenido, tema, soloAmigos, tipo, opciones } = req.body
+      const { contenido, tema, soloAmigos, tipo, opciones, imagenUrl } = req.body
 
       const nuevaPub = await prisma.publicacion.create({
         data: {
@@ -30,6 +30,7 @@ export class FeedController {
           tema,
           soloAmigos: Boolean(soloAmigos),
           tipo: tipo || 'texto',
+          imagenUrl,
           opciones: (tipo === 'encuesta' && opciones && opciones.length > 0) ? {
             create: opciones.map((opt: string) => ({ texto: opt }))
           } : undefined

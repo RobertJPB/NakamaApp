@@ -164,12 +164,7 @@ const DetalleComunidad: React.FC<{ id: string }> = ({ id }) => {
 
   return (
     <div className={styles.detalleWrap}>
-      {/* Acciones superiores */}
-      <div className={styles.topActions}>
-        <a href="/comunidades" className={styles.btnVolver}>
-          <ArrowLeft size={18} /> Todas las comunidades
-        </a>
-      </div>
+
 
       {/* Banner de comunidad */}
       <div className={styles.detalleBanner}>
@@ -198,7 +193,13 @@ const DetalleComunidad: React.FC<{ id: string }> = ({ id }) => {
                 {comunidad.referenciaTipo && !comunidad.oficial && (
                   <span className={styles.detalleTipo}>{comunidad.referenciaTipo}</span>
                 )}
-                <span><Users size={14} style={{marginRight: 6}} /> {Math.max(0, comunidad.totalMiembros)} miembros</span>
+                <span 
+                  className={styles.clickableMiembros} 
+                  onClick={() => setModalMiembrosAbierto(true)}
+                  title="Ver miembros"
+                >
+                  <Users size={14} style={{marginRight: 6}} /> {Math.max(0, comunidad.totalMiembros)} miembros
+                </span>
               </div>
             </div>
           </div>

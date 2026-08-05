@@ -1,0 +1,21 @@
+{
+  "name": "Nakama",
+  "short_name": "Nakama",
+  "description": "Tu plataforma social de anime",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0c",
+  "theme_color": "#f5a800",
+  "icons": [
+    {
+      "src": "/nakama-cat.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/nakama-cat.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

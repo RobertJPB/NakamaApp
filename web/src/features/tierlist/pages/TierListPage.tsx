@@ -5,6 +5,7 @@ import { Download, Search, X, User, Tv, Save, Check, Share2 } from 'lucide-react
 import styles from './TierListPage.module.css'
 import html2canvas from 'html2canvas'
 import { useAuth } from '../../../hooks/useAuth'
+import { CompartirTierListModal } from '../components/CompartirTierListModal'
 
 interface TierItem {
   id: string
@@ -43,6 +44,8 @@ export const TierListPage: React.FC = () => {
   // -- Plantillas --
   const [plantillas, setPlantillas] = useState<any[]>([])
   const [modalAbierto, setModalAbierto] = useState(false)
+  const [modalCompartirAbierto, setModalCompartirAbierto] = useState(false)
+  const [tierListImage, setTierListImage] = useState('')
   const [nombrePlantilla, setNombrePlantilla] = useState('')
   const [guardando, setGuardando] = useState(false)
   const [titulo, setTitulo] = useState('')
@@ -238,22 +241,9 @@ export const TierListPage: React.FC = () => {
         useCORS: true,
         backgroundColor: '#1a1a1a'
       })
-      canvas.toBlob(async (blob) => {
-        if (blob) {
-          try {
-            const ClipboardItem = (window as any).ClipboardItem;
-            await navigator.clipboard.write([
-              new ClipboardItem({
-                'image/png': blob
-              })
-            ]);
-            alert('¡Imagen copiada al portapapeles! Puedes pegarla (Ctrl+V) en cualquier publicación de tu Feed o Comunidades.');
-          } catch (err) {
-            console.error('Error al copiar al portapapeles:', err);
-            alert('No se pudo copiar la imagen al portapapeles. Prueba usando "Descargar Imagen".');
-          }
-        }
-      }, 'image/png')
+      const base64Image = canvas.toDataURL('image/png')
+      setTierListImage(base64Image)
+      setModalCompartirAbierto(true)
     } catch (err) {
       console.error(err)
       alert('Error al capturar la imagen.')
@@ -536,6 +526,12 @@ export const TierListPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      <CompartirTierListModal 
+        isOpen={modalCompartirAbierto}
+        onClose={() => setModalCompartirAbierto(false)}
+        imageSrc={tierListImage}
+      />
     </Layout>
   )
 }
