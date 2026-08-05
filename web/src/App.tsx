@@ -62,7 +62,18 @@ const App: React.FC = () => {
 
       } catch (err) {
         console.error('Error syncing user profile:', err)
-        setUsuario(sessionUser)
+        // Fallback robusto para evitar que RequireProfile mande al usuario a /perfil/editar por error de conexión
+        if (sessionUser?.user_metadata) {
+          const fbName = sessionUser.user_metadata.nombre || sessionUser.user_metadata.full_name || null
+          setUsuario({
+            ...sessionUser,
+            username: sessionUser.user_metadata.username || null,
+            nombreDisplay: fbName,
+            avatarUrl: sessionUser.user_metadata.avatar || null
+          })
+        } else {
+          setUsuario(sessionUser)
+        }
       }
     }
 
