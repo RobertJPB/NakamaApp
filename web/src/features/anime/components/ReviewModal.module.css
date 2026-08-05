@@ -439,9 +439,10 @@
     grid-template-areas: 
       "title title"
       "poster date"
+      "poster rating"
       "poster spoiler"
       "textarea textarea"
-      "meta meta";
+      "tags tags";
     gap: 12px;
   }
   .posterCol { display: contents; }
@@ -454,8 +455,10 @@
   .dateLabel { font-size: 10px; }
   .dateInput { width: 100%; padding: 4px 6px; font-size: 12px; }
   .textarea { grid-area: textarea; }
-  .metaRow { grid-area: meta; flex-direction: column; gap: 16px; }
-  .tagsBlock, .ratingBlock { width: 100%; }
+  .metaRow { display: contents; }
+  .tagsBlock { grid-area: tags; }
+  .ratingBlock { grid-area: rating; align-items: flex-end; }
+  .ratingBlock label { font-size: 10px; }
 
   .modal {
     max-height: 95vh;
