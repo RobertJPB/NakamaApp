@@ -12,17 +12,7 @@ export class ResenaController {
   recientes = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const limit = Number(req.query.limit) || 8
-      const { prisma } = require('../../infrastructure/database/prisma/client')
-      
-      const resenas = await prisma.resena.findMany({
-        where: { esPublica: true },
-        orderBy: { creadoEn: 'desc' },
-        take: limit,
-        include: {
-          anime: { select: { titulo: true, externalId: true, imagenUrl: true } },
-          usuario: { select: { username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true } }
-        }
-      })
+      const resenas = await container.obtenerResenasRecientes.execute(limit)
       
       res.json(resenas)
     } catch (error) {
@@ -35,22 +25,7 @@ export class ResenaController {
       const q = String(req.query.q ?? '').trim()
       if (q.length < 2) return res.json([])
 
-      const { prisma } = require('../../infrastructure/database/prisma/client')
-      const resenas = await prisma.resena.findMany({
-        where: {
-          esPublica: true,
-          OR: [
-            { contenido: { contains: q, mode: 'insensitive' } },
-            { anime: { titulo: { contains: q, mode: 'insensitive' } } }
-          ]
-        },
-        orderBy: { creadoEn: 'desc' },
-        take: 50,
-        include: {
-          anime: { select: { titulo: true, externalId: true, imagenUrl: true } },
-          usuario: { select: { username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true } }
-        }
-      })
+      const resenas = await container.buscarResenas.execute(q)
       
       res.json(resenas)
     } catch (error) {
@@ -64,38 +39,16 @@ export class ResenaController {
       const page  = Number(req.query.page)  || 1
       const limit = Number(req.query.limit) || 20
       
-      const { prisma } = require('../../infrastructure/database/prisma/client')
-      
-      const resenas = await prisma.resena.findMany({
-        where: { animeId, esPublica: true },
-        orderBy: { creadoEn: 'desc' },
-        skip: (page - 1) * limit,
-        take: limit,
-        include: {
-          anime: { select: { titulo: true, externalId: true, imagenUrl: true } },
-          usuario: { select: { username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true } }
-        }
-      })
-
-      res.json({ animeId, page, limit, resenas })
+      const result = await container.obtenerResenasPorAnime.execute(animeId, page, limit)
+      res.json(result)
     } catch (err) { next(err) }
   }
 
   porUsuario = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const { usuarioId } = req.params
-      const { prisma } = require('../../infrastructure/database/prisma/client')
-
-      const resenas = await prisma.resena.findMany({
-        where: { usuarioId, esPublica: true },
-        orderBy: { creadoEn: 'desc' },
-        include: {
-          anime: { select: { titulo: true, externalId: true, imagenUrl: true } },
-          usuario: { select: { username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true } }
-        }
-      })
-
-      res.json({ usuarioId, resenas })
+      const result = await container.obtenerResenasPorUsuario.execute(usuarioId)
+      res.json(result)
     } catch (err) { next(err) }
   }
 
@@ -127,13 +80,7 @@ export class ResenaController {
   eliminar = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       if (!req.userId) throw new AppError('No autenticado', 401)
-      const { prisma } = require('../../infrastructure/database/prisma/client')
-      
-      const resena = await prisma.resena.findUnique({ where: { id: req.params.id } })
-      if (!resena) throw new AppError('Reseña no encontrada', 404)
-      if (resena.usuarioId !== req.userId) throw new AppError('No autorizado', 403)
-
-      await prisma.resena.delete({ where: { id: req.params.id } })
+      await container.eliminarResena.execute({ resenaId: req.params.id, usuarioId: req.userId })
       res.json({ mensaje: 'Reseña eliminada correctamente' })
     } catch (err) { next(err) }
   }

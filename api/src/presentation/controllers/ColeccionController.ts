@@ -25,23 +25,8 @@ export class ColeccionController {
   buscar = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const q = String(req.query.q ?? '').trim()
-      if (q.length < 2) return res.json([])
-      const { prisma } = require('../../infrastructure/database/prisma/client')
-      const colecciones = await prisma.coleccion.findMany({
-        where: {
-          esPublica: true,
-          OR: [
-            { titulo: { contains: q, mode: 'insensitive' } },
-            { descripcion: { contains: q, mode: 'insensitive' } }
-          ]
-        },
-        take: 50,
-        include: {
-          usuario: { select: { username: true, nombreDisplay: true, avatarUrl: true } },
-          _count: { select: { animes: true, likes: true } }
-        },
-        orderBy: { creadoEn: 'desc' }
-      })
+      const { container } = require('../../infrastructure/container')
+      const colecciones = await container.buscarColecciones.execute(q)
       res.json(colecciones)
     } catch (err) { next(err) }
   }

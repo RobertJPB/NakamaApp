@@ -24,7 +24,7 @@ coverage/
 *.sqlite3
 
 # Prisma
-apps/api/src/infrastructure/database/prisma/migrations/
+api/src/infrastructure/database/prisma/migrations/
 
 # Logs
 *.log
@@ -51,6 +51,5 @@ Thumbs.db
 *.md
 
 # pnpm
-pnpm-lock.yaml
 pnpm-workspace.yaml
 .npmrc

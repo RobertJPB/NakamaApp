@@ -253,6 +253,8 @@ model ListaUsuario {
   anime   Anime   @relation(fields: [animeId],   references: [id], onDelete: Cascade)
 
   @@unique([usuarioId, animeId])
+  @@index([usuarioId])
+  @@index([animeId])
   @@map("lista_usuario")
   @@schema("social")
 }
@@ -347,6 +349,8 @@ model Resena {
   publicaciones Publicacion[]
 
   @@unique([usuarioId, animeId])
+  @@index([usuarioId])
+  @@index([animeId])
   @@map("resenas")
   @@schema("contenido")
 }
@@ -362,6 +366,8 @@ model ReaccionResena {
   resena  Resena  @relation(fields: [resenaId],  references: [id], onDelete: Cascade)
 
   @@unique([usuarioId, resenaId])
+  @@index([usuarioId])
+  @@index([resenaId])
   @@map("reacciones_resena")
   @@schema("contenido")
 }
@@ -435,6 +441,8 @@ model Miembro {
   comunidad Comunidad @relation(fields: [comunidadId], references: [id], onDelete: Cascade)
 
   @@id([usuarioId, comunidadId])
+  @@index([usuarioId])
+  @@index([comunidadId])
   @@map("miembros")
   @@schema("comunidad")
 }
@@ -462,6 +470,9 @@ model Publicacion {
   reacciones  ReaccionPublicacion[]
   opciones    OpcionEncuesta[]
 
+  @@index([usuarioId])
+  @@index([comunidadId])
+  @@index([resenaId])
   @@map("publicaciones")
   @@schema("comunidad")
 }
@@ -511,6 +522,10 @@ model Comentario {
   respuestas  Comentario[] @relation("Respuestas")
   reacciones  ReaccionComentario[]
 
+  @@index([usuarioId])
+  @@index([publicacionId])
+  @@index([resenaId])
+  @@index([padreId])
   @@map("comentarios")
   @@schema("comunidad")
 }
@@ -558,6 +573,8 @@ model Notificacion {
   usuario Usuario  @relation("NotificacionUsuario", fields: [usuarioId], references: [id], onDelete: Cascade)
   actor   Usuario? @relation("NotificacionActor",   fields: [actorId],   references: [id], onDelete: Cascade)
 
+  @@index([usuarioId])
+  @@index([actorId])
   @@map("notificaciones")
   @@schema("sistema")
 }
@@ -573,6 +590,8 @@ model Feed {
   usuario Usuario @relation("FeedUsuario", fields: [usuarioId], references: [id], onDelete: Cascade)
   actor   Usuario @relation("FeedActor",   fields: [actorId],   references: [id], onDelete: Cascade)
 
+  @@index([usuarioId])
+  @@index([actorId])
   @@map("feed")
   @@schema("sistema")
 }

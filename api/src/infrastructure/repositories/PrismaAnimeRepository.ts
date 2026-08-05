@@ -127,7 +127,7 @@ export class PrismaAnimeRepository implements IAnimeRepository {
   }
   async getRankingMasVistos(limit: number): Promise<RankingItem[]> {
     type ListaGroupRow = { animeId: string; _count: { animeId: number } }
-    const rows = (await prisma.listaUsuario.groupBy({
+    const rows = (await (prisma.listaUsuario.groupBy as any)({
       by: ['animeId'],
       where: { estados: { has: 'Viendo' } },
       _count: { animeId: true },
@@ -144,7 +144,7 @@ export class PrismaAnimeRepository implements IAnimeRepository {
 
   async getRankingMasGustados(limit: number): Promise<RankingItem[]> {
     type ListaGroupRow = { animeId: string; _count: { animeId: number } }
-    const rows = (await prisma.listaUsuario.groupBy({
+    const rows = (await (prisma.listaUsuario.groupBy as any)({
       by: ['animeId'],
       where: { estados: { has: 'Me gusta' } },
       _count: { animeId: true },

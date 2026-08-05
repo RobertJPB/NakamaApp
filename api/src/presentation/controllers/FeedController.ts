@@ -20,34 +20,11 @@ export class FeedController {
   postFeed = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       if (!req.userId) throw new AppError('No autenticado', 401)
-      const { prisma } = require('../../infrastructure/database/prisma/client')
       const { contenido, tema, soloAmigos, tipo, opciones, imagenUrl } = req.body
-
-      const nuevaPub = await prisma.publicacion.create({
-        data: {
-          usuarioId: req.userId,
-          contenido,
-          tema,
-          soloAmigos: Boolean(soloAmigos),
-          tipo: tipo || 'texto',
-          imagenUrl,
-          opciones: (tipo === 'encuesta' && opciones && opciones.length > 0) ? {
-            create: opciones.map((opt: string) => ({ texto: opt }))
-          } : undefined
-        },
-        include: { usuario: true, opciones: true }
+      const nuevaPub = await container.crearPublicacionFeed.execute({
+        usuarioId: req.userId,
+        contenido, tema, soloAmigos, tipo, opciones, imagenUrl
       })
-
-      // Add to feed system
-      await prisma.feed.create({
-        data: {
-          usuarioId: req.userId,
-          tipo: 'publicacion',
-          referenciaId: nuevaPub.id,
-          actorId: req.userId
-        }
-      })
-
       res.status(201).json(nuevaPub)
     } catch (err) { next(err) }
   }
@@ -56,14 +33,14 @@ export class FeedController {
     try {
       if (!req.userId) throw new AppError('No autenticado', 401)
       const { tipo, id } = req.params
-      const { prisma } = require('../../infrastructure/database/prisma/client')
 
       if (tipo === 'resena') {
         await container.eliminarResena.execute({ resenaId: id, usuarioId: req.userId })
+        // Nota: eliminarResenaUseCase idealmente borraría el feed, pero lo manejaremos
+        const { prisma } = require('../../infrastructure/database/prisma/client')
         await prisma.feed.deleteMany({ where: { tipo: 'resena', referenciaId: id, usuarioId: req.userId } })
       } else if (tipo === 'publicacion') {
-        await prisma.publicacion.deleteMany({ where: { id, usuarioId: req.userId } })
-        await prisma.feed.deleteMany({ where: { tipo: 'publicacion', referenciaId: id, usuarioId: req.userId } })
+        await container.eliminarPublicacionFeed.execute(id, req.userId)
       }
       res.status(204).send()
     } catch (err) { next(err) }
@@ -73,34 +50,13 @@ export class FeedController {
     try {
       if (!req.userId) throw new AppError('No autenticado', 401)
       const { tipo, id } = req.params
-      const { prisma } = require('../../infrastructure/database/prisma/client')
 
       if (tipo === 'resena') {
         const resultado = await container.toggleLikeResena.execute({ usuarioId: req.userId, resenaId: id })
         return res.json(resultado)
       } else if (tipo === 'publicacion') {
-        const existente = await prisma.reaccionPublicacion.findUnique({ where: { usuarioId_publicacionId: { usuarioId: req.userId, publicacionId: id } } })
-        if (existente) {
-          await prisma.reaccionPublicacion.delete({ where: { usuarioId_publicacionId: { usuarioId: req.userId, publicacionId: id } } })
-          await prisma.publicacion.update({ where: { id }, data: { totalLikes: { decrement: 1 } } })
-          return res.json({ accion: 'unliked' })
-        } else {
-          await prisma.reaccionPublicacion.create({ data: { usuarioId: req.userId, publicacionId: id } })
-          const pub = await prisma.publicacion.update({ where: { id }, data: { totalLikes: { increment: 1 } } })
-          
-          if (pub.usuarioId !== req.userId) {
-            await prisma.notificacion.create({
-              data: {
-                usuarioId: pub.usuarioId,
-                tipo: 'like_resena', // using like_resena as general like for now
-                actorId: req.userId,
-                referenciaId: pub.id,
-                mensaje: 'Le dio me gusta a tu publicación.'
-              }
-            })
-          }
-          return res.json({ accion: 'liked' })
-        }
+        const resultado = await container.toggleLikePublicacion.execute(id, req.userId)
+        return res.json(resultado)
       }
       res.status(400).json({ error: 'Tipo invalido' })
     } catch (err) { next(err) }
@@ -109,14 +65,7 @@ export class FeedController {
   getComments = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const { tipo, id } = req.params
-      const { prisma } = require('../../infrastructure/database/prisma/client')
-
-      const filter = tipo === 'resena' ? { resenaId: id } : { publicacionId: id }
-      const comentarios = await prisma.comentario.findMany({
-        where: filter,
-        include: { usuario: { select: { id: true, nombreDisplay: true, username: true, avatarUrl: true } } },
-        orderBy: { creadoEn: 'asc' }
-      })
+      const comentarios = await container.obtenerComentarios.execute(tipo, id)
       res.json(comentarios)
     } catch (err) { next(err) }
   }
@@ -128,48 +77,9 @@ export class FeedController {
       const { contenido, padreId } = req.body
       if (!contenido || !contenido.trim()) throw new AppError('Comentario vacio', 400)
 
-      const { prisma } = require('../../infrastructure/database/prisma/client')
-
-      const data = {
-        usuarioId: req.userId,
-        contenido,
-        padreId: padreId || null,
-        ...(tipo === 'resena' ? { resenaId: id } : { publicacionId: id })
-      }
-      
-      const nuevo = await prisma.comentario.create({
-        data,
-        include: { usuario: { select: { id: true, nombreDisplay: true, username: true, avatarUrl: true } } }
+      const nuevo = await container.crearComentario.execute({
+        tipo, id, usuarioId: req.userId, contenido, padreId
       })
-
-      if (tipo === 'resena') {
-        const resena = await prisma.resena.update({ where: { id }, data: { totalComentarios: { increment: 1 } } })
-        if (resena.usuarioId !== req.userId) {
-          await prisma.notificacion.create({
-            data: {
-              usuarioId: resena.usuarioId,
-              tipo: 'comentario_publicacion',
-              actorId: req.userId,
-              referenciaId: resena.id,
-              mensaje: 'Comentó en tu reseña.'
-            }
-          })
-        }
-      } else if (tipo === 'publicacion') {
-        const pub = await prisma.publicacion.update({ where: { id }, data: { totalComentarios: { increment: 1 } } })
-        if (pub.usuarioId !== req.userId) {
-          await prisma.notificacion.create({
-            data: {
-              usuarioId: pub.usuarioId,
-              tipo: 'comentario_publicacion',
-              actorId: req.userId,
-              referenciaId: pub.id,
-              mensaje: 'Comentó en tu publicación.'
-            }
-          })
-        }
-      }
-
       res.status(201).json(nuevo)
     } catch (err) { next(err) }
   }
@@ -178,21 +88,7 @@ export class FeedController {
     try {
       if (!req.userId) throw new AppError('No autenticado', 401)
       const { tipo, id, comentarioId } = req.params
-
-      const { prisma } = require('../../infrastructure/database/prisma/client')
-
-      const comentario = await prisma.comentario.findUnique({ where: { id: comentarioId } })
-      if (!comentario) throw new AppError('No encontrado', 404)
-      if (comentario.usuarioId !== req.userId) throw new AppError('No autorizado', 403)
-
-      await prisma.comentario.delete({ where: { id: comentarioId } })
-
-      if (tipo === 'resena') {
-        await prisma.resena.update({ where: { id }, data: { totalComentarios: { decrement: 1 } } })
-      } else if (tipo === 'publicacion') {
-        await prisma.publicacion.update({ where: { id }, data: { totalComentarios: { decrement: 1 } } })
-      }
-
+      await container.eliminarComentario.execute(tipo, id, comentarioId, req.userId)
       res.status(200).json({ ok: true })
     } catch (err) { next(err) }
   }

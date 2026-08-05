@@ -109,22 +109,20 @@ export class PrismaResenaRepository implements IResenaRepository {
     return { accion: 'liked' as const }
   }
 
-  async findFeedByUsuario(usuarioId: string, page: number, limit: number): Promise<any[]> {
-    // 1. Ejecutar las dos primeras consultas en paralelo para ahorrar latencia de red
+  // Cache en memoria para evitar fan-out en cada lectura
+  private feedNetworkCache = new Map<string, { ids: string[], comunidadIds: string[], expiresAt: number }>();
+
+  private async getFeedNetwork(usuarioId: string): Promise<{ ids: string[], comunidadIds: string[] }> {
+    const cached = this.feedNetworkCache.get(usuarioId);
+    if (cached && Date.now() < cached.expiresAt) return { ids: cached.ids, comunidadIds: cached.comunidadIds };
+
     const [seguidos, misMembresias] = await Promise.all([
-      prisma.seguidor.findMany({
-        where: { seguidorId: usuarioId },
-        select: { seguidoId: true }
-      }),
-      prisma.miembro.findMany({
-        where: { usuarioId },
-        select: { comunidadId: true }
-      })
+      prisma.seguidor.findMany({ where: { seguidorId: usuarioId }, select: { seguidoId: true } }),
+      prisma.miembro.findMany({ where: { usuarioId }, select: { comunidadId: true } })
     ]);
     
     const comunidadIds = misMembresias.map((m: { comunidadId: string }) => m.comunidadId);
     
-    // 2. Ejecutar la tercera consulta si hay comunidades
     let miembrosComunidad: { usuarioId: string }[] = [];
     if (comunidadIds.length > 0) {
       miembrosComunidad = await prisma.miembro.findMany({
@@ -140,13 +138,20 @@ export class PrismaResenaRepository implements IResenaRepository {
     ];
 
     const uniqueIds = Array.from(new Set(usuariosIds));
+    this.feedNetworkCache.set(usuarioId, { ids: uniqueIds, comunidadIds, expiresAt: Date.now() + 1000 * 60 * 5 }); // 5 min cache
+    return { ids: uniqueIds, comunidadIds };
+  }
+
+  async findFeedByUsuario(usuarioId: string, page: number, limit: number): Promise<any[]> {
+    const { ids: uniqueIds, comunidadIds } = await this.getFeedNetwork(usuarioId);
 
     const resenas = await prisma.resena.findMany({
       where: {
         usuarioId: { in: uniqueIds },
         esPublica: true
       },
-      take: page * limit,
+      skip: (page - 1) * limit,
+      take: limit,
       orderBy: { creadoEn: 'desc' },
       include: {
         usuario: { select: { username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true } },
@@ -164,7 +169,8 @@ export class PrismaResenaRepository implements IResenaRepository {
           ...(comunidadIds.length > 0 ? [{ comunidadId: { in: comunidadIds } }] : [])
         ]
       },
-      take: page * limit,
+      skip: (page - 1) * limit,
+      take: limit,
       orderBy: { creadoEn: 'desc' },
       include: {
         usuario: { select: { username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true } },
