@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
-import { Search, Sliders, Bell } from 'lucide-react'
+import { Search, Sliders, Bell, Menu, X, Library, Table2, Settings, Trophy } from 'lucide-react'
+import { RuletaIcon } from '../icons/RuletaIcon'
 import { useAuth } from '../../hooks/useAuth'
 import { useNotificaciones } from '../../hooks/useNotificaciones'
 import { api } from '../../lib/axios'
@@ -18,6 +19,7 @@ export const Header: React.FC = () => {
   const [usuariosRes, setUsuariosRes] = useState<any[]>([])
   const [buscando, setBuscando] = useState(false)
   const [mostrarNotif, setMostrarNotif] = useState(false)
+  const [menuMovilAbierto, setMenuMovilAbierto] = useState(false)
   
   const dropdownRef = useRef<HTMLDivElement>(null)
   const notifRef = useRef<HTMLDivElement>(null)
@@ -68,6 +70,42 @@ export const Header: React.FC = () => {
 
   return (
     <header className={styles.header}>
+      {/* Botón Menú Móvil */}
+      <button className={styles.mobileMenuBtn} onClick={() => setMenuMovilAbierto(true)}>
+        <Menu size={20} />
+      </button>
+
+      {/* Menú Móvil Overlay */}
+      {menuMovilAbierto && (
+        <div className={styles.mobileMenuOverlay}>
+          <div className={styles.mobileMenuDrawer}>
+            <div className={styles.mobileMenuHeader}>
+              <h2 className={styles.mobileMenuTitle}>Menú</h2>
+              <button className={styles.mobileMenuCloseBtn} onClick={() => setMenuMovilAbierto(false)}>
+                <X size={20} />
+              </button>
+            </div>
+            <div className={styles.mobileMenuContent}>
+              <Link to="/mi-lista" className={styles.mobileMenuLink} onClick={() => setMenuMovilAbierto(false)}>
+                <Library size={18} /> Mis Listas
+              </Link>
+              <Link to="/tierlist" className={styles.mobileMenuLink} onClick={() => setMenuMovilAbierto(false)}>
+                <Table2 size={18} /> Tier Lists
+              </Link>
+              <Link to="/ruleta" className={styles.mobileMenuLink} onClick={() => setMenuMovilAbierto(false)}>
+                <RuletaIcon size={18} /> Ruleta
+              </Link>
+              <Link to="/ranking" className={styles.mobileMenuLink} onClick={() => setMenuMovilAbierto(false)}>
+                <Trophy size={18} /> Ranking
+              </Link>
+              <Link to="/configuracion" className={styles.mobileMenuLink} onClick={() => setMenuMovilAbierto(false)}>
+                <Settings size={18} /> Configuración
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className={styles.searchBarWrapper} ref={dropdownRef}>
         <div className={styles.searchBar}>
           <Search className={styles.searchIcon} size={18} />

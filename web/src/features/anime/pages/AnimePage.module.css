@@ -353,6 +353,34 @@
 /* Responsive */
 @media (max-width: 768px) {
   .layoutGrid { grid-template-columns: 1fr; gap: 20px; }
-  .leftCol { align-items: center; }
-  .posterWrapper { width: 150px; }
+  
+  .leftCol { 
+    display: grid; 
+    grid-template-columns: 140px 1fr; 
+    grid-template-areas: 
+      "poster actions"
+      "stats stats";
+    gap: 16px;
+    align-items: start;
+  }
+  
+  .posterWrapper { 
+    width: 100%; 
+    grid-area: poster;
+  }
+  
+  .leftActions { 
+    grid-area: actions; 
+    margin-top: 0;
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center;
+  }
+  
+  .statsPanel { 
+    grid-area: stats; 
+    justify-content: flex-start; 
+    gap: 24px; 
+    padding: 8px 0 0 0;
+  }
 }

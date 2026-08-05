@@ -582,4 +582,72 @@
   .filterBtn, .headerRight {
     display: none;
   }
+
+  .mobileMenuBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: #fff;
+    padding: 8px;
+    cursor: pointer;
+  }
+  
+  .mobileMenuOverlay {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+  }
+
+  .mobileMenuDrawer {
+    position: fixed;
+    top: 0; left: 0; bottom: 0; width: 280px;
+    background: var(--color-bg);
+    border-right: 1px solid var(--color-borde-suave);
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+    animation: slideInLeft 0.2s ease-out forwards;
+  }
+
+  @keyframes slideInLeft {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+  }
+
+  .mobileMenuHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    border-bottom: 1px solid var(--color-borde-suave);
+  }
+
+  .mobileMenuTitle {
+    font-size: 16px; font-weight: bold; margin: 0;
+  }
+
+  .mobileMenuCloseBtn {
+    background: transparent; border: none; color: #fff; cursor: pointer; padding: 4px;
+  }
+
+  .mobileMenuContent {
+    display: flex; flex-direction: column; padding: 16px 0;
+  }
+
+  .mobileMenuLink {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 20px; font-size: 15px; font-weight: 500;
+    color: var(--color-texto); text-decoration: none;
+  }
+  
+  .mobileMenuLink:hover {
+    background: var(--color-surface-2);
+  }
+}
+
+.mobileMenuBtn, .mobileMenuOverlay {
+  display: none;
 }

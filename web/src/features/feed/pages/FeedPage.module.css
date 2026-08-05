@@ -226,7 +226,10 @@
   }
   .entrada {
     display: grid;
-    grid-template-columns: 42px 1fr;
+    grid-template-columns: 36px 1fr 90px;
+    grid-template-areas:
+      "avatar content media"
+      ".      content media";
     gap: var(--space-3) var(--space-3);
     padding: var(--space-4);
     border: none;
@@ -239,27 +242,26 @@
     border-color: rgba(255, 255, 255, 0.05);
   }
   .entradaAvatarWrap {
-    grid-column: 1;
-    grid-row: 1;
+    grid-area: avatar;
+    width: 36px;
+    height: 36px;
   }
   .entradaContenido {
-    grid-column: 2;
-    grid-row: 1;
+    grid-area: content;
     min-width: 0;
   }
   .entradaMedia {
-    grid-column: 2;
-    grid-row: 2;
+    grid-area: media;
     width: 100%;
     margin: 0;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
     justify-content: flex-start;
   }
   .entradaThumb {
-    width: 72px;
+    width: 90px; /* Mas grande */
   }
   .entradaRatingBox {
-    align-items: flex-start;
+    align-items: center;
   }
 }
