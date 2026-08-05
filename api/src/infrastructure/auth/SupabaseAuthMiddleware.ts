@@ -67,35 +67,45 @@ async function asegurarUsuarioDB(user: any) {
       }
       baseUsername = baseUsername.substring(0, 45)
 
-      let username = baseUsername
-      let counter = 1
-      while (true) {
-        const colision = await prisma.usuario.findUnique({
-          where: { username }
-        })
-        if (!colision) break
-        username = `${baseUsername}_${counter}`
-        counter++
-      }
+      let success = false;
+      let attempt = 0;
+      
+      while (!success && attempt < 5) {
+        attempt++;
+        let username = baseUsername;
+        let counter = 1;
+        while (true) {
+          const colision = await prisma.usuario.findUnique({ where: { username } });
+          if (!colision) break;
+          username = `${baseUsername}_${counter}`;
+          counter++;
+        }
 
-      const nombreDisplay = user.user_metadata?.full_name || user.user_metadata?.name || username
+        const nombreDisplay = user.user_metadata?.full_name || user.user_metadata?.name || username;
 
-      try {
-        await prisma.usuario.create({
-          data: {
-            id: user.id,
-            email: user.email || `${user.id}@placeholder.com`,
-            username,
-            nombreDisplay,
-            avatarUrl: null, // No importar avatar de Google por defecto
+        try {
+          await prisma.usuario.create({
+            data: {
+              id: user.id,
+              email: user.email || `${user.id}@placeholder.com`,
+              username,
+              nombreDisplay,
+              avatarUrl: null, // No importar avatar de Google por defecto
+            }
+          });
+          success = true;
+        } catch (e: any) {
+          if (e.code === 'P2002') {
+            // Ignorar colisión si es por ID (creado por otra petición concurrente)
+            const verify = await prisma.usuario.findUnique({ where: { id: user.id } });
+            if (verify) {
+              success = true;
+            } else {
+              // Fue colisión de username. El bucle while intentará de nuevo.
+            }
+          } else {
+            throw e;
           }
-        })
-      } catch (e: any) {
-        if (e.code === 'P2002') {
-          // Ignorar colisión de ID o username.
-          // Ocurre por race conditions cuando el frontend envía múltiples peticiones simultáneas
-        } else {
-          throw e
         }
       }
     }
