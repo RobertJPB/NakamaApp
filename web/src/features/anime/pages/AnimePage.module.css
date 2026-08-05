@@ -353,8 +353,8 @@
 /* Responsive */
 @media (max-width: 768px) {
   .backdrop {
-    top: -64px; /* Move backdrop up under the navbar */
-    height: 400px; /* Shorten slightly for mobile */
+    top: 0;
+    height: 400px;
   }
 
   .container {
