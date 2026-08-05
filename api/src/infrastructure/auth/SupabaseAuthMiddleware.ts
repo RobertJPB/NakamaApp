@@ -44,53 +44,70 @@ function setCachedUserId(token: string, userId: string) {
   }
 }
 
+const pendingUserCreations = new Map<string, Promise<void>>()
+
 async function asegurarUsuarioDB(user: any) {
   if (!user) return
 
-  const usuarioExistente = await prisma.usuario.findUnique({
-    where: { id: user.id }
-  })
+  if (pendingUserCreations.has(user.id)) {
+    return pendingUserCreations.get(user.id)
+  }
 
-  if (!usuarioExistente) {
-    // Generar un username limpio y único
-    let baseUsername = user.user_metadata?.username || user.user_metadata?.name || user.email?.split('@')[0] || 'user'
-    baseUsername = baseUsername.toLowerCase().replace(/[^a-z0-9_]/g, '')
-    if (baseUsername.length < 3) {
-      baseUsername = 'user_' + baseUsername
-    }
-    baseUsername = baseUsername.substring(0, 45)
+  const promise = (async () => {
+    const usuarioExistente = await prisma.usuario.findUnique({
+      where: { id: user.id }
+    })
 
-    let username = baseUsername
-    let counter = 1
-    while (true) {
-      const colision = await prisma.usuario.findUnique({
-        where: { username }
-      })
-      if (!colision) break
-      username = `${baseUsername}_${counter}`
-      counter++
-    }
+    if (!usuarioExistente) {
+      // Generar un username limpio y único
+      let baseUsername = user.user_metadata?.username || user.user_metadata?.name || user.email?.split('@')[0] || 'user'
+      baseUsername = baseUsername.toLowerCase().replace(/[^a-z0-9_]/g, '')
+      if (baseUsername.length < 3) {
+        baseUsername = 'user_' + baseUsername
+      }
+      baseUsername = baseUsername.substring(0, 45)
 
-    const nombreDisplay = user.user_metadata?.full_name || user.user_metadata?.name || username
+      let username = baseUsername
+      let counter = 1
+      while (true) {
+        const colision = await prisma.usuario.findUnique({
+          where: { username }
+        })
+        if (!colision) break
+        username = `${baseUsername}_${counter}`
+        counter++
+      }
 
-    try {
-      await prisma.usuario.create({
-        data: {
-          id: user.id,
-          email: user.email || `${user.id}@placeholder.com`,
-          username,
-          nombreDisplay,
-          avatarUrl: null, // No importar avatar de Google por defecto
+      const nombreDisplay = user.user_metadata?.full_name || user.user_metadata?.name || username
+
+      try {
+        await prisma.usuario.create({
+          data: {
+            id: user.id,
+            email: user.email || `${user.id}@placeholder.com`,
+            username,
+            nombreDisplay,
+            avatarUrl: null, // No importar avatar de Google por defecto
+          }
+        })
+      } catch (e: any) {
+        if (e.code === 'P2002') {
+          // Ignorar colisión de ID o username.
+          // Ocurre por race conditions cuando el frontend envía múltiples peticiones simultáneas
+        } else {
+          throw e
         }
-      })
-    } catch (e: any) {
-      if (e.code === 'P2002') {
-        // Ignorar colisión de ID o username.
-        // Ocurre por race conditions cuando el frontend envía múltiples peticiones simultáneas
-      } else {
-        throw e
       }
     }
+  })()
+
+  pendingUserCreations.set(user.id, promise)
+
+  try {
+    await promise
+  } finally {
+    // Mantener la promesa cacheada por unos segundos para capturar todas las peticiones simultáneas iniciales
+    setTimeout(() => pendingUserCreations.delete(user.id), 5000)
   }
 }
 
