@@ -351,6 +351,9 @@
   .rouletteWindow {
     height: 280px;
   }
+  .itemsContainer {
+    padding-top: 80px; /* Alineación simétrica en móvil */
+  }
   .title {
     font-size: var(--text-3xl);
   }
