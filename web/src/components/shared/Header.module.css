@@ -581,8 +581,7 @@
     flex-shrink: 1;
     position: relative;
     display: flex;
-    justify-content: flex-end;
-    margin-left: auto;
+    justify-content: flex-start;
   }
 
   .searchBar {
