@@ -232,9 +232,9 @@ export class KitsuService implements IAnimeExternalService {
 
     if (sinopsisTraducida) {
       animeMapping.sinopsis = sinopsisTraducida
-      animeMapping.traducido = true // Flag to know if translation succeeded
+      ;(animeMapping as any).traducido = true // Flag to know if translation succeeded
     } else {
-      animeMapping.traducido = false
+      ;(animeMapping as any).traducido = false
     }
     // Reemplazar nota de Kitsu por la nota real de MAL si se obtuvo
     if (malScore !== null) animeMapping.calificacionPromedio = malScore
