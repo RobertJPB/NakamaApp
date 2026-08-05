@@ -352,13 +352,17 @@
 
 /* Responsive */
 @media (max-width: 768px) {
+  .pageWrapper {
+    margin-top: -85px; /* Pull background up behind the header */
+  }
+
   .backdrop {
     top: 0;
-    height: 400px;
+    height: 480px;
   }
 
   .container {
-    padding: 30px 16px 20px 16px;
+    padding: 115px 16px 20px 16px; /* Push content back down */
   }
 
   .layoutGrid { 
@@ -374,6 +378,9 @@
   
   .synopsis { 
     order: 1; 
+    line-height: 1.7; /* Separamos un poco más las líneas */
+    letter-spacing: 0.2px;
+    margin-top: 12px;
   }
   .synopsis p:not(:first-child) {
     display: none;
@@ -406,7 +413,7 @@
   
   .leftActions { 
     grid-area: actions; 
-    margin-top: 16px; /* Push down slightly to center align with poster visually */
+    margin-top: 40px; /* Push down to center align with poster visually */
     display: flex; 
     flex-direction: column; 
     justify-content: center;
@@ -431,11 +438,14 @@
     padding: 8px 0 0 0;
   }
 
+  .carouselContainer {
+    width: 100%;
+    overflow: hidden;
+  }
+
   .castGrid {
     -webkit-overflow-scrolling: touch;
-    scroll-snap-type: x mandatory;
-  }
-  .castItem {
-    scroll-snap-align: start;
+    width: calc(100vw - 32px); /* ensure it fits exactly screen width */
+    padding-bottom: 15px;
   }
 }
