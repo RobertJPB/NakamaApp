@@ -454,13 +454,13 @@
   .poster { grid-area: poster; width: 100%; margin: 0; }
   .spoilerBlock { grid-area: spoiler; margin-top: 0 !important; align-self: flex-end; padding-bottom: 2px; }
   .animeTitleBlock { grid-area: title; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; }
-  .dateRow { grid-area: date; align-self: flex-start; flex-direction: column; align-items: flex-end; text-align: right; gap: 4px; }
+  .dateRow { grid-area: date; align-self: flex-start; flex-direction: column; align-items: flex-start; text-align: left; gap: 4px; }
   .dateLabel { font-size: 10px; }
   .dateInput { width: 130px; padding: 4px 6px; font-size: 12px; }
   .textarea { grid-area: textarea; }
   .metaRow { display: contents; }
   .tagsBlock { grid-area: tags; }
-  .ratingBlock { grid-area: rating; align-items: flex-end; }
+  .ratingBlock { grid-area: rating; align-items: flex-start; }
   .ratingBlock label { font-size: 12px; }
   .starWrapper { width: 32px; height: 32px; }
   .starIcon { font-size: 32px; }
