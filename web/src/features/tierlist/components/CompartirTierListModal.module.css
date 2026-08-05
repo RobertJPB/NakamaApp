@@ -17,9 +17,9 @@
 }
 
 .modalContent {
-  background: var(--color-surface);
+  background: var(--color-bg);
   border: 1px solid var(--color-borde);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-lg);
   width: 100%;
   max-width: 500px;
   display: flex;
@@ -99,7 +99,7 @@
 }
 
 .textarea:focus {
-  border-color: var(--color-acento);
+  border-color: var(--color-borde-fuerte);
 }
 
 .formGroup {
@@ -149,7 +149,7 @@
 }
 
 .btnSubmit {
-  background: var(--color-acento);
+  background: #d69300;
   color: #fff;
   border: none;
   padding: 8px 16px;
