@@ -77,30 +77,36 @@
 @media (max-width: 768px) {
   .entrada {
     display: grid;
-    grid-template-columns: 42px 1fr;
-    gap: var(--space-3) var(--space-3);
+    grid-template-columns: 36px 1fr 120px;
+    grid-template-areas:
+      "avatar content media"
+      ".      content media";
+    gap: var(--space-3) 24px;
     padding: var(--space-4);
+    border-radius: 0;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    background: transparent;
   }
   .entradaAvatarWrap {
-    grid-column: 1;
-    grid-row: 1;
+    grid-area: avatar;
+    width: 36px;
+    height: 36px;
   }
   .entradaContenido {
-    grid-column: 2;
-    grid-row: 1;
+    grid-area: content;
     min-width: 0;
   }
   .entradaMedia {
-    grid-column: 2;
-    grid-row: 2;
+    grid-area: media;
     width: 100%;
     margin: 0;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
     justify-content: flex-start;
   }
   .entradaThumb {
-    width: 72px; /* Más pequeño para móvil */
+    width: 120px;
   }
   .entradaRatingBox {
     align-items: flex-start;

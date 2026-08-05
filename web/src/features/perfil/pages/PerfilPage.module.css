@@ -203,15 +203,15 @@
   }
   
   .header {
-    flex-direction: column;
-    align-items: center;
-    padding: 0;
-    gap: var(--space-3);
-    text-align: center;
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 0 16px;
+    gap: var(--space-4);
+    text-align: left;
   }
 
   .avatarWrap {
-    margin-top: -70px;
+    margin-top: -50px;
     margin-bottom: 0;
     z-index: 2;
   }
@@ -231,21 +231,21 @@
 
   .headerInfo {
     padding-top: var(--space-2);
-    align-items: center;
+    align-items: flex-start;
   }
 
   .favoritosWrap {
-    align-items: center;
+    align-items: flex-start;
     margin-top: var(--space-2);
   }
 
   .statsRow {
-    justify-content: center;
+    justify-content: flex-start;
     gap: var(--space-4);
   }
 
   .actionsRow {
-    justify-content: center;
+    justify-content: flex-start;
     width: 100%;
   }
 

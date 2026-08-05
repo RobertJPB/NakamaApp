@@ -148,17 +148,33 @@
    ══════════════════════════════════════════ */
 @media (max-width: 768px) {
   .wrap {
-    padding: var(--space-4) 0 var(--space-16);
+    padding: var(--space-4) 16px var(--space-16);
     gap: var(--space-4);
   }
   
   .header {
     flex-direction: column;
-    gap: var(--space-3);
+    gap: var(--space-4);
   }
   
   .titulo {
     font-size: var(--text-2xl);
+  }
+
+  .toggles {
+    width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 4px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .toggles::-webkit-scrollbar {
+    display: none;
+  }
+  .toggle {
+    flex: 1;
+    justify-content: center;
   }
   
   .fila {

@@ -229,4 +229,31 @@
   .detalleHeader { flex-direction: column; align-items: center; text-align: center; margin-top: -50px; }
   .detalleTop { justify-content: center; width: 100%; }
   .detalleMeta { justify-content: center; }
+
+  .premiumHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .btnCrearPremium {
+    width: 100%;
+    justify-content: center;
+  }
+  .filtros {
+    flex-direction: column-reverse;
+    gap: var(--space-4);
+  }
+  .filtros > div:first-child {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .filtros > div:first-child::-webkit-scrollbar {
+    display: none;
+  }
+  .filtros > div:last-child {
+    width: 100%;
+    min-width: 100% !important;
+  }
 }

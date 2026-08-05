@@ -329,3 +329,24 @@
   text-align: center;
   border: 1px solid var(--color-borde-suave);
 }
+
+@media (max-width: 768px) {
+  .pageContainer {
+    flex-direction: column;
+    padding: 16px 16px 40px 16px;
+    gap: 24px;
+    zoom: 1;
+  }
+  .ruletaColumn {
+    width: 100%;
+  }
+  .configColumn {
+    width: 100%;
+  }
+  .rouletteWindow {
+    height: 280px;
+  }
+  .title {
+    font-size: var(--text-3xl);
+  }
+}

@@ -9,9 +9,9 @@
   --color-surface:      #2c2f33;
   --color-surface-2:    #36393f;
   --color-surface-3:    #40444b;
-  --color-acento:       #d97706; /* Botón amarillo más oscuro */
-  --color-acento-hover: #b45309;
-  --color-acento-soft:  rgba(217, 119, 6, 0.12);
+  --color-acento:       #ffb800; /* Botón amarillo oscuro característico */
+  --color-acento-hover: #e0a300;
+  --color-acento-soft:  rgba(255, 184, 0, 0.12);
   --color-texto:        #ffffff;
   --color-texto-suave:  #b9bbbe;
   --color-texto-muted:  #72767d;
