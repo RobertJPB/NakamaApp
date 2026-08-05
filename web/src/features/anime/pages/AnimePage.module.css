@@ -413,22 +413,22 @@
   
   .leftActions { 
     grid-area: actions; 
-    margin-top: 40px; /* Push down to center align with poster visually */
+    margin-top: 65px; /* Push down to center align with poster visually */
     display: flex; 
     flex-direction: column; 
     justify-content: center;
-    gap: 10px;
+    gap: 12px;
   }
   
   .leftBtn {
-    padding: 0 4px;
-    height: 32px;
-    font-size: 10px;
-    line-height: 1.1;
+    padding: 0 6px;
+    height: 38px;
+    font-size: 12px;
+    line-height: 1.2;
     white-space: nowrap;
   }
   .reviewBtn {
-    margin-top: 4px;
+    margin-top: 6px;
   }
   
   .statsPanel { 
