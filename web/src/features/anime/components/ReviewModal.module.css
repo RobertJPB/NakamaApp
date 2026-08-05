@@ -439,21 +439,20 @@
   }
   .composeLayout {
     display: grid;
-    grid-template-columns: 180px 1fr;
+    grid-template-columns: 120px 1fr;
     grid-template-areas: 
       "title title"
       "poster date"
       "poster rating"
-      "poster spoiler"
       "textarea textarea"
-      "tags tags";
+      "tags spoiler";
     gap: 12px;
   }
   .posterCol { display: contents; }
   .formCol { display: contents; }
   
   .poster { grid-area: poster; width: 100%; margin: 0; }
-  .spoilerBlock { grid-area: spoiler; margin-top: 0 !important; align-self: flex-end; }
+  .spoilerBlock { grid-area: spoiler; margin-top: 0 !important; align-self: flex-end; padding-bottom: 2px; }
   .animeTitleBlock { grid-area: title; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; }
   .dateRow { grid-area: date; align-self: flex-start; flex-direction: column; align-items: flex-end; text-align: right; gap: 4px; }
   .dateLabel { font-size: 10px; }
@@ -463,6 +462,8 @@
   .tagsBlock { grid-area: tags; }
   .ratingBlock { grid-area: rating; align-items: flex-end; }
   .ratingBlock label { font-size: 10px; }
+  .starWrapper { width: 32px; height: 32px; }
+  .starIcon { font-size: 32px; }
 
   .modal {
     max-height: 95vh;
