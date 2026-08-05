@@ -389,24 +389,34 @@
    MÓVIL ≤ 768px
    ══════════════════════════════════════════ */
 @media (max-width: 768px) {
+  .heroFiltros {
+    padding: 0;
+    margin-top: -15px; /* Sube un poco ambas cosas */
+  }
+
+  .searchWrapGrande {
+    gap: 8px; /* Un poco mas juntos */
+  }
+
   .grid, .layoutgrid {
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
   }
   
   .searchGrande {
-    padding: var(--space-3) var(--space-10);
-    font-size: var(--text-base);
+    padding: var(--space-3) 30px 12px 34px;
+    font-size: 13px; /* Letra más pequeña para que quepa el texto completo */
+    height: 44px;
   }
   
   .limpiarSearch {
-    right: 110px;
+    right: 90px;
   }
 
   .toggleFiltrosBtn {
-    padding: 0 var(--space-4);
-    height: 46px;
-    font-size: 13px;
+    padding: 0 10px;
+    height: 44px;
+    font-size: 12px;
   }
 
   .filtrosDesplegados {
