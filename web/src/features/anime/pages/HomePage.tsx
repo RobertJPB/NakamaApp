@@ -256,7 +256,7 @@ export const HomePage: React.FC = () => {
                           className={styles.btnSecondary}
                           onMouseEnter={() => prefetchAnimeDetalle(String(item.id))}
                         >
-                          Seguir Actividad
+                          Añadir a Lista
                         </Link>
                       </div>
                     </div>

@@ -3,7 +3,7 @@ import { supabase } from './supabase'
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  timeout: 30000, // 30 second timeout
+  timeout: 60000, // 60 second timeout para permitir cold starts en Render
 })
 
 // ─── Deduplicación de peticiones en vuelo (para el prefetch) ──────────────
