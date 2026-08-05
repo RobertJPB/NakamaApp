@@ -179,7 +179,7 @@ export const Header: React.FC = () => {
 
         <div className={styles.headerRightMobile}>
           <button className={styles.mobileMenuBtn} onClick={() => setMenuMovilAbierto(!menuMovilAbierto)}>
-            {menuMovilAbierto ? <X size={24} /> : <Menu size={24} />}
+            <Menu size={24} className={`${styles.hamburgerIcon} ${menuMovilAbierto ? styles.hamburgerIconOpen : ''}`} />
           </button>
           
           {menuMovilAbierto && (
