@@ -538,7 +538,7 @@
 /* ─── MÓVIL ≤ 768px ─── */
 @media (max-width: 768px) {
   .headerContainer {
-    position: sticky; top: 0; z-index: 100;
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
     margin: 0; padding: 0;
     background: #0b0d10; /* Solid black to prevent bleed */
     border-bottom: 1px solid var(--color-borde-suave);

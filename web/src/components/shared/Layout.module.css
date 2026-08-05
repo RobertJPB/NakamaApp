@@ -35,7 +35,7 @@
   .mainContent {
     padding-left: 16px;
     padding-right: 16px;
-    padding-top: 0;
+    padding-top: calc(var(--navbar-height, 64px) + 16px);
     /* Espacio para el BottomNav */
     padding-bottom: calc(70px + env(safe-area-inset-bottom));
     height: auto;
