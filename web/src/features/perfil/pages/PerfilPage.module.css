@@ -198,16 +198,16 @@
 @media (max-width: 768px) {
   .bannerWrap {
     margin: 0 -16px;
-    height: 120px;
+    height: 150px;
     border-radius: 0;
   }
-  .banner {
-    object-position: center top;
-    transform: scale(1.15);
+  .bannerDefault {
+    background-position: center top !important;
+    background-size: 150% auto !important; /* Zoom artificially */
   }
 
   .header {
-    flex-direction: row;
+    flex-direction: column;
     align-items: flex-start;
     padding: 0 16px;
     gap: var(--space-4);
