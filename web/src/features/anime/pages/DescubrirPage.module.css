@@ -404,7 +404,7 @@
   }
   
   .searchGrande {
-    padding: var(--space-3) 30px 12px 34px;
+    padding: var(--space-3) 30px 12px 42px; /* Aumentado padding-left a 42px para separar el texto de la lupa */
     font-size: 13px; /* Letra más pequeña para que quepa el texto completo */
     height: 44px;
   }

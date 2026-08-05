@@ -191,7 +191,7 @@ export const DescubrirPage: React.FC = () => {
             <input 
               className={styles.searchGrande}
               type="text" 
-              placeholder="¿Qué tipo de anime quieres buscar hoy?" 
+              placeholder="¿Qué tipo de anime quieres buscar?" 
               value={query}
               onChange={e => setQuery(e.target.value)}
             />
