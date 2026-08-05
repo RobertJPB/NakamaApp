@@ -289,6 +289,7 @@ export const BibliotecaPage: React.FC = () => {
               </div>
             </div>
           </div>
+        </div>
         )}
 
         {/* Header sin imagen */}
@@ -372,8 +373,6 @@ export const BibliotecaPage: React.FC = () => {
                     </button>
                   )}
                 </div>
-              </div>
-            </div>
           </div>
         )}
 
