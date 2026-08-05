@@ -413,7 +413,7 @@
   
   .leftActions { 
     grid-area: actions; 
-    margin-top: 52px; /* Push down to center align with poster visually */
+    margin-top: 44px; /* Push down to center align with poster visually */
     display: flex; 
     flex-direction: column; 
     justify-content: center;
@@ -440,7 +440,7 @@
 
   .carouselContainer {
     width: 100%;
-    overflow: hidden;
+    overflow: visible;
   }
 
   .castGrid {
