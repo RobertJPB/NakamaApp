@@ -111,10 +111,6 @@ export const ResenaForm: React.FC<ResenaFormProps> = ({ animeId, onCreada }) => 
             <input type="checkbox" checked={contieneSpoiler} onChange={e => setContieneSpoiler(e.target.checked)} />
             Contiene spoilers
           </label>
-          <label className={styles.check}>
-            <input type="checkbox" checked={esPublica} onChange={e => setEsPublica(e.target.checked)} />
-            Reseña pública
-          </label>
         </div>
         <div className={styles.actionsRight}>
           {error && <p className={styles.error}>{error}</p>}

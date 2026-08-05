@@ -38,7 +38,24 @@ const App: React.FC = () => {
       }
 
       try {
-        const { data: backendUser } = await api.get('/api/usuarios/me')
+        let backendUser = null;
+        let attempts = 0;
+        while (attempts < 3) {
+          try {
+            const { data } = await api.get('/api/usuarios/me')
+            backendUser = data;
+            break;
+          } catch (e: any) {
+            if (e.response?.status === 404) {
+              attempts++;
+              if (attempts >= 3) throw e;
+              await new Promise(r => setTimeout(r, 1000)); // wait 1s for Prisma to finish creation
+            } else {
+              throw e;
+            }
+          }
+        }
+
         const merged = {
           ...sessionUser,
           ...backendUser,

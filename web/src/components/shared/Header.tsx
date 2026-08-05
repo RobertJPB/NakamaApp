@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Link } from 'react-router-dom'
-import { useNavigate } from 'react-router-dom'
-import { Search, Sliders, Bell, Menu, X, Library, Table2, Settings, Trophy } from 'lucide-react'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { Search, Sliders, Bell, Menu, X, Library, Table2, Settings, Trophy, LogOut } from 'lucide-react'
 import { RuletaIcon } from '../icons/RuletaIcon'
 import { useAuth } from '../../hooks/useAuth'
 import { useNotificaciones } from '../../hooks/useNotificaciones'
@@ -202,6 +201,20 @@ export const Header: React.FC = () => {
                 <Link to="/configuracion" className={styles.mobileMenuLink} onClick={() => setMenuMovilAbierto(false)}>
                   <Settings size={18} /> Configuración
                 </Link>
+                {estaAutenticado && (
+                  <button 
+                    className={`${styles.mobileMenuLink} ${styles.mobileMenuLinkDanger}`} 
+                    style={{ color: '#ef4444', width: '100%', border: 'none', background: 'transparent', textAlign: 'left', cursor: 'pointer' }}
+                    onClick={async () => {
+                      setMenuMovilAbierto(false)
+                      sessionStorage.setItem('isLoggingOut', 'true')
+                      await signOut()
+                      navigate('/')
+                    }}
+                  >
+                    <LogOut size={18} /> Cerrar sesión
+                  </button>
+                )}
               </div>
             </>
           )}
