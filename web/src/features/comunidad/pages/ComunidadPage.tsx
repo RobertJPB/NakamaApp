@@ -184,7 +184,7 @@ const DetalleComunidad: React.FC<{ id: string }> = ({ id }) => {
         )}
         <div className={styles.detalleInfo}>
           <div className={styles.detalleTop}>
-            <div>
+            <div className={styles.detalleTopLeft}>
               <h1 className={styles.detalleNombre}>{comunidad.nombre}</h1>
               <div className={styles.detalleMeta}>
                 {comunidad.referenciaTipo && comunidad.oficial && (
@@ -202,16 +202,8 @@ const DetalleComunidad: React.FC<{ id: string }> = ({ id }) => {
                 </span>
               </div>
             </div>
-          </div>
-          
-          <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: '24px', marginTop: 'var(--space-2)' }}>
-            {comunidad.descripcion ? (
-              <p className={styles.detalleDesc} style={{ marginTop: 0, marginBottom: 0 }}>{comunidad.descripcion}</p>
-            ) : (
-              <div />
-            )}
             
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexShrink: 0 }}>
+            <div className={styles.detalleTopRight}>
               {!esMiembro && estaAutenticado && (
                 <button className={styles.btnUnirse} onClick={handleUnirse}>Unirse</button>
               )}
@@ -242,6 +234,12 @@ const DetalleComunidad: React.FC<{ id: string }> = ({ id }) => {
               )}
             </div>
           </div>
+          
+          {comunidad.descripcion && (
+            <p className={styles.detalleDesc} style={{ marginTop: 'var(--space-2)', marginBottom: 0 }}>
+              {comunidad.descripcion}
+            </p>
+          )}
         </div>
       </div>
 

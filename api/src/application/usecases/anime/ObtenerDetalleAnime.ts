@@ -8,6 +8,10 @@ import { prisma } from '../../../infrastructure/database/prisma/client'
 const resultCache = new Map<string, { data: any; ts: number }>()
 const RESULT_CACHE_TTL = 60 * 60 * 1000 // 1 hora
 
+export function invalidateDetalleAnimeCache(externalId: string) {
+  resultCache.delete(`detalle_exec_${externalId}`)
+}
+
 export class ObtenerDetalleAnime {
   constructor(
     private readonly animeRepo: IAnimeRepository,
