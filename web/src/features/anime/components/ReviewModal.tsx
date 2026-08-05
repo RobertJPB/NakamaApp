@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useCallback } from 'react'
 import { api } from '../../../lib/axios'
-import { X, Search } from 'lucide-react'
+import { X, Search, Image as ImageIcon } from 'lucide-react'
 import styles from './ReviewModal.module.css'
 import { useBusqueda } from '../../../hooks/useAnime'
 
@@ -41,6 +41,29 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ animeIdInicial, animeI
   // Comentario State
   const [tema, setTema] = useState('')
   const [soloAmigos, setSoloAmigos] = useState(false)
+  const [imagenUrl, setImagenUrl] = useState('')
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const loadFile = (file: File) => {
+    if (!file.type.startsWith('image/')) return
+    const reader = new FileReader()
+    reader.onload = (ev) => setImagenUrl(ev.target?.result as string)
+    reader.readAsDataURL(file)
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) { setImagenUrl(''); return }
+    loadFile(file)
+  }
+
+  const handlePaste = useCallback((e: React.ClipboardEvent) => {
+    const file = e.clipboardData.files?.[0]
+    if (file && file.type.startsWith('image/')) {
+      e.preventDefault()
+      loadFile(file)
+    }
+  }, [])
 
   // Encuesta State
   const [pregunta, setPregunta] = useState('')
@@ -94,7 +117,8 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ animeIdInicial, animeI
       const res = await api.post('/api/feed/post', { 
         contenido, 
         tema, 
-        soloAmigos 
+        soloAmigos,
+        imagenUrl
       })
       onSaved({ ...res.data, esResena: false })
     } catch (e: any) {
@@ -307,11 +331,35 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ animeIdInicial, animeI
                 
                 <textarea
                   className={styles.textarea}
-                  placeholder="¿Qué estás pensando?"
+                  placeholder="¿Qué estás pensando? (Puedes pegar una imagen con Ctrl+V)"
                   value={contenido}
                   onChange={e => setContenido(e.target.value)}
+                  onPaste={handlePaste}
                   rows={8}
                 />
+
+                {imagenUrl && (
+                  <div style={{ position: 'relative', marginTop: 12, borderRadius: 8, overflow: 'hidden' }}>
+                    <img src={imagenUrl} alt="Preview" style={{ width: '100%', maxHeight: 300, objectFit: 'cover' }} />
+                    <button 
+                      onClick={() => setImagenUrl('')}
+                      style={{ position: 'absolute', top: 8, right: 8, background: 'rgba(0,0,0,0.7)', border: 'none', borderRadius: '50%', color: '#fff', padding: 4, cursor: 'pointer' }}
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                )}
+                
+                <div style={{ display: 'flex', gap: 12, marginTop: 12 }}>
+                  <input type="file" accept="image/*" onChange={handleFileChange} hidden ref={fileInputRef} />
+                  <button 
+                    className={styles.changeAnimeBtn} 
+                    onClick={() => fileInputRef.current?.click()}
+                    style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+                  >
+                    <ImageIcon size={16} /> Agregar Imagen
+                  </button>
+                </div>
 
                 {error && <p className={styles.error}>{error}</p>}
               </div>

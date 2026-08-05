@@ -349,10 +349,6 @@ export const TierListPage: React.FC = () => {
               </button>
               {usuario && (
                 <>
-                  <button className={styles.btnCompartir} onClick={handleCompartir} disabled={exportando}>
-                    <Share2 size={18} />
-                    Compartir
-                  </button>
                   <button className={styles.btnGuardar} onClick={() => setModalAbierto(true)}>
                     <Save size={18} />
                     Guardar Plantilla

@@ -6,8 +6,14 @@
   flex-direction: column;
   align-items: center;
   gap: var(--space-4);
-  padding: var(--space-2) 0;
+  padding: var(--space-2) var(--space-4);
   width: 100%;
+}
+
+@media (min-width: 768px) {
+  .heroFiltros {
+    padding: var(--space-2) 0;
+  }
 }
 
 .searchWrapGrande {
