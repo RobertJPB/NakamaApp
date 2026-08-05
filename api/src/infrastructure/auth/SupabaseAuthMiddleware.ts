@@ -96,12 +96,18 @@ async function asegurarUsuarioDB(user: any) {
           success = true;
         } catch (e: any) {
           if (e.code === 'P2002') {
-            // Ignorar colisión si es por ID (creado por otra petición concurrente)
-            const verify = await prisma.usuario.findUnique({ where: { id: user.id } });
-            if (verify) {
+            const target = e.meta?.target as string[] | string | undefined;
+            const targetStr = Array.isArray(target) ? target.join(',') : (target || '');
+            
+            if (targetStr.includes('id')) {
               success = true;
+              break;
+            } else if (targetStr.includes('email')) {
+              // El email ya existe (quizás borró su cuenta en Supabase pero no en Postgres).
+              // Usamos un email alternativo para permitirle entrar.
+              user.email = `${user.id}@placeholder.com`;
             } else {
-              // Fue colisión de username. El bucle while intentará de nuevo.
+              // Colisión de username. El bucle while intentará de nuevo con el contador incrementado.
             }
           } else {
             throw e;

@@ -169,13 +169,38 @@ export const HomePage: React.FC = () => {
     setFeaturedIdx((prev) => (prev - 1 + FEATURED.length) % FEATURED.length)
   }
 
+  const touchStartX = useRef(0)
+  const touchEndX = useRef(0)
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX
+    touchEndX.current = e.touches[0].clientX
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.touches[0].clientX
+  }
+
+  const handleTouchEnd = () => {
+    if (touchStartX.current - touchEndX.current > 50) {
+      nextSlide()
+    } else if (touchStartX.current - touchEndX.current < -50) {
+      prevSlide()
+    }
+  }
+
   return (
     <Layout>
 
 
       {/* 3D CAROUSEL BANNERS */}
         <section className={styles.carouselSection}>
-          <div className={styles.carouselContainer}>
+          <div 
+            className={styles.carouselContainer}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
             {FEATURED.map((item, idx) => {
               // Calculate positioning classes relative to active slide
               let positionClass = styles.slideHidden
@@ -225,7 +250,14 @@ export const HomePage: React.FC = () => {
                         >
                           Ver Ficha
                         </Link>
-                        <button className={styles.btnSecondary}>Seguir Actividad</button>
+                        <Link 
+                          to={`/anime/${item.id}`} 
+                          state={{ initialAnime: { externalId: item.id, titulo: item.titulo, imagenUrl: item.imagen, calificacionPromedio: Number(item.puntuacion), sinopsis: item.descripcion } }}
+                          className={styles.btnSecondary}
+                          onMouseEnter={() => prefetchAnimeDetalle(String(item.id))}
+                        >
+                          Seguir Actividad
+                        </Link>
                       </div>
                     </div>
                   )}
