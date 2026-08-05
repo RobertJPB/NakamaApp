@@ -27,7 +27,14 @@ export const ResenaForm: React.FC<ResenaFormProps> = ({ animeId, onCreada }) => 
       })
       setCalificacion(0); setContenido(''); setEtiquetasStr(''); setFechaVisto(''); onCreada?.()
     } catch (e: any) {
-      setError(e.response?.data?.error ?? 'Error al enviar la reseña')
+      const data = e.response?.data
+      if (data?.detalles) {
+        const firstKey = Object.keys(data.detalles)[0]
+        const firstErr = data.detalles[firstKey]?.[0]
+        setError(firstErr || 'Datos inválidos')
+      } else {
+        setError(data?.error ?? 'Error al enviar la reseña')
+      }
     } finally { setEnviando(false) }
   }
 

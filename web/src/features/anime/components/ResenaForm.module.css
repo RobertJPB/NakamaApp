@@ -91,3 +91,44 @@
 .starsOverlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; gap: 0; z-index: 10; }
 .invisibleBtn { flex: 1; height: 100%; cursor: pointer; background: transparent; border: none; padding: 0; }
 
+@media (max-width: 600px) {
+  .headerRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+  .dateWrap {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .dateInput {
+    flex: 1;
+    min-width: 0;
+  }
+  .footerRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-4);
+  }
+  .tagsArea {
+    max-width: none;
+  }
+  .ratingArea {
+    align-items: flex-start;
+  }
+  .actionsRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-4);
+  }
+  .actionsRight {
+    flex-direction: column;
+    width: 100%;
+  }
+  .btn {
+    width: 100%;
+  }
+  .error {
+    text-align: center;
+  }
+}

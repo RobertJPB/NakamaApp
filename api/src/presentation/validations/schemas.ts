@@ -19,7 +19,7 @@ export const actualizarPerfilSchema = z.object({
 export const crearResenaSchema = z.object({
   animeId: z.string().min(1),
   calificacion: z.number().min(0).max(10),
-  contenido: z.string().min(10, 'La reseña debe tener al menos 10 caracteres'),
+  contenido: z.string().optional(),
   contieneSpoiler: z.boolean().optional(),
   esPublica: z.boolean().optional(),
   fechaVisto: z.string().optional(),
