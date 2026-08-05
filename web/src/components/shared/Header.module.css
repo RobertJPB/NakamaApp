@@ -541,6 +541,8 @@
     padding: 0 16px; height: var(--navbar-height);
     width: 100%;
   }
+  .headerLeft { display: flex; align-items: center; gap: 16px; flex: 1; }
+  .headerRightMobile { display: flex; align-items: center; }
   .logoWrap { display: flex; align-items: center; gap: 12px; }
   .logoLink { display: flex; align-items: center; }
   .logoImg { height: 32px; width: auto; }
@@ -677,7 +679,7 @@
 }
 
 @media (min-width: 769px) {
-  .searchCloseBtn {
+  .searchCloseBtn, .headerRightMobile {
     display: none;
   }
 }
