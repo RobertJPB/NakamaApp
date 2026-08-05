@@ -104,7 +104,7 @@ export const Header: React.FC = () => {
       <div className={styles.headerMain}>
         <div className={styles.headerLeft}>
           <Link to="/" className={styles.logoLink}>
-            <img src="/nakama-cat.svg" alt="Nakama Logo" className={styles.logoImg} />
+            <img src="/nakama-cat-new.jpg" alt="Nakama Logo" className={styles.logoImg} />
           </Link>
 
           <div className={`${styles.searchBarWrapper} ${searchExpanded ? styles.searchExpanded : ''}`} ref={dropdownRef}>
