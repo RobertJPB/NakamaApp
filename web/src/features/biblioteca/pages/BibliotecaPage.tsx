@@ -233,22 +233,23 @@ export const BibliotecaPage: React.FC = () => {
                   )}
                 </div>
                 <div className={styles.listHeaderActions}>
-
-                    <button
-                      onClick={handleInvitar}
-                      style={{
-                        background: 'transparent', color: 'var(--color-texto)',
-                        fontWeight: 700, fontSize: 'var(--text-sm)',
-                        padding: '8px 16px', border: '1px solid var(--color-borde)', borderRadius: '8px',
-                        cursor: 'pointer', transition: 'background var(--transition-fast)', flexShrink: 0
-                      }}
-                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
-                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                    >
-                      Invitar Colaborador
-                    </button>
-                  </>
-                )}
+                  {!listaSeleccionada.esGuardada && !listaSeleccionada.esColaborativa && (
+                    <>
+                      <button
+                        onClick={handleInvitar}
+                        style={{
+                          background: 'transparent', color: 'var(--color-texto)',
+                          fontWeight: 700, fontSize: 'var(--text-sm)',
+                          padding: '8px 16px', border: '1px solid var(--color-borde)', borderRadius: '8px',
+                          cursor: 'pointer', transition: 'background var(--transition-fast)', flexShrink: 0
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                      >
+                        Invitar Colaborador
+                      </button>
+                    </>
+                  )}
                 
                 {listaSeleccionada.esGuardada ? (
                   <button
