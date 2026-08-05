@@ -46,10 +46,11 @@ const App: React.FC = () => {
             backendUser = data;
             break;
           } catch (e: any) {
-            if (e.response?.status === 404) {
+            const isNetworkOrServerError = !e.response || e.response.status >= 500;
+            if (e.response?.status === 404 || isNetworkOrServerError) {
               attempts++;
               if (attempts >= 3) throw e;
-              await new Promise(r => setTimeout(r, 1000)); // wait 1s for Prisma to finish creation
+              await new Promise(r => setTimeout(r, 1500)); // wait 1.5s
             } else {
               throw e;
             }
@@ -83,10 +84,12 @@ const App: React.FC = () => {
         const currentState = useAuthStore.getState().usuario;
         if (sessionUser?.user_metadata) {
           const fbName = sessionUser.user_metadata.nombre || sessionUser.user_metadata.full_name || null
+          // Proporcionar un username temporal para que RequireProfile no nos secuestre por error de red
+          const fallbackUsername = sessionUser.user_metadata.username || sessionUser.email?.split('@')[0] || `user_${sessionUser.id.substring(0,6)}`;
           setUsuario({
             ...sessionUser,
-            username: currentState?.username || sessionUser.user_metadata.username || null,
-            nombreDisplay: currentState?.nombreDisplay || fbName,
+            username: currentState?.username || fallbackUsername,
+            nombreDisplay: currentState?.nombreDisplay || fbName || 'Usuario',
             avatarUrl: currentState?.avatarUrl || sessionUser.user_metadata.avatar || null
           })
         } else {
