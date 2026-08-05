@@ -368,7 +368,7 @@
   
   .leftCol { 
     display: grid; 
-    grid-template-columns: 140px 1fr; 
+    grid-template-columns: 180px 1fr; 
     grid-template-areas: 
       "poster actions"
       "stats actions";
@@ -388,11 +388,11 @@
     display: flex; 
     flex-direction: column; 
     justify-content: flex-start;
-    gap: 12px;
+    gap: 8px;
   }
   
   .leftBtn {
-    padding: 8px 6px;
+    padding: 6px 8px;
     font-size: 11px;
   }
   .reviewBtn {
