@@ -490,6 +490,12 @@
   margin-top: -10px;
 }
 
+@media (max-width: 600px) {
+  .carouselSection {
+    margin-top: 8px;
+  }
+}
+
 .carouselContainer {
   position: relative;
   width: 100%;
@@ -728,15 +734,7 @@
 
 @media (max-width: 600px) {
   .sliderArrow {
-    width: 36px;
-    height: 36px;
-    font-size: 18px;
-  }
-  .arrowLeft {
-    left: 8px;
-  }
-  .arrowRight {
-    right: 8px;
+    display: none;
   }
 }
 
@@ -753,6 +751,13 @@
 @media (max-width: 900px) {
   .bottomGrid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .bottomGrid {
+    gap: 20px;
+    margin-top: 8px;
   }
 }
 
@@ -819,11 +824,11 @@
 }
 
 @media (max-width: 700px) {
-  .animeGrid { grid-template-columns: repeat(3, 1fr); }
+  .animeGrid { grid-template-columns: repeat(3, 1fr); gap: 12px; }
 }
 
 @media (max-width: 450px) {
-  .animeGrid { grid-template-columns: repeat(2, 1fr); }
+  .animeGrid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
 }
 
 .animeCard {

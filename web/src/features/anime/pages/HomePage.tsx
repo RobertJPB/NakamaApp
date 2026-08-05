@@ -171,25 +171,7 @@ export const HomePage: React.FC = () => {
 
   return (
     <Layout>
-      {/* ─── QUICK ACTIONS (MOBILE ONLY) ─── */}
-      <div className={styles.mobileQuickActions}>
-        <Link to="/comunidades" className={styles.quickActionCard}>
-          <div className={`${styles.quickActionIcon} ${styles.bgBlue}`}><Users size={18} /></div>
-          <span>Comunidades</span>
-        </Link>
-        <Link to="/ruleta" className={styles.quickActionCard}>
-          <div className={`${styles.quickActionIcon} ${styles.bgPurple}`}><RuletaIcon size={18} /></div>
-          <span>Ruleta</span>
-        </Link>
-        <Link to="/tierlist" className={styles.quickActionCard}>
-          <div className={`${styles.quickActionIcon} ${styles.bgGreen}`}><Table2 size={18} /></div>
-          <span>Tier Lists</span>
-        </Link>
-        <Link to="/mi-lista" className={styles.quickActionCard}>
-          <div className={`${styles.quickActionIcon} ${styles.bgOrange}`}><Library size={18} /></div>
-          <span>Mi Lista</span>
-        </Link>
-      </div>
+
 
       {/* 3D CAROUSEL BANNERS */}
         <section className={styles.carouselSection}>
