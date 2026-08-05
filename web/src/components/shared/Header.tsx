@@ -73,33 +73,7 @@ export const Header: React.FC = () => {
 
   return (
     <header className={styles.headerContainer}>
-      {/* Menú Móvil Overlay */}
-      {menuMovilAbierto && (
-        <div className={styles.mobileMenuOverlay}>
-          <div className={styles.mobileMenuDrawer}>
-            <div className={styles.mobileMenuHeader}>
-              <h2 className={styles.mobileMenuTitle}>Menú</h2>
-              <button className={styles.mobileMenuCloseBtn} onClick={() => setMenuMovilAbierto(false)}>
-                <X size={20} />
-              </button>
-            </div>
-            <div className={styles.mobileMenuContent}>
-              <Link to="/mi-lista" className={styles.mobileMenuLink} onClick={() => setMenuMovilAbierto(false)}>
-                <Library size={18} /> Mis Listas
-              </Link>
-              <Link to="/tierlist" className={styles.mobileMenuLink} onClick={() => setMenuMovilAbierto(false)}>
-                <Table2 size={18} /> Tier Lists
-              </Link>
-              <Link to="/ruleta" className={styles.mobileMenuLink} onClick={() => setMenuMovilAbierto(false)}>
-                <RuletaIcon size={18} /> Ruleta
-              </Link>
-              <Link to="/ranking" className={styles.mobileMenuLink} onClick={() => setMenuMovilAbierto(false)}>
-                <Trophy size={18} /> Ranking
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
+
 
       <div className={styles.headerMain}>
         <div className={styles.headerLeft}>
@@ -204,9 +178,29 @@ export const Header: React.FC = () => {
         </div>
 
         <div className={styles.headerRightMobile}>
-          <button className={styles.mobileMenuBtn} onClick={() => setMenuMovilAbierto(true)}>
-            <Menu size={24} />
+          <button className={styles.mobileMenuBtn} onClick={() => setMenuMovilAbierto(!menuMovilAbierto)}>
+            {menuMovilAbierto ? <X size={24} /> : <Menu size={24} />}
           </button>
+          
+          {menuMovilAbierto && (
+            <>
+              <div className={styles.mobileMenuOverlay} onClick={() => setMenuMovilAbierto(false)} />
+              <div className={styles.mobileMenuDropdown}>
+                <Link to="/mi-lista" className={styles.mobileMenuLink} onClick={() => setMenuMovilAbierto(false)}>
+                  <Library size={18} /> Mis Listas
+                </Link>
+                <Link to="/tierlist" className={styles.mobileMenuLink} onClick={() => setMenuMovilAbierto(false)}>
+                  <Table2 size={18} /> Tier Lists
+                </Link>
+                <Link to="/ruleta" className={styles.mobileMenuLink} onClick={() => setMenuMovilAbierto(false)}>
+                  <RuletaIcon size={18} /> Ruleta
+                </Link>
+                <Link to="/ranking" className={styles.mobileMenuLink} onClick={() => setMenuMovilAbierto(false)}>
+                  <Trophy size={18} /> Ranking
+                </Link>
+              </div>
+            </>
+          )}
         </div>
 
       <div className={styles.headerRight}>
