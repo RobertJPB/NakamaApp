@@ -439,7 +439,7 @@
   }
   .composeLayout {
     display: grid;
-    grid-template-columns: 115px 1fr auto;
+    grid-template-columns: 150px 1fr auto;
     grid-template-areas: 
       "title title title"
       "poster date date"
