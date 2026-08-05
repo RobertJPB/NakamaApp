@@ -207,20 +207,21 @@ export const BibliotecaPage: React.FC = () => {
               position: 'absolute', inset: 0,
               background: 'linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.85) 100%)'
             }} />
-            <div style={{ position: 'absolute', bottom: '20px', left: '24px', right: '24px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-              <div>
-                <button className={styles.btnVolver} onClick={() => setListaSeleccionada(null)} style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '8px', opacity: 0.85 }}>
-                  <ChevronLeft size={18} />
-                  Volver a mis listas
-                </button>
-                <h1 className={styles.titulo} style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: 0, textShadow: '0 2px 8px rgba(0,0,0,0.7)' }}>
-                  {getIconForList(listaSeleccionada.nombre)} {listaSeleccionada.nombre}
-                </h1>
-                {listaSeleccionada.descripcion && (
-                  <p style={{ margin: '4px 0 0', color: 'rgba(255,255,255,0.75)', fontSize: '0.9rem' }}>{listaSeleccionada.descripcion}</p>
-                )}
-              </div>
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+            <div style={{ position: 'absolute', bottom: '20px', left: '24px', right: '24px' }}>
+              <div className={styles.listHeaderContent}>
+                <div>
+                  <button className={styles.btnVolver} onClick={() => setListaSeleccionada(null)} style={{ marginBottom: '8px', opacity: 0.85 }}>
+                    <ChevronLeft size={18} />
+                    Volver a mis listas
+                  </button>
+                  <h1 className={styles.listHeaderTitle}>
+                    {getIconForList(listaSeleccionada.nombre)} {listaSeleccionada.nombre}
+                  </h1>
+                  {listaSeleccionada.descripcion && (
+                    <p style={{ margin: '4px 0 0', color: 'rgba(255,255,255,0.75)', fontSize: '0.9rem' }}>{listaSeleccionada.descripcion}</p>
+                  )}
+                </div>
+                <div className={styles.listHeaderActions}>
                 {!listaSeleccionada.esGuardada && !listaSeleccionada.esColaborativa && (
                   <>
                     <button
@@ -292,18 +293,20 @@ export const BibliotecaPage: React.FC = () => {
 
         {/* Header sin imagen */}
         {!listaSeleccionada?.imagenUrl && (
-          <div className={styles.listHeader} style={{ justifyContent: 'flex-start' }}>
+          <div className={styles.listHeaderContent}>
             <div>
-              <button className={styles.btnVolver} onClick={() => setListaSeleccionada(null)} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <button className={styles.btnVolver} onClick={() => setListaSeleccionada(null)} style={{ marginBottom: '8px' }}>
                 <ChevronLeft size={18} />
                 Volver a mis listas
               </button>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '16px' }}>
-                <h1 className={styles.titulo} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  {getIconForList(listaSeleccionada?.nombre)} {listaSeleccionada?.nombre}
-                </h1>
-                
-                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+              <h1 className={styles.listHeaderTitle} style={{ textShadow: 'none' }}>
+                {getIconForList(listaSeleccionada.nombre)} {listaSeleccionada.nombre}
+              </h1>
+              {listaSeleccionada.descripcion && (
+                <p style={{ margin: '4px 0 0', color: 'var(--color-texto-muted)', fontSize: '0.9rem' }}>{listaSeleccionada.descripcion}</p>
+              )}
+            </div>
+            <div className={styles.listHeaderActions}>
                   {!listaSeleccionada.esGuardada && !listaSeleccionada.esColaborativa && (
                     <>
                       <button
@@ -384,12 +387,8 @@ export const BibliotecaPage: React.FC = () => {
               const resena = resenas.find(r => r.anime?.externalId === entrada.anime?.externalId || r.animeId === entrada.animeId)
               
               return (
-                <div key={entrada.animeId} style={{ 
-                  display: 'flex', gap: '24px', background: 'var(--color-fondo)', 
-                  padding: '16px', borderRadius: '6px', border: '1px solid var(--color-borde)',
-                  position: 'relative'
-                }}>
-                  <div style={{ width: '150px', flexShrink: 0 }}>
+                <div key={entrada.animeId} className={styles.listRow}>
+                  <div className={styles.listRowLeft}>
                     <AnimeCard
                       externalId={entrada.anime?.externalId}
                       titulo={entrada.anime?.titulo}
@@ -400,9 +399,9 @@ export const BibliotecaPage: React.FC = () => {
                     />
                   </div>
                   
-                  <div style={{ flex: 1, display: 'flex', gap: '24px' }}>
+                  <div className={styles.listRowRight}>
                     {/* Detalles */}
-                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px', paddingRight: '20px' }}>
+                    <div className={styles.listRowDetails}>
                       <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: 0 }}>
                         {entrada.anime?.titulo}
                       </h2>
@@ -442,7 +441,7 @@ export const BibliotecaPage: React.FC = () => {
                     </div>
 
                     {/* Reseña */}
-                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                    <div className={styles.listRowReview}>
                       <h3 style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--color-texto)', marginBottom: '12px', display: 'flex', justifyContent: 'space-between' }}>
                         Mi Reseña
                       </h3>
