@@ -201,7 +201,11 @@
     height: 120px;
     border-radius: 0;
   }
-  
+  .banner {
+    object-position: center top;
+    transform: scale(1.15);
+  }
+
   .header {
     flex-direction: row;
     align-items: flex-start;
@@ -235,8 +239,7 @@
   }
 
   .favoritosWrap {
-    align-items: flex-start;
-    margin-top: var(--space-2);
+    display: none;
   }
 
   .statsRow {

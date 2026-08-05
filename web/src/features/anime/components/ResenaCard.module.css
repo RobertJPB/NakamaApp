@@ -77,11 +77,12 @@
 @media (max-width: 768px) {
   .entrada {
     display: grid;
-    grid-template-columns: 36px 1fr 120px;
+    grid-template-columns: 36px 1fr 100px;
     grid-template-areas:
-      "avatar content media"
-      ".      content media";
-    gap: var(--space-3) 24px;
+      "avatar header media"
+      "detalle detalle media"
+      "meta meta media";
+    gap: 16px 20px;
     padding: var(--space-4);
     border-radius: 0;
     border: none;
@@ -94,7 +95,19 @@
     height: 36px;
   }
   .entradaContenido {
-    grid-area: content;
+    display: contents;
+  }
+  .entradaHeaderWrap {
+    grid-area: header;
+    min-width: 0;
+  }
+  .entradaDetalle {
+    grid-area: detalle;
+    min-width: 0;
+    padding-right: 12px;
+  }
+  .entradaMeta {
+    grid-area: meta;
     min-width: 0;
   }
   .entradaMedia {
@@ -106,7 +119,7 @@
     justify-content: flex-start;
   }
   .entradaThumb {
-    width: 120px;
+    width: 100px;
   }
   .entradaRatingBox {
     align-items: flex-start;

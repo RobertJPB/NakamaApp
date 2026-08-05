@@ -219,10 +219,10 @@ export const PerfilPage: React.FC = () => {
 
         <div className={styles.headerInfo}>
           <div className={styles.namesRow}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
               <h1 className={styles.nombre}>{perfil.nombreDisplay || perfil.username}</h1>
               {esMiPerfil && (
-                <Link to="/perfil/editar" className={`${styles.btnAction} ${styles.btnActionOutlined}`} style={{ textDecoration: 'none', padding: '4px 12px', fontSize: '12px' }}>Editar perfil</Link>
+                <Link to="/perfil/editar" className={`${styles.btnAction} ${styles.btnActionOutlined}`} style={{ textDecoration: 'none', padding: '4px 12px', fontSize: '12px', minWidth: 'auto' }}>Editar perfil</Link>
               )}
             </div>
             <p className={styles.username}>@{perfil.username}</p>
