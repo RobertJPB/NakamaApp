@@ -230,7 +230,7 @@
     grid-template-areas:
       "avatar content media"
       ".      content media";
-    gap: var(--space-3) var(--space-3);
+    gap: var(--space-3) 24px;
     padding: var(--space-4);
     border: none;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);

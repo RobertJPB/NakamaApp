@@ -355,7 +355,7 @@
   .layoutGrid { 
     display: flex;
     flex-direction: column;
-    gap: 20px; 
+    gap: 12px; 
   }
   
   .mainCol { display: contents; }
@@ -368,12 +368,13 @@
   
   .leftCol { 
     display: grid; 
-    grid-template-columns: 180px 1fr; 
+    grid-template-columns: 140px 1fr; 
     grid-template-areas: 
       "poster actions"
       "stats actions";
-    gap: 16px;
+    gap: 12px;
     align-items: start;
+    margin-top: -10px;
   }
   
   .posterWrapper { 
@@ -387,14 +388,15 @@
     display: flex; 
     flex-direction: column; 
     justify-content: flex-start;
+    gap: 12px;
   }
   
   .leftBtn {
-    padding: 10px 8px;
-    font-size: 12px;
+    padding: 8px 6px;
+    font-size: 11px;
   }
   .reviewBtn {
-    margin-top: 8px;
+    margin-top: 4px;
   }
   
   .statsPanel { 
