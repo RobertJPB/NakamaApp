@@ -22,19 +22,23 @@ const TierListPage     = lazy(() => import('../features/tierlist/pages/TierListP
 
 const PageSkeleton = () => (
   <div style={{ 
-    display: 'grid', 
-    gridTemplateColumns: 'var(--sidebar-width, 240px) 1fr',
+    display: 'flex', 
+    alignItems: 'center', 
+    justifyContent: 'center',
     minHeight: '100vh', 
-    background: '#0b0d10' 
+    background: 'var(--color-bg)' 
   }}>
-    <div style={{ background: '#0a0a0a', borderRight: '1px solid rgba(255,255,255,0.05)' }} />
-    <div style={{ padding: '60px 40px' }}>
-      <div style={{ height: 32, width: '40%', background: 'rgba(255,255,255,0.05)', borderRadius: 8, marginBottom: 24 }} />
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 16 }}>
-        {Array.from({ length: 12 }).map((_, i) => (
-          <div key={i} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 8, aspectRatio: '2/3' }} />
-        ))}
-      </div>
+    <div style={{
+      width: '32px',
+      height: '32px',
+      border: '3px solid rgba(255,255,255,0.05)',
+      borderTopColor: 'var(--color-acento)',
+      borderRadius: '50%',
+      animation: 'spin 0.8s linear infinite'
+    }}>
+      <style>
+        {`@keyframes spin { to { transform: rotate(360deg); } }`}
+      </style>
     </div>
   </div>
 )
