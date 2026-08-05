@@ -217,12 +217,12 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ animeIdInicial, animeI
                   <div className={styles.posterCol}>
                     <img src={selectedAnime.imagenUrl || selectedAnime.imagen} alt="Poster" className={styles.poster} />
                     <div className={styles.spoilerBlock} style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-start' }}>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: '#cdd', fontSize: '13px', fontWeight: 500 }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', color: '#cdd', fontSize: '12px', fontWeight: 500 }}>
                         <input 
                           type="checkbox" 
                           checked={contieneSpoiler} 
                           onChange={(e) => setContieneSpoiler(e.target.checked)} 
-                          style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                          style={{ width: '14px', height: '14px', cursor: 'pointer' }}
                         />
                         ¿Contiene spoilers?
                       </label>
