@@ -46,22 +46,39 @@ async function getMalScoreForKitsuId(kitsuId: string): Promise<number | null> {
   }
 }
 
-async function translateText(text: string): Promise<string> {
-  if (!text) return text;
-  try {
-    const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=es&dt=t&q=${encodeURIComponent(text)}`);
-    const data = await res.json() as any;
-    const raw: string = data[0].map((item: any) => item[0]).join('');
-    // Google Translate a veces inserta \n en medio de oraciones (ej: después de "U. A.")
-    // Reemplazamos saltos de línea SIMPLES por espacio, conservando párrafos dobles (\n\n)
-    return raw
-      .replace(/\r\n/g, '\n')
-      .replace(/([^\n])\n([^\n])/g, '$1 $2') // \n simple → espacio
-      .trim();
-  } catch (err) {
-    console.error("Translation error:", err);
-    return text;
+async function translateText(text: string): Promise<string | null> {
+  if (!text) return null;
+  
+  // Lista de endpoints para intentar traducir (fallbacks)
+  const endpoints = [
+    `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=es&dt=t&q=${encodeURIComponent(text)}`,
+    `https://clients5.google.com/translate_a/t?client=dict-chrome-ex&sl=auto&tl=es&q=${encodeURIComponent(text)}`
+  ];
+
+  for (const url of endpoints) {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) continue;
+      
+      const data = await res.json() as any;
+      let raw = '';
+      
+      if (url.includes('clients5')) {
+        raw = data[0][0]; // clients5 format
+      } else {
+        raw = data[0].map((item: any) => item[0]).join(''); // gtx format
+      }
+      
+      return raw
+        .replace(/\r\n/g, '\n')
+        .replace(/([^\n])\n([^\n])/g, '$1 $2') // \n simple → espacio
+        .trim();
+    } catch (err) {
+      console.error(`Translation error with endpoint ${url.substring(0, 30)}...:`, err);
+    }
   }
+  
+  return null;
 }
 
 const GENRE_MAP: Record<string, string> = {
@@ -191,11 +208,15 @@ export class KitsuService implements IAnimeExternalService {
     if (unknownGenres.length > 0) {
       const joined = unknownGenres.join(' | ');
       const translatedStr = await translateText(joined);
-      const translatedArr = translatedStr.split('|').map(s => s.trim());
-      // Reemplazamos los desconocidos por sus traducciones
-      unknownGenres.forEach((cat, index) => {
-        generos.push(translatedArr[index] ? translatedArr[index].replace(/(^[\s,]+|[\s,]+$)/g, '') : cat);
-      });
+      if (translatedStr) {
+        const translatedArr = translatedStr.split('|').map(s => s.trim());
+        // Reemplazamos los desconocidos por sus traducciones
+        unknownGenres.forEach((cat, index) => {
+          generos.push(translatedArr[index] ? translatedArr[index].replace(/(^[\s,]+|[\s,]+$)/g, '') : cat);
+        });
+      } else {
+        unknownGenres.forEach(cat => generos.push(cat));
+      }
     }
 
     // Capitalizamos la primera letra de cada género para que se vea bien
@@ -205,11 +226,16 @@ export class KitsuService implements IAnimeExternalService {
 
     // Obtener nota MAL y traducción en paralelo para no añadir latencia extra
     const [sinopsisTraducida, malScore] = await Promise.all([
-      animeMapping.sinopsis ? translateText(animeMapping.sinopsis) : Promise.resolve(animeMapping.sinopsis),
+      animeMapping.sinopsis ? translateText(animeMapping.sinopsis) : Promise.resolve(null),
       getMalScoreForKitsuId(externalId)
     ])
 
-    if (sinopsisTraducida) animeMapping.sinopsis = sinopsisTraducida
+    if (sinopsisTraducida) {
+      animeMapping.sinopsis = sinopsisTraducida
+      animeMapping.traducido = true // Flag to know if translation succeeded
+    } else {
+      animeMapping.traducido = false
+    }
     // Reemplazar nota de Kitsu por la nota real de MAL si se obtuvo
     if (malScore !== null) animeMapping.calificacionPromedio = malScore
 

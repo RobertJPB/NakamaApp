@@ -33,6 +33,11 @@ export class ObtenerDetalleAnime {
     const { anime: datos, personajes, generos } = await this.animeService.obtenerDetalle(externalId)
     if (!datos) throw new AppError('Anime no encontrado', 404)
 
+    // Si la traducción en vivo falló, usamos la sinopsis local si existe (para no sobrescribir español con inglés)
+    if ((datos as any).traducido === false && animeLocal?.sinopsis) {
+      datos.sinopsis = animeLocal.sinopsis;
+    }
+
     // Actualizamos siempre para guardar la traducción y limpieza
     const anime = await this.animeRepo.upsert(datos);
     (anime as any).generos = generos;
