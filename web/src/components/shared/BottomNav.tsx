@@ -1,8 +1,6 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Home, Compass, MessageSquare, LayoutGrid, X, Users, Table2, Library } from 'lucide-react'
-import { Trophy } from 'lucide-react'
-import { RuletaIcon } from '../icons/RuletaIcon'
+import { Home, Compass, MessageSquare, User, Search } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import styles from './BottomNav.module.css'
 
@@ -49,45 +47,7 @@ export const BottomNav: React.FC = () => {
         <span className={styles.label}>Feed</span>
       </Link>
 
-      {/* Mis Listas */}
-      <Link to="/mi-lista" className={`${styles.navItem} ${isActive('/mi-lista') ? styles.active : ''}`}>
-        <div className={styles.iconWrap}>
-          <Library size={22} strokeWidth={isActive('/mi-lista') ? 2.5 : 1.8} />
-        </div>
-        <span className={styles.label}>Listas</span>
-      </Link>
 
-      {/* Comunidades */}
-      <Link to="/comunidades" className={`${styles.navItem} ${isActive('/comunidades') ? styles.active : ''}`}>
-        <div className={styles.iconWrap}>
-          <Users size={22} strokeWidth={isActive('/comunidades') ? 2.5 : 1.8} />
-        </div>
-        <span className={styles.label}>Comunidad</span>
-      </Link>
-      
-      {/* Tier Lists */}
-      <Link to="/tierlist" className={`${styles.navItem} ${isActive('/tierlist') ? styles.active : ''}`}>
-        <div className={styles.iconWrap}>
-          <Table2 size={22} strokeWidth={isActive('/tierlist') ? 2.5 : 1.8} />
-        </div>
-        <span className={styles.label}>Tier List</span>
-      </Link>
-
-      {/* Ruleta */}
-      <Link to="/ruleta" className={`${styles.navItem} ${isActive('/ruleta') ? styles.active : ''}`}>
-        <div className={styles.iconWrap}>
-          <RuletaIcon size={22} />
-        </div>
-        <span className={styles.label}>Ruleta</span>
-      </Link>
-
-      {/* Ranking */}
-      <Link to="/ranking" className={`${styles.navItem} ${isActive('/ranking') ? styles.active : ''}`}>
-        <div className={styles.iconWrap}>
-          <Trophy size={22} strokeWidth={isActive('/ranking') ? 2.5 : 1.8} />
-        </div>
-        <span className={styles.label}>Ranking</span>
-      </Link>
 
       {/* Perfil */}
       <Link to={perfilPath} className={`${styles.navItem} ${(isActive('/perfil') || isActive('/auth')) ? styles.active : ''}`}>

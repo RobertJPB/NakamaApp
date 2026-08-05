@@ -205,3 +205,24 @@
 
 .encuestaContent { display: flex; align-items: center; gap: var(--space-3); z-index: 2; position: relative; }
 .opcionImagen { width: 40px; height: 40px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--color-borde-suave); }
+
+@media (max-width: 768px) {
+  .card {
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 0;
+    padding: var(--space-4) 16px;
+    background: transparent;
+  }
+  .card:hover {
+    background: transparent;
+    border-color: rgba(255, 255, 255, 0.05);
+  }
+  .imagen {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    margin: 0 -16px;
+    width: calc(100% + 32px);
+  }
+}

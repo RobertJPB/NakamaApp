@@ -577,4 +577,9 @@
     right: -8px;
     width: min(320px, 90vw);
   }
+
+  /* Ocultar iconos secundarios para limpieza móvil */
+  .filterBtn, .headerRight {
+    display: none;
+  }
 }

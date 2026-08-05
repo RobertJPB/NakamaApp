@@ -19,7 +19,7 @@
   -ms-overflow-style: none;
   padding-left: 8px;
   padding-right: 8px;
-  gap: 4px;
+  justify-content: space-around;
 }
 
 .bottomNav::-webkit-scrollbar {

@@ -221,11 +221,22 @@
    MÓVIL ≤ 768px
    ══════════════════════════════════════════ */
 @media (max-width: 768px) {
+  .layout {
+    padding: 0;
+  }
   .entrada {
     display: grid;
     grid-template-columns: 42px 1fr;
     gap: var(--space-3) var(--space-3);
     padding: var(--space-4);
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 0;
+    background: transparent;
+  }
+  .entrada:hover {
+    background: transparent;
+    border-color: rgba(255, 255, 255, 0.05);
   }
   .entradaAvatarWrap {
     grid-column: 1;
@@ -234,7 +245,7 @@
   .entradaContenido {
     grid-column: 2;
     grid-row: 1;
-    min-width: 0; /* Permite que el texto se trunque si es necesario sin desbordar el grid */
+    min-width: 0;
   }
   .entradaMedia {
     grid-column: 2;
@@ -246,7 +257,7 @@
     justify-content: flex-start;
   }
   .entradaThumb {
-    width: 72px; /* Más pequeño para móvil */
+    width: 72px;
   }
   .entradaRatingBox {
     align-items: flex-start;
