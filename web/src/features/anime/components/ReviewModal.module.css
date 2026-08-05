@@ -461,7 +461,7 @@
   .metaRow { display: contents; }
   .tagsBlock { grid-area: tags; }
   .ratingBlock { grid-area: rating; align-items: flex-end; }
-  .ratingBlock label { font-size: 10px; }
+  .ratingBlock label { font-size: 12px; }
   .starWrapper { width: 32px; height: 32px; }
   .starIcon { font-size: 32px; }
 
