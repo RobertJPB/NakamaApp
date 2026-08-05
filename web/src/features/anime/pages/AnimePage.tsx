@@ -49,6 +49,10 @@ export const AnimePage: React.FC = () => {
     if (entrada) setIsFavoritoLocal(!!entrada.esFavorito)
   }, [lista, id])
 
+  React.useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [id])
+
   if (cargando) {
     return (
       <Layout>

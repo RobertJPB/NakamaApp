@@ -49,33 +49,31 @@ async function getMalScoreForKitsuId(kitsuId: string): Promise<number | null> {
 async function translateText(text: string): Promise<string | null> {
   if (!text) return null;
   
-  // Lista de endpoints para intentar traducir (fallbacks)
-  const endpoints = [
-    `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=es&dt=t&q=${encodeURIComponent(text)}`,
-    `https://clients5.google.com/translate_a/t?client=dict-chrome-ex&sl=auto&tl=es&q=${encodeURIComponent(text)}`
-  ];
-
-  for (const url of endpoints) {
-    try {
-      const res = await fetch(url);
-      if (!res.ok) continue;
-      
+  try {
+    const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=es&dt=t`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'q=' + encodeURIComponent(text)
+    });
+    
+    if (res.ok) {
       const data = await res.json() as any;
-      let raw = '';
-      
-      if (url.includes('clients5')) {
-        raw = data[0][0]; // clients5 format
-      } else {
-        raw = data[0].map((item: any) => item[0]).join(''); // gtx format
-      }
-      
-      return raw
-        .replace(/\r\n/g, '\n')
-        .replace(/([^\n])\n([^\n])/g, '$1 $2') // \n simple → espacio
-        .trim();
-    } catch (err) {
-      console.error(`Translation error with endpoint ${url.substring(0, 30)}...:`, err);
+      const raw: string = data[0].map((item: any) => item[0]).join('');
+      return raw.replace(/\r\n/g, '\n').replace(/([^\n])\n([^\n])/g, '$1 $2').trim();
     }
+  } catch (err) {
+    console.error("Translation error (POST gtx):", err);
+  }
+
+  // Fallback a clients5 (solo GET soportado usualmente)
+  try {
+    const res = await fetch(`https://clients5.google.com/translate_a/t?client=dict-chrome-ex&sl=auto&tl=es&q=${encodeURIComponent(text.substring(0, 1500))}`);
+    if (res.ok) {
+      const data = await res.json() as any;
+      return data[0][0].replace(/\r\n/g, '\n').replace(/([^\n])\n([^\n])/g, '$1 $2').trim();
+    }
+  } catch (err) {
+    console.error("Translation error (clients5):", err);
   }
   
   return null;
