@@ -214,30 +214,26 @@ export const BibliotecaPage: React.FC = () => {
                     <ChevronLeft size={18} />
                     Volver a mis listas
                   </button>
-                  <h1 className={styles.listHeaderTitle}>
-                    {getIconForList(listaSeleccionada.nombre)} {listaSeleccionada.nombre}
-                  </h1>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <h1 className={styles.listHeaderTitle}>
+                      {getIconForList(listaSeleccionada.nombre)} {listaSeleccionada.nombre}
+                    </h1>
+                    {!listaSeleccionada.esGuardada && !listaSeleccionada.esColaborativa && (
+                      <button
+                        onClick={() => setShowEditarModal(true)}
+                        title="Editar Lista"
+                        className={styles.btnSettingsList}
+                      >
+                        <Settings size={20} />
+                      </button>
+                    )}
+                  </div>
                   {listaSeleccionada.descripcion && (
                     <p style={{ margin: '4px 0 0', color: 'rgba(255,255,255,0.75)', fontSize: '0.9rem' }}>{listaSeleccionada.descripcion}</p>
                   )}
                 </div>
                 <div className={styles.listHeaderActions}>
-                {!listaSeleccionada.esGuardada && !listaSeleccionada.esColaborativa && (
-                  <>
-                    <button
-                      onClick={() => setShowEditarModal(true)}
-                      title="Editar Lista"
-                      style={{
-                        background: 'transparent', color: 'var(--color-texto-muted)',
-                        padding: '8px', border: '1px solid var(--color-borde)', borderRadius: '8px',
-                        cursor: 'pointer', transition: 'all var(--transition-fast)', flexShrink: 0,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center'
-                      }}
-                      onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-texto)'; e.currentTarget.style.background = 'rgba(255,255,255,0.05)' }}
-                      onMouseLeave={e => { e.currentTarget.style.color = 'var(--color-texto-muted)'; e.currentTarget.style.background = 'transparent' }}
-                    >
-                      <Settings size={20} />
-                    </button>
+
                     <button
                       onClick={handleInvitar}
                       style={{
@@ -300,9 +296,20 @@ export const BibliotecaPage: React.FC = () => {
                 <ChevronLeft size={18} />
                 Volver a mis listas
               </button>
-              <h1 className={styles.listHeaderTitle} style={{ textShadow: 'none' }}>
-                {getIconForList(listaSeleccionada.nombre)} {listaSeleccionada.nombre}
-              </h1>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <h1 className={styles.listHeaderTitle} style={{ textShadow: 'none' }}>
+                  {getIconForList(listaSeleccionada.nombre)} {listaSeleccionada.nombre}
+                </h1>
+                {!listaSeleccionada.esGuardada && !listaSeleccionada.esColaborativa && (
+                  <button
+                    onClick={() => setShowEditarModal(true)}
+                    title="Editar Lista"
+                    className={styles.btnSettingsList}
+                  >
+                    <Settings size={18} />
+                  </button>
+                )}
+              </div>
               {listaSeleccionada.descripcion && (
                 <p style={{ margin: '4px 0 0', color: 'var(--color-texto-muted)', fontSize: '0.9rem' }}>{listaSeleccionada.descripcion}</p>
               )}
@@ -310,20 +317,6 @@ export const BibliotecaPage: React.FC = () => {
             <div className={styles.listHeaderActions}>
                   {!listaSeleccionada.esGuardada && !listaSeleccionada.esColaborativa && (
                     <>
-                      <button
-                        onClick={() => setShowEditarModal(true)}
-                        title="Editar Lista"
-                        style={{
-                          background: 'transparent', color: 'var(--color-texto-muted)',
-                          padding: '6px', border: '1px solid var(--color-borde)', borderRadius: '6px',
-                          cursor: 'pointer', transition: 'all var(--transition-fast)', flexShrink: 0,
-                          display: 'flex', alignItems: 'center', justifyContent: 'center'
-                        }}
-                        onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-texto)'; e.currentTarget.style.background = 'rgba(255,255,255,0.05)' }}
-                        onMouseLeave={e => { e.currentTarget.style.color = 'var(--color-texto-muted)'; e.currentTarget.style.background = 'transparent' }}
-                      >
-                        <Settings size={18} />
-                      </button>
                       <button
                         onClick={handleInvitar}
                         style={{
@@ -401,9 +394,21 @@ export const BibliotecaPage: React.FC = () => {
                   <div className={styles.listRowRight}>
                     {/* Detalles */}
                     <div className={styles.listRowDetails}>
-                      <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: 0 }}>
-                        {entrada.anime?.titulo}
-                      </h2>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
+                        <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: 0 }}>
+                          {entrada.anime?.titulo}
+                        </h2>
+                        <button
+                          className={styles.btnEliminarItem}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            eliminar(entrada.animeId, listaSeleccionada?.propietario?.id, listaSeleccionada?.nombre)
+                          }}
+                          title="Eliminar de la lista"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
                       
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', color: 'var(--color-texto-muted)', fontSize: '0.9rem' }}>
                         {entrada.anime?.tipo && (
@@ -478,25 +483,6 @@ export const BibliotecaPage: React.FC = () => {
                       )}
                     </div>
                   </div>
-
-                  <button
-                    style={{
-                      position: 'absolute', top: 16, right: 16,
-                      background: 'transparent', color: 'var(--color-texto-muted)', border: 'none',
-                      padding: '4px 8px', cursor: 'pointer',
-                      display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', fontWeight: 'bold',
-                      transition: 'all 0.2s'
-                    }}
-                    onMouseEnter={e => { e.currentTarget.style.color = '#ff4757' }}
-                    onMouseLeave={e => { e.currentTarget.style.color = 'var(--color-texto-muted)' }}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      eliminar(entrada.animeId, listaSeleccionada?.propietario?.id, listaSeleccionada?.nombre)
-                    }}
-                    title="Eliminar"
-                  >
-                    <Trash2 size={16} /> Eliminar
-                  </button>
                 </div>
               )
             })}

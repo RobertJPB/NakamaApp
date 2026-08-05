@@ -303,6 +303,40 @@
   font-size: var(--text-sm);
 }
 
+.btnSettingsList {
+  background: transparent;
+  color: var(--color-texto-muted);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+.btnSettingsList:hover {
+  color: var(--color-texto);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.btnEliminarItem {
+  background: transparent;
+  color: var(--color-texto-muted);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+.btnEliminarItem:hover {
+  color: #ff4757;
+  background: rgba(255, 71, 87, 0.1);
+}
+
 /* Detalle Lista Responsive */
 .listHeader {
   display: flex;
