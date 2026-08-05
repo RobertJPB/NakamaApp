@@ -27,7 +27,7 @@ export class PrismaComunidadRepository implements IComunidadRepository {
 
   async findMany(tipo?: string, page = 1, limit = 20): Promise<Comunidad[]> {
     const rows = await prisma.comunidad.findMany({
-      where:   tipo ? { tipo: tipo as any } : {},
+      where:   tipo ? { tipo: tipo as import('@prisma/client').TipoComunidad } : {},
       skip:    (page - 1) * limit,
       take:    limit,
       orderBy: { totalMiembros: 'desc' },

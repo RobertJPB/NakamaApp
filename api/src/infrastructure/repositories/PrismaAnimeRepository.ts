@@ -127,13 +127,13 @@ export class PrismaAnimeRepository implements IAnimeRepository {
   }
   async getRankingMasVistos(limit: number): Promise<RankingItem[]> {
     type ListaGroupRow = { animeId: string; _count: { animeId: number } }
-    const rows = (await (prisma.listaUsuario.groupBy as any)({
+    const rows = await prisma.listaUsuario.groupBy({
       by: ['animeId'],
       where: { estados: { has: 'Viendo' } },
       _count: { animeId: true },
       orderBy: { _count: { animeId: 'desc' } },
       take: limit,
-    })) as unknown as ListaGroupRow[]
+    })
     const animeIds = rows.map((r: ListaGroupRow) => r.animeId)
     const animes = await prisma.anime.findMany({ where: { id: { in: animeIds } } })
     const animeMap = new Map<string, any>(animes.map((a: any) => [a.id, a]))
@@ -144,13 +144,13 @@ export class PrismaAnimeRepository implements IAnimeRepository {
 
   async getRankingMasGustados(limit: number): Promise<RankingItem[]> {
     type ListaGroupRow = { animeId: string; _count: { animeId: number } }
-    const rows = (await (prisma.listaUsuario.groupBy as any)({
+    const rows = await prisma.listaUsuario.groupBy({
       by: ['animeId'],
       where: { estados: { has: 'Me gusta' } },
       _count: { animeId: true },
       orderBy: { _count: { animeId: 'desc' } },
       take: limit,
-    })) as unknown as ListaGroupRow[]
+    })
     const animeIds = rows.map((r: ListaGroupRow) => r.animeId)
     const animes = await prisma.anime.findMany({ where: { id: { in: animeIds } } })
     const animeMap = new Map<string, any>(animes.map((a: any) => [a.id, a]))

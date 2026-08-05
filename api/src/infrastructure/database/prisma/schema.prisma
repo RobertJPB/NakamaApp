@@ -233,6 +233,7 @@ model Seguidor {
   seguido  Usuario @relation("Seguido",  fields: [seguidoId],  references: [id], onDelete: Cascade)
 
   @@id([seguidorId, seguidoId])
+  @@index([seguidoId])
   @@map("seguidores")
   @@schema("social")
 }
@@ -351,6 +352,7 @@ model Resena {
   @@unique([usuarioId, animeId])
   @@index([usuarioId])
   @@index([animeId])
+  @@index([usuarioId, creadoEn])
   @@map("resenas")
   @@schema("contenido")
 }

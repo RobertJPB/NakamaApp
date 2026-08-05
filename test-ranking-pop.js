@@ -1,6 +1,0 @@
-fetch('https://kitsu.io/api/edge/anime?sort=popularityRank&page[limit]=10')
-  .then(async res => {
-    const json = await res.json();
-    console.log(json.data.map(a => `${a.attributes.canonicalTitle} (${a.attributes.averageRating})`).join('\n'));
-  })
-  .catch(err => console.error('Error:', err.message));
