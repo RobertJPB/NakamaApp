@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Home, Compass, MessageSquare, Settings } from 'lucide-react'
+import { Home, Compass, MessageSquare, Users } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import styles from './BottomNav.module.css'
 
@@ -49,12 +49,30 @@ export const BottomNav: React.FC = () => {
 
 
 
-      {/* Configuración */}
-      <Link to="/configuracion" className={`${styles.navItem} ${isActive('/configuracion') ? styles.active : ''}`}>
+      {/* Comunidades */}
+      <Link to="/comunidades" className={`${styles.navItem} ${isActive('/comunidades') ? styles.active : ''}`}>
         <div className={styles.iconWrap}>
-          <Settings size={22} strokeWidth={isActive('/configuracion') ? 2.5 : 1.8} />
+          <Users size={22} strokeWidth={isActive('/comunidades') ? 2.5 : 1.8} />
         </div>
-        <span className={styles.label}>Configuración</span>
+        <span className={styles.label}>Comunidades</span>
+      </Link>
+
+      {/* Perfil */}
+      <Link to={perfilPath} className={`${styles.navItem} ${(isActive('/perfil') || isActive('/auth')) ? styles.active : ''}`}>
+        <div className={styles.iconWrap}>
+          {usuario?.avatarUrl ? (
+            <img
+              src={usuario.avatarUrl}
+              alt="perfil"
+              className={`${styles.avatarThumb} ${(isActive('/perfil') || isActive('/auth')) ? styles.avatarActive : ''}`}
+            />
+          ) : (
+            <div className={`${styles.avatarFallback} ${(isActive('/perfil') || isActive('/auth')) ? styles.avatarActive : ''}`}>
+              {(usuario?.nombreDisplay?.[0] || usuario?.username?.[0] || '?').toUpperCase()}
+            </div>
+          )}
+        </div>
+        <span className={styles.label}>Perfil</span>
       </Link>
     </nav>
   )

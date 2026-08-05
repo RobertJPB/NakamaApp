@@ -13,6 +13,10 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.03);
 }
 
+.logoWrap { display: flex; align-items: center; }
+.logoLink { display: flex; align-items: center; text-decoration: none; }
+.logoImg { height: 32px; width: auto; }
+
 .searchBarWrapper {
   position: relative;
   width: 100%;
@@ -537,7 +541,9 @@
     padding: 0 16px; height: var(--navbar-height);
     width: 100%;
   }
-  .logoWrap { display: flex; align-items: center; }
+  .logoWrap { display: flex; align-items: center; gap: 12px; }
+  .logoLink { display: flex; align-items: center; }
+  .logoImg { height: 32px; width: auto; }
 
   /* Ocultar iconos secundarios para limpieza móvil */
   .filterBtn, .headerRight {
@@ -597,33 +603,6 @@
   }
   .searchCloseBtn {
     background: transparent; border: none; color: #fff; padding: 4px; display: flex;
-  }
-
-  /* Mobile Top Nav */
-  .mobileTopNav {
-    display: block;
-    width: 100%;
-    border-top: 1px solid rgba(255,255,255,0.05);
-    background: rgba(11, 13, 16, 0.95);
-  }
-  .mobileTopNavScroll {
-    display: flex;
-    overflow-x: auto;
-    padding: 0 16px;
-    gap: 20px;
-    scrollbar-width: none;
-  }
-  .mobileTopNavScroll::-webkit-scrollbar { display: none; }
-  .mobileTopNavLink {
-    color: var(--color-texto-suave);
-    font-size: 14px;
-    font-weight: 500;
-    text-decoration: none;
-    padding: 12px 0;
-    white-space: nowrap;
-  }
-  .mobileTopNavLink:hover {
-    color: var(--color-texto);
   }
 
   /* Dropdown notificaciones: posición ajustada para móvil */
@@ -698,7 +677,7 @@
 }
 
 @media (min-width: 769px) {
-  .mobileTopNav, .searchCloseBtn {
+  .searchCloseBtn {
     display: none;
   }
 }

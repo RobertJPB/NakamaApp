@@ -20,6 +20,7 @@ export const Header: React.FC = () => {
   const [buscando, setBuscando] = useState(false)
   const [mostrarNotif, setMostrarNotif] = useState(false)
   const [searchExpanded, setSearchExpanded] = useState(false)
+  const [menuMovilAbierto, setMenuMovilAbierto] = useState(false)
   
   const dropdownRef = useRef<HTMLDivElement>(null)
   const notifRef = useRef<HTMLDivElement>(null)
@@ -72,9 +73,42 @@ export const Header: React.FC = () => {
 
   return (
     <header className={styles.headerContainer}>
+      {/* Menú Móvil Overlay */}
+      {menuMovilAbierto && (
+        <div className={styles.mobileMenuOverlay}>
+          <div className={styles.mobileMenuDrawer}>
+            <div className={styles.mobileMenuHeader}>
+              <h2 className={styles.mobileMenuTitle}>Menú</h2>
+              <button className={styles.mobileMenuCloseBtn} onClick={() => setMenuMovilAbierto(false)}>
+                <X size={20} />
+              </button>
+            </div>
+            <div className={styles.mobileMenuContent}>
+              <Link to="/mi-lista" className={styles.mobileMenuLink} onClick={() => setMenuMovilAbierto(false)}>
+                <Library size={18} /> Mis Listas
+              </Link>
+              <Link to="/tierlist" className={styles.mobileMenuLink} onClick={() => setMenuMovilAbierto(false)}>
+                <Table2 size={18} /> Tier Lists
+              </Link>
+              <Link to="/ruleta" className={styles.mobileMenuLink} onClick={() => setMenuMovilAbierto(false)}>
+                <RuletaIcon size={18} /> Ruleta
+              </Link>
+              <Link to="/ranking" className={styles.mobileMenuLink} onClick={() => setMenuMovilAbierto(false)}>
+                <Trophy size={18} /> Ranking
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className={styles.headerMain}>
         <div className={styles.logoWrap}>
-          <Link to="/" className={styles.logoText}>Nakama</Link>
+          <button className={styles.mobileMenuBtn} onClick={() => setMenuMovilAbierto(true)}>
+            <Menu size={20} />
+          </button>
+          <Link to="/" className={styles.logoLink}>
+            <img src="/nakama-cat.svg" alt="Nakama Logo" className={styles.logoImg} />
+          </Link>
         </div>
 
         <div className={`${styles.searchBarWrapper} ${searchExpanded ? styles.searchExpanded : ''}`} ref={dropdownRef}>
@@ -290,17 +324,6 @@ export const Header: React.FC = () => {
           <div style={{ width: 140 }}></div>
         )}
       </div>
-      </div>
-      
-      {/* Top Nav (Mobile Only) */}
-      <div className={styles.mobileTopNav}>
-        <div className={styles.mobileTopNavScroll}>
-          <Link to="/mi-lista" className={styles.mobileTopNavLink}>Listas</Link>
-          <Link to="/comunidades" className={styles.mobileTopNavLink}>Comunidades</Link>
-          <Link to="/tierlist" className={styles.mobileTopNavLink}>Tier List</Link>
-          <Link to="/ruleta" className={styles.mobileTopNavLink}>Ruleta</Link>
-          <Link to={perfilPath} className={styles.mobileTopNavLink}>Perfil</Link>
-        </div>
       </div>
     </header>
   )
