@@ -435,7 +435,7 @@
 @media (max-width: 768px) {
   .composeLayout {
     display: grid;
-    grid-template-columns: 150px 1fr;
+    grid-template-columns: 180px 1fr;
     grid-template-areas: 
       "title title"
       "poster date"
@@ -448,11 +448,11 @@
   .formCol { display: contents; }
   
   .poster { grid-area: poster; width: 100%; margin: 0; }
-  .spoilerBlock { grid-area: spoiler; margin-top: 0 !important; align-self: flex-start; }
+  .spoilerBlock { grid-area: spoiler; margin-top: 0 !important; align-self: flex-end; }
   .animeTitleBlock { grid-area: title; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; }
-  .dateRow { grid-area: date; align-self: flex-start; flex-direction: column; align-items: flex-start; gap: 6px; }
-  .dateLabel { font-size: 11px; }
-  .dateInput { width: 100%; padding: 5px 8px; font-size: 13px; }
+  .dateRow { grid-area: date; align-self: flex-start; flex-direction: column; align-items: flex-end; text-align: right; gap: 4px; }
+  .dateLabel { font-size: 10px; }
+  .dateInput { width: 100%; padding: 4px 6px; font-size: 12px; }
   .textarea { grid-area: textarea; }
   .metaRow { grid-area: meta; flex-direction: column; gap: 16px; }
   .tagsBlock, .ratingBlock { width: 100%; }
