@@ -246,9 +246,9 @@
   
   .detalleHeader {
     flex-direction: row;
-    align-items: flex-end;
+    align-items: flex-start; /* Alinea el logo con el nombre (arriba) */
     text-align: left;
-    margin-top: -40px;
+    margin-top: -60px; /* Sube la imagen y el texto hacia el banner */
     gap: var(--space-4);
   }
   .detalleAvatar {
