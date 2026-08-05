@@ -176,6 +176,21 @@
   color: var(--color-acento);
 }
 
+.mobileLoginBtn {
+  background-color: var(--color-acento);
+  color: #000;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+
 .filterBtn {
   background: none;
   border: none;
