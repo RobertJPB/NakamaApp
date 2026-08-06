@@ -36,9 +36,7 @@ export class FeedController {
 
       if (tipo === 'resena') {
         await container.eliminarResena.execute({ resenaId: id, usuarioId: req.userId })
-        // Nota: eliminarResenaUseCase idealmente borraría el feed, pero lo manejaremos
-        const { prisma } = require('../../infrastructure/database/prisma/client')
-        await prisma.feed.deleteMany({ where: { tipo: 'resena', referenciaId: id, usuarioId: req.userId } })
+        await container.eliminarFeedResena.execute(id, req.userId)
       } else if (tipo === 'publicacion') {
         await container.eliminarPublicacionFeed.execute(id, req.userId)
       }

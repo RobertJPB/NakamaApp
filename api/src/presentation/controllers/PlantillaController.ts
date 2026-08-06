@@ -1,23 +1,13 @@
 import { Request, Response, NextFunction } from 'express'
-import { prisma } from '../../infrastructure/database/prisma/client'
+import { IPlantillaRepository } from '../../domain/repositories/IPlantillaRepository'
 
 export class PlantillaController {
-  
+
+  constructor(private readonly plantillaRepo: IPlantillaRepository) {}
+
   listar = async (_req: Request, res: Response, next: NextFunction) => {
     try {
-      const plantillas = await prisma.plantillaTierList.findMany({
-        orderBy: { creadoEn: 'desc' },
-        include: {
-          usuario: {
-            select: {
-              username: true,
-              nombreDisplay: true,
-              avatarUrl: true
-            }
-          }
-        },
-        take: 50 // limit to recent 50
-      })
+      const plantillas = await this.plantillaRepo.listar()
       res.json(plantillas)
     } catch (err) {
       next(err)
@@ -37,22 +27,7 @@ export class PlantillaController {
         return res.status(400).json({ error: 'Nombre y datos son requeridos' })
       }
 
-      const plantilla = await prisma.plantillaTierList.create({
-        data: {
-          nombre,
-          datos,
-          usuarioId
-        },
-        include: {
-          usuario: {
-            select: {
-              username: true,
-              nombreDisplay: true,
-              avatarUrl: true
-            }
-          }
-        }
-      })
+      const plantilla = await this.plantillaRepo.crear({ nombre, datos, usuarioId })
 
       res.status(201).json(plantilla)
     } catch (err) {

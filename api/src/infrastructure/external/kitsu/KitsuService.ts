@@ -1,21 +1,22 @@
 import { IAnimeExternalService } from '../../../application/interfaces/IAnimeExternalService'
 import { mapKitsuToAnime } from './KitsuMapper'
 import { Anime } from '../../../domain/entities/Anime'
+import { crearCacheAcotada } from '../../services/boundedCache'
 
 const KITSU_URL = 'https://kitsu.io/api/edge'
 
-// Cache para notas MAL: kitsuId -> { score, timestamp }
-const malScoreCache = new Map<string, { score: number; ts: number }>()
+// Cache para notas MAL: kitsuId -> score
 const MAL_CACHE_TTL_MS = 24 * 60 * 60 * 1000 // 24 horas
+const malScoreCache = crearCacheAcotada<string, { score: number }>(1000, MAL_CACHE_TTL_MS)
 
 // Cache general para respuestas de API (búsquedas y populares)
-const responseCache = new Map<string, { data: any; ts: number }>()
 const RESPONSE_CACHE_TTL = 60 * 60 * 1000 // 1 hora
+const responseCache = crearCacheAcotada<string, any>(500, RESPONSE_CACHE_TTL)
 
 async function getMalScoreForKitsuId(kitsuId: string): Promise<number | null> {
   // Check cache first
   const cached = malScoreCache.get(kitsuId)
-  if (cached && Date.now() - cached.ts < MAL_CACHE_TTL_MS) {
+  if (cached !== undefined) {
     return cached.score
   }
 
@@ -38,7 +39,7 @@ async function getMalScoreForKitsuId(kitsuId: string): Promise<number | null> {
     if (!score) return null
 
     const rounded = parseFloat(score.toFixed(2))
-    malScoreCache.set(kitsuId, { score: rounded, ts: Date.now() })
+    malScoreCache.set(kitsuId, { score: rounded })
     return rounded
   } catch (err) {
     // Si falla, simplemente no actualizamos la nota
@@ -163,8 +164,8 @@ export class KitsuService implements IAnimeExternalService {
     
     const cacheKey = `search_${query}_${pagina}_${perPage}`
     const cached = responseCache.get(cacheKey)
-    if (cached && Date.now() - cached.ts < RESPONSE_CACHE_TTL) {
-      return cached.data
+    if (cached !== undefined) {
+      return cached
     }
     
     const data = await this.fetchKitsuPaginated(`/anime?filter[text]=${query}`, limit, offset)
@@ -194,15 +195,15 @@ export class KitsuService implements IAnimeExternalService {
       animes
     }
 
-    responseCache.set(cacheKey, { data: result, ts: Date.now() })
+    responseCache.set(cacheKey, result)
     return result
   }
 
   async obtenerDetalle(externalId: string) {
     const cacheKey = `detalle_${externalId}`
     const cached = responseCache.get(cacheKey)
-    if (cached && Date.now() - cached.ts < RESPONSE_CACHE_TTL) {
-      return cached.data
+    if (cached !== undefined) {
+      return cached
     }
 
     // Primero obtenemos la data base del anime con géneros
@@ -343,7 +344,7 @@ export class KitsuService implements IAnimeExternalService {
       personajes
     }
     
-    responseCache.set(cacheKey, { data: result, ts: Date.now() })
+    responseCache.set(cacheKey, result)
     return result
   }
 
@@ -353,8 +354,8 @@ export class KitsuService implements IAnimeExternalService {
     
     const cacheKey = `populares_${pagina}_${perPage}_${genre || 'all'}_${seasonYear || 'all'}`
     const cached = responseCache.get(cacheKey)
-    if (cached && Date.now() - cached.ts < RESPONSE_CACHE_TTL) {
-      return cached.data
+    if (cached !== undefined) {
+      return cached
     }
 
     let url = `/anime?sort=-userCount`
@@ -364,7 +365,7 @@ export class KitsuService implements IAnimeExternalService {
     const data = await this.fetchKitsuPaginated(url, limit, offset)
     const animes = (data.data || []).map(mapKitsuToAnime)
 
-    responseCache.set(cacheKey, { data: animes, ts: Date.now() })
+    responseCache.set(cacheKey, animes)
     return animes
   }
 
@@ -372,8 +373,8 @@ export class KitsuService implements IAnimeExternalService {
     try {
       const cacheKey = `personajes_${busqueda}`
       const cached = responseCache.get(cacheKey)
-      if (cached && Date.now() - cached.ts < RESPONSE_CACHE_TTL) {
-        return cached.data
+      if (cached !== undefined) {
+        return cached
       }
 
       // Usamos Kitsu ya que AniList no permite uso comercial.
@@ -435,7 +436,7 @@ export class KitsuService implements IAnimeExternalService {
       }
 
       const result = Array.from(map.values()).slice(0, 40);
-      responseCache.set(cacheKey, { data: result, ts: Date.now() });
+      responseCache.set(cacheKey, result);
       return result;
     } catch (e) {
       console.error('Error fetching characters from Kitsu:', e);

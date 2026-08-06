@@ -1,15 +1,14 @@
 import Parser from 'rss-parser';
 import { prisma } from '../database/prisma/client';
+import { env } from '../../config/env';
 
 const parser = new Parser();
-
-const RAMEN_RSS_URL = 'https://ramenparados.com/feed/';
 
 export class NewsScraperService {
   async fetchAndStoreNews() {
     try {
       console.log('Iniciando recolección de noticias desde RamenParaDos...');
-      const feed = await parser.parseURL(RAMEN_RSS_URL);
+      const feed = await parser.parseURL(env.NEWS_RSS_URL);
       
       let agregadas = 0;
 

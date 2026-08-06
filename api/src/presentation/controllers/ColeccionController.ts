@@ -1,23 +1,21 @@
 import { Request, Response, NextFunction } from 'express'
 import { AuthRequest } from '../../infrastructure/auth/SupabaseAuthMiddleware'
 import { AppError }    from '../middlewares/error.middleware'
-import { PrismaColeccionRepository } from '../../infrastructure/repositories/PrismaColeccionRepository'
-
-const coleccionRepo = new PrismaColeccionRepository()
+import { container } from '../../infrastructure/container'
 
 export class ColeccionController {
   editoriales = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const page  = Number(req.query.page)  || 1
       const limit = Number(req.query.limit) || 20
-      const resultado = await coleccionRepo.findEditoriales(page, limit)
+      const resultado = await container.coleccionRepo.findEditoriales(page, limit)
       res.json(resultado)
     } catch (err) { next(err) }
   }
 
   porUsuario = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const resultado = await coleccionRepo.findByUsuario(req.params.usuarioId)
+      const resultado = await container.coleccionRepo.findByUsuario(req.params.usuarioId)
       res.json(resultado)
     } catch (err) { next(err) }
   }
@@ -25,7 +23,6 @@ export class ColeccionController {
   buscar = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const q = String(req.query.q ?? '').trim()
-      const { container } = require('../../infrastructure/container')
       const colecciones = await container.buscarColecciones.execute(q)
       res.json(colecciones)
     } catch (err) { next(err) }
@@ -33,7 +30,7 @@ export class ColeccionController {
 
   detalle = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const coleccion = await coleccionRepo.findById(req.params.id)
+      const coleccion = await container.coleccionRepo.findById(req.params.id)
       if (!coleccion) throw new AppError('Colección no encontrada', 404)
       res.json(coleccion)
     } catch (err) { next(err) }
@@ -42,7 +39,7 @@ export class ColeccionController {
   crear = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       if (!req.userId) throw new AppError('No autenticado', 401)
-      const resultado = await coleccionRepo.create({
+      const resultado = await container.coleccionRepo.create({
         usuarioId:   req.userId,
         titulo:      req.body.titulo,
         descripcion: req.body.descripcion,
@@ -56,7 +53,7 @@ export class ColeccionController {
   editar = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       if (!req.userId) throw new AppError('No autenticado', 401)
-      const resultado = await coleccionRepo.update(req.params.id, req.body)
+      const resultado = await container.coleccionRepo.update(req.params.id, req.body)
       res.json(resultado)
     } catch (err) { next(err) }
   }
@@ -64,7 +61,7 @@ export class ColeccionController {
   eliminar = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       if (!req.userId) throw new AppError('No autenticado', 401)
-      await coleccionRepo.delete(req.params.id, req.userId)
+      await container.coleccionRepo.delete(req.params.id, req.userId)
       res.status(204).send()
     } catch (err) { next(err) }
   }
@@ -72,7 +69,7 @@ export class ColeccionController {
   agregarAnime = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       if (!req.userId) throw new AppError('No autenticado', 401)
-      await coleccionRepo.agregarAnime(
+      await container.coleccionRepo.agregarAnime(
         req.params.id,
         req.body.animeId,
         req.body.posicion ?? 0,
@@ -85,7 +82,7 @@ export class ColeccionController {
   quitarAnime = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       if (!req.userId) throw new AppError('No autenticado', 401)
-      await coleccionRepo.quitarAnime(req.params.id, req.params.animeId)
+      await container.coleccionRepo.quitarAnime(req.params.id, req.params.animeId)
       res.status(204).send()
     } catch (err) { next(err) }
   }

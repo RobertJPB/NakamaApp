@@ -117,4 +117,157 @@ export class PrismaUsuarioRepository implements IUsuarioRepository {
 
     return { accion: estado === 'pendiente' ? 'pendiente' as const : 'seguido' as const }
   }
+
+  async findByIdRaw(id: string): Promise<any | null> {
+    return prisma.usuario.findUnique({ where: { id } })
+  }
+
+  async findPerfilPorUsername(username: string): Promise<any | null> {
+    return prisma.usuario.findUnique({
+      where: { username },
+      include: {
+        _count: {
+          select: {
+            seguidores: true,
+            siguiendo:  true,
+            lista:      true,
+            resenas:    true,
+          }
+        }
+      }
+    })
+  }
+
+  async obtenerEstadoSeguimiento(seguidorId: string, seguidoId: string): Promise<string | undefined> {
+    const relacion = await prisma.seguidor.findUnique({
+      where: {
+        seguidorId_seguidoId: {
+          seguidorId,
+          seguidoId
+        }
+      }
+    })
+    return relacion?.estado
+  }
+
+  async findSeguidores(id: string): Promise<any[]> {
+    return prisma.seguidor.findMany({
+      where: { seguidoId: id },
+      include: {
+        seguidor: { select: { id: true, username: true, nombreDisplay: true, avatarUrl: true, bio: true } }
+      }
+    });
+  }
+
+  async findSiguiendo(id: string): Promise<any[]> {
+    return prisma.seguidor.findMany({
+      where: { seguidorId: id },
+      include: {
+        seguido: { select: { id: true, username: true, nombreDisplay: true, avatarUrl: true, bio: true } }
+      }
+    });
+  }
+
+  async buscarUsuarios(q: string): Promise<any[]> {
+    return prisma.usuario.findMany({
+      where: {
+        OR: [
+          { username:      { contains: q, mode: 'insensitive' } },
+          { nombreDisplay: { contains: q, mode: 'insensitive' } },
+        ]
+      },
+      take: 5,
+      select: {
+        id:           true,
+        username:     true,
+        nombreDisplay: true,
+        avatarUrl:    true,
+        marcoUrl:     true,
+        _count: { select: { seguidores: true } }
+      },
+      orderBy: { creadoEn: 'desc' }
+    })
+  }
+
+  async findSeguidoIds(seguidorId: string): Promise<string[]> {
+    const siguiendo = await prisma.seguidor.findMany({
+      where: { seguidorId },
+      select: { seguidoId: true }
+    })
+    return siguiendo.map((s: any) => s.seguidoId)
+  }
+
+  async findSugeridos(excludedIds: string[], take: number): Promise<any[]> {
+    return prisma.usuario.findMany({
+      where: { id: { notIn: excludedIds } },
+      take,
+      select: {
+        id: true,
+        username: true,
+        nombreDisplay: true,
+        avatarUrl: true,
+        marcoUrl: true,
+        bio: true,
+      },
+      orderBy: {
+        creadoEn: 'desc'
+      }
+    })
+  }
+
+  async findActividad(usuarioId: string, viewerId: string | undefined, page: number, limit: number): Promise<{ publicaciones: any[]; resenas: any[] }> {
+    const publicaciones = await prisma.publicacion.findMany({
+      where: {
+        OR: [
+          { usuarioId },
+          { reacciones: { some: { usuarioId } } }
+        ]
+      },
+      take: limit,
+      skip: (page - 1) * limit,
+      orderBy: { creadoEn: 'desc' },
+      include: {
+        usuario: { select: { id: true, username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true } },
+        comunidad: { select: { nombre: true, imagenUrl: true } },
+        resena: {
+          include: { anime: { select: { id: true, titulo: true, externalId: true, imagenUrl: true } } }
+        },
+        opciones: {
+          include: { votosUsuarios: true }
+        },
+        reacciones: viewerId ? { where: { usuarioId: viewerId } } : false,
+        comentarios: {
+          include: {
+            usuario: { select: { id: true, username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true } }
+          },
+          orderBy: { creadoEn: 'asc' }
+        }
+      }
+    })
+
+    const resenas = await prisma.resena.findMany({
+      where: {
+        OR: [
+          { usuarioId },
+          { reacciones: { some: { usuarioId } } }
+        ]
+      },
+      take: limit,
+      skip: (page - 1) * limit,
+      orderBy: { creadoEn: 'desc' },
+      include: {
+        usuario: { select: { id: true, username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true } },
+        anime: { select: { titulo: true, externalId: true, imagenUrl: true } },
+        reacciones: viewerId ? { where: { usuarioId: viewerId } } : false,
+        comentarios: {
+          include: {
+            usuario: { select: { id: true, username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true } }
+          },
+          orderBy: { creadoEn: 'asc' }
+        }
+      }
+    })
+
+    return { publicaciones, resenas }
+  }
 }

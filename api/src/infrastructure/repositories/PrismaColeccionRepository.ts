@@ -90,4 +90,24 @@ export class PrismaColeccionRepository implements IColeccionRepository {
       data:  { totalAnimes: { decrement: 1 } },
     })
   }
+
+  async buscar(query: string): Promise<any[]> {
+    if (query.length < 2) return []
+
+    return prisma.coleccion.findMany({
+      where: {
+        esPublica: true,
+        OR: [
+          { titulo: { contains: query, mode: 'insensitive' } },
+          { descripcion: { contains: query, mode: 'insensitive' } }
+        ]
+      },
+      take: 50,
+      include: {
+        usuario: { select: { username: true, nombreDisplay: true, avatarUrl: true } },
+        _count: { select: { animes: true } }
+      },
+      orderBy: { creadoEn: 'desc' }
+    })
+  }
 }

@@ -7,7 +7,6 @@ export class BibliotecaController {
 
   getLista = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { container } = require('../../infrastructure/container')
       const targetUserId = req.params.usuarioId
       const resultado = await container.obtenerListaBiblioteca.execute(targetUserId)
       res.json(resultado)
@@ -16,7 +15,6 @@ export class BibliotecaController {
 
   getColumnas = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { container } = require('../../infrastructure/container')
       const targetUserId = req.params.usuarioId
       const resultado = await container.obtenerColumnasBiblioteca.execute(targetUserId)
       res.json(resultado)
@@ -27,7 +25,6 @@ export class BibliotecaController {
     try {
       if (!req.userId) throw new AppError('No autenticado', 401)
       const { columnaId } = req.params
-      const { container } = require('../../infrastructure/container')
       await container.guardarColumnaBiblioteca.execute(columnaId, req.userId)
 
       res.json({ message: 'Lista guardada correctamente' })
@@ -38,7 +35,6 @@ export class BibliotecaController {
     try {
       if (!req.userId) throw new AppError('No autenticado', 401)
       const { columnaId } = req.params
-      const { container } = require('../../infrastructure/container')
       await container.quitarColumnaGuardada.execute(columnaId, req.userId)
 
       res.json({ message: 'Lista removida de guardados' })
@@ -49,7 +45,6 @@ export class BibliotecaController {
     try {
       if (!req.userId) throw new AppError('No autenticado', 401)
       const { columnaId } = req.params
-      const { container } = require('../../infrastructure/container')
       const inviteUrl = await container.generarInviteColumna.execute(columnaId, req.userId)
       
       res.json({ url: inviteUrl })
@@ -60,7 +55,6 @@ export class BibliotecaController {
     try {
       if (!req.userId) throw new AppError('No autenticado', 401)
       const { columnaId } = req.body
-      const { container } = require('../../infrastructure/container')
       await container.aceptarInviteColumna.execute(columnaId, req.userId)
       res.json({ mensaje: 'Invitación aceptada correctamente' })
     } catch (err) { next(err) }
@@ -69,7 +63,6 @@ export class BibliotecaController {
   crearColumna = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       if (!req.userId) throw new AppError('No autenticado', 401)
-      const { container } = require('../../infrastructure/container')
       const nueva = await container.crearColumnaBiblioteca.execute(req.userId, req.body)
       res.status(201).json(nueva)
     } catch (err) { next(err) }
@@ -78,7 +71,6 @@ export class BibliotecaController {
   actualizarColumna = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       if (!req.userId) throw new AppError('No autenticado', 401)
-      const { container } = require('../../infrastructure/container')
       const actualizada = await container.actualizarColumnaBiblioteca.execute(req.params.columnaId, req.userId, req.body)
       res.json(actualizada)
     } catch (err) { next(err) }
@@ -86,13 +78,31 @@ export class BibliotecaController {
 
   getStats = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      res.json({ usuarioId: req.params.usuarioId, stats: {} })
-    } catch (err) { next(err) }
-  }
+      const targetUserId = req.params.usuarioId
+      const resultado = await container.obtenerListaBiblioteca.execute(targetUserId)
+      const entradas = resultado.lista || []
 
-  getRuleta = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      res.json({ usuarioId: req.params.usuarioId, animes: [] })
+      const conteoPorEstado: Record<string, number> = {}
+      let totalEpisodiosVistos = 0
+      let favoritos = 0
+
+      for (const entrada of entradas) {
+        for (const estado of entrada.estados ?? []) {
+          conteoPorEstado[estado] = (conteoPorEstado[estado] ?? 0) + 1
+        }
+        totalEpisodiosVistos += entrada.episodiosVistos ?? 0
+        if (entrada.esFavorito) favoritos++
+      }
+
+      res.json({
+        usuarioId: targetUserId,
+        stats: {
+          totalAnimes: entradas.length,
+          totalEpisodiosVistos,
+          favoritos,
+          conteoPorEstado,
+        },
+      })
     } catch (err) { next(err) }
   }
 
@@ -103,7 +113,6 @@ export class BibliotecaController {
       let targetUserId = req.userId
       
       if (propietarioId && propietarioId !== req.userId) {
-        const { container } = require('../../infrastructure/container')
         await container.verificarColaborador.execute(req.userId, propietarioId, estado)
         targetUserId = propietarioId
       }
@@ -148,7 +157,6 @@ export class BibliotecaController {
       // Since a collaborated list is just an 'estado' in the owner's record, removing it entirely
       // might affect other lists of the owner. But wait, `eliminar` is called when they click the trash icon.
       if (propietarioId && propietarioId !== req.userId) {
-        const { container } = require('../../infrastructure/container')
         await container.verificarColaborador.execute(req.userId, propietarioId)
         targetUserId = propietarioId
       }
@@ -165,7 +173,6 @@ export class BibliotecaController {
     try {
       if (!req.userId) throw new AppError('No autenticado', 401)
       const { animeId } = req.params
-      const { container } = require('../../infrastructure/container')
       const resultado = await container.toggleFavoritoBiblioteca.execute(animeId, req.userId)
       res.json(resultado)
     } catch (err) { next(err) }

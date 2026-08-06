@@ -158,4 +158,16 @@ export class PrismaAnimeRepository implements IAnimeRepository {
       .map((r: ListaGroupRow) => ({ anime: this.mapear(animeMap.get(r.animeId)!), count: r._count.animeId }))
       .filter((r: any) => r.anime)
   }
+
+  async enriquecerConCalificaciones(items: Array<{ externalId: string }>): Promise<void> {
+    if (!items || items.length === 0) return
+    const ids = items.map(a => a.externalId)
+    const dbAnimes = await prisma.anime.findMany({ where: { externalId: { in: ids as string[] } } })
+    const dbMap = new Map(dbAnimes.map((a: any) => [a.externalId, a.calificacionPromedio]))
+    items.forEach(a => {
+      if (dbMap.has(a.externalId)) {
+        (a as any).calificacionPromedio = Number(dbMap.get(a.externalId))
+      }
+    })
+  }
 }

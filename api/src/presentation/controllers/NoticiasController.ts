@@ -1,16 +1,16 @@
-import { Request, Response } from 'express';
-import { prisma } from '../../infrastructure/database/prisma/client';
+import { Request, Response, NextFunction } from 'express';
+import { INoticiaRepository } from '../../domain/repositories/INoticiaRepository';
+import { obtenerImagenProtegida } from '../../infrastructure/services/imageProxy';
 
 export class NoticiasController {
+  constructor(private readonly noticiaRepo: INoticiaRepository) {}
+
   async getNoticias(req: Request, res: Response) {
     try {
       const { limit = 6 } = req.query;
-      
-      const noticias = await prisma.noticia.findMany({
-        take: Number(limit),
-        orderBy: { fechaPublicacion: 'desc' },
-      });
-      
+
+      const noticias = await this.noticiaRepo.getRecientes(Number(limit));
+
       res.json(noticias);
     } catch (error) {
       console.error(error);
@@ -20,6 +20,13 @@ export class NoticiasController {
 
   async getPopular(req: Request, res: Response) {
     try {
+      const noticias = await this.noticiaRepo.getPopulares()
+
+      if (noticias.length > 0) {
+        return res.json(noticias);
+      }
+
+      // Fallback editorial mientras no haya noticias recolectadas en la BD
       const popularNews = [
         {
           id: 'pop-1',
@@ -56,31 +63,20 @@ export class NoticiasController {
     }
   }
 
-  async proxyImage(req: Request, res: Response) {
+  async proxyImage(req: Request, res: Response, next: NextFunction) {
     try {
       const { url } = req.query;
       if (!url || typeof url !== 'string') {
         return res.status(400).json({ error: 'Falta la URL de la imagen' });
       }
 
-      const response = await fetch(url, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8'
-        }
-      });
+      const { buffer, contentType } = await obtenerImagenProtegida(url);
 
-      if (!response.ok) {
-        throw new Error(`Error fetching image: ${response.status}`);
-      }
-
-      const contentType = response.headers.get('content-type');
       if (contentType) {
         res.setHeader('Content-Type', contentType);
       }
-      
-      const arrayBuffer = await response.arrayBuffer();
-      res.send(Buffer.from(arrayBuffer));
+      res.setHeader('Cache-Control', 'public, max-age=31536000');
+      res.send(buffer);
     } catch (error) {
       console.error('Proxy Image Error:', error);
       res.status(500).json({ error: 'Error al cargar imagen' });

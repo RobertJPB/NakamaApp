@@ -2,16 +2,13 @@ import { Request, Response, NextFunction } from 'express'
 import { AuthRequest }   from '../../infrastructure/auth/SupabaseAuthMiddleware'
 import { container }     from '../../infrastructure/container'
 import { AppError }      from '../middlewares/error.middleware'
-import { prisma }        from '../../infrastructure/database/prisma/client'
 
 export class UsuarioController {
 
   me = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       if (!req.userId) throw new AppError('No autenticado', 401)
-      const usuario = await prisma.usuario.findUnique({
-        where: { id: req.userId }
-      })
+      const usuario = await container.usuarioRepo.findByIdRaw(req.userId)
       if (!usuario) throw new AppError('Usuario no encontrado', 404)
       res.json(usuario)
     } catch (err) { next(err) }
@@ -31,32 +28,13 @@ export class UsuarioController {
 
   perfil = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const usuario = await prisma.usuario.findUnique({
-        where: { username: req.params.username },
-        include: {
-          _count: {
-            select: {
-              seguidores: true,
-              siguiendo:  true,
-              lista:      true,
-              resenas:    true,
-            }
-          }
-        }
-      })
+      const usuario = await container.usuarioRepo.findPerfilPorUsername(req.params.username)
       if (!usuario) throw new AppError('Usuario no encontrado', 404)
 
       let esSeguido = false
       if (req.userId) {
-        const relacion = await prisma.seguidor.findUnique({
-          where: {
-            seguidorId_seguidoId: {
-              seguidorId: req.userId,
-              seguidoId:  usuario.id
-            }
-          }
-        })
-        esSeguido = relacion?.estado === 'aceptado'
+        const estado = await container.usuarioRepo.obtenerEstadoSeguimiento(req.userId, usuario.id)
+        esSeguido = estado === 'aceptado'
       }
 
       res.json({
@@ -95,12 +73,7 @@ export class UsuarioController {
   seguidores = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
-      const seguidores = await prisma.seguidor.findMany({
-        where: { seguidoId: id },
-        include: {
-          seguidor: { select: { id: true, username: true, nombreDisplay: true, avatarUrl: true, bio: true } }
-        }
-      });
+      const seguidores = await container.usuarioRepo.findSeguidores(id);
       res.json({ usuarioId: id, usuarios: seguidores.map((s: any) => s.seguidor) });
     } catch (err) { next(err) }
   }
@@ -108,12 +81,7 @@ export class UsuarioController {
   siguiendo = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
-      const siguiendo = await prisma.seguidor.findMany({
-        where: { seguidorId: id },
-        include: {
-          seguido: { select: { id: true, username: true, nombreDisplay: true, avatarUrl: true, bio: true } }
-        }
-      });
+      const siguiendo = await container.usuarioRepo.findSiguiendo(id);
       res.json({ usuarioId: id, usuarios: siguiendo.map((s: any) => s.seguido) });
     } catch (err) { next(err) }
   }
@@ -122,24 +90,7 @@ export class UsuarioController {
       const q = String(req.query.q ?? '').trim()
       if (q.length < 2) return res.json([])
 
-      const usuarios = await prisma.usuario.findMany({
-        where: {
-          OR: [
-            { username:     { contains: q, mode: 'insensitive' } },
-            { nombreDisplay: { contains: q, mode: 'insensitive' } },
-          ]
-        },
-        take: 5,
-        select: {
-          id:           true,
-          username:     true,
-          nombreDisplay: true,
-          avatarUrl:    true,
-          marcoUrl:     true,
-          _count: { select: { seguidores: true } }
-        },
-        orderBy: { creadoEn: 'desc' }
-      })
+      const usuarios = await container.usuarioRepo.buscarUsuarios(q)
 
       res.json(usuarios)
     } catch (err) { next(err) }
@@ -154,29 +105,11 @@ export class UsuarioController {
       
       if (req.userId) {
         excludedIds.push(req.userId)
-        const siguiendo = await prisma.seguidor.findMany({
-          where: { seguidorId: req.userId },
-          select: { seguidoId: true }
-        })
-        excludedIds.push(...siguiendo.map((s: any) => s.seguidoId))
+        excludedIds.push(...(await container.usuarioRepo.findSeguidoIds(req.userId)))
       }
       
       const all = req.query.all === 'true'
-      const sugeridos = await prisma.usuario.findMany({
-        where: { id: { notIn: excludedIds } },
-        take: all ? 50 : 4,
-        select: {
-          id: true,
-          username: true,
-          nombreDisplay: true,
-          avatarUrl: true,
-          marcoUrl: true,
-          bio: true,
-        },
-        orderBy: {
-          creadoEn: 'desc'
-        }
-      })
+      const sugeridos = await container.usuarioRepo.findSugeridos(excludedIds, all ? 50 : 4)
       
       res.json(all ? { usuarios: sugeridos } : sugeridos)
     } catch (err) { next(err) }
@@ -185,65 +118,13 @@ export class UsuarioController {
   actividad = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const username = req.params.username
-      const usuario = await prisma.usuario.findUnique({ where: { username } })
+      const usuario = await container.usuarioRepo.findByUsername(username)
       if (!usuario) throw new AppError('Usuario no encontrado', 404)
       
       const page = Number(req.query.page) || 1
       const limit = Number(req.query.limit) || 20
 
-      // Fetch Publicaciones (propias y likes)
-      const publicaciones = await prisma.publicacion.findMany({
-        where: {
-          OR: [
-            { usuarioId: usuario.id },
-            { reacciones: { some: { usuarioId: usuario.id } } }
-          ]
-        },
-        take: limit,
-        skip: (page - 1) * limit,
-        orderBy: { creadoEn: 'desc' },
-        include: {
-          usuario: { select: { id: true, username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true } },
-          comunidad: { select: { nombre: true, imagenUrl: true } },
-          resena: {
-            include: { anime: { select: { id: true, titulo: true, externalId: true, imagenUrl: true } } }
-          },
-          opciones: {
-            include: { votosUsuarios: true }
-          },
-          reacciones: req.userId ? { where: { usuarioId: req.userId } } : false,
-          comentarios: {
-            include: {
-              usuario: { select: { id: true, username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true } }
-            },
-            orderBy: { creadoEn: 'asc' }
-          }
-        }
-      })
-
-      // Fetch Reseñas (propias y likes)
-      const resenas = await prisma.resena.findMany({
-        where: {
-          OR: [
-            { usuarioId: usuario.id },
-            { reacciones: { some: { usuarioId: usuario.id } } }
-          ]
-        },
-        take: limit,
-        skip: (page - 1) * limit,
-        orderBy: { creadoEn: 'desc' },
-        include: {
-          usuario: { select: { id: true, username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true } },
-          anime: { select: { titulo: true, externalId: true, imagenUrl: true } },
-          reacciones: req.userId ? { where: { usuarioId: req.userId } } : false,
-          comentarios: {
-            include: {
-              usuario: { select: { id: true, username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true } }
-            },
-            orderBy: { creadoEn: 'asc' }
-          }
-        }
-      })
+      const { publicaciones, resenas } = await container.usuarioRepo.findActividad(usuario.id, req.userId, page, limit)
 
       const mappedResenas = resenas.map((r: any) => ({
         id: r.id,

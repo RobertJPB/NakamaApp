@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client'
+import { env } from '../../../config/env'
 
 // Singleton para evitar múltiples conexiones en desarrollo (hot reload)
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient }
@@ -6,11 +7,11 @@ const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient }
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
-    log: process.env.NODE_ENV === 'development'
+    log: env.NODE_ENV === 'development'
       ? ['query', 'warn', 'error']
       : ['error'],
   })
 
-if (process.env.NODE_ENV !== 'production') {
+if (env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = prisma
 }

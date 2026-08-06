@@ -1,9 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { container } from '../../infrastructure/container'
-import { KitsuService } from '../../infrastructure/external/kitsu/KitsuService'
-import { prisma } from '../../infrastructure/database/prisma/client'
-
-const kitsuService = new KitsuService()
+import { obtenerImagenProtegida } from '../../infrastructure/services/imageProxy'
 
 export class AnimeController {
   buscar = async (req: Request, res: Response, next: NextFunction) => {
@@ -27,14 +24,7 @@ export class AnimeController {
       }
 
       if (animesList && animesList.length > 0) {
-        const ids = animesList.map(a => a.externalId)
-        const dbAnimes = await prisma.anime.findMany({ where: { externalId: { in: ids as string[] } } })
-        const dbMap = new Map(dbAnimes.map((a: any) => [a.externalId, a.calificacionPromedio]))
-        animesList.forEach(a => {
-          if (dbMap.has(a.externalId)) {
-            a.calificacionPromedio = Number(dbMap.get(a.externalId))
-          }
-        })
+        await container.animeRepo.enriquecerConCalificaciones(animesList)
       }
 
       res.json(resultado)
@@ -52,7 +42,7 @@ export class AnimeController {
   populares = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { page = 1, perPage = 22, genero, anio } = req.query
-      const resultado = await kitsuService.obtenerPopulares(
+      const resultado = await container.animeService.obtenerPopulares(
         Number(page), 
         Number(perPage),
         genero ? String(genero) : undefined,
@@ -61,14 +51,7 @@ export class AnimeController {
       
       // Enriquecer con notas MAL de la base de datos local
       if (resultado && resultado.length > 0) {
-        const ids = resultado.map((a: any) => a.externalId)
-        const dbAnimes = await prisma.anime.findMany({ where: { externalId: { in: ids as string[] } } })
-        const dbMap = new Map(dbAnimes.map((a: any) => [a.externalId, a.calificacionPromedio]))
-        resultado.forEach((a: any) => {
-          if (dbMap.has(a.externalId)) {
-            a.calificacionPromedio = Number(dbMap.get(a.externalId))
-          }
-        })
+        await container.animeRepo.enriquecerConCalificaciones(resultado)
       }
 
       res.json(resultado)
@@ -78,38 +61,24 @@ export class AnimeController {
   proxyImage = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const url = req.query.url as string;
-      if (!url) return res.status(400).json({ error: 'URL is required' });
-      const response = await fetch(url, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-          'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8'
-        }
-      });
-      if (!response.ok) return res.status(response.status).json({ error: 'Failed to fetch image' });
-      
-      const contentType = response.headers.get('content-type');
+      if (!url) return res.status(400).json({ error: 'URL es requerida' });
+
+      const { buffer, contentType } = await obtenerImagenProtegida(url);
+
       res.setHeader('Content-Type', contentType || 'image/jpeg');
       res.setHeader('Access-Control-Allow-Origin', '*');
       res.setHeader('Cache-Control', 'public, max-age=31536000');
-      
-      const arrayBuffer = await response.arrayBuffer();
-      res.send(Buffer.from(arrayBuffer));
+      res.send(buffer);
     } catch (err) {
       next(err);
     }
-  }
-
-  ranking = async (_req: Request, res: Response, next: NextFunction) => {
-    try {
-      res.json({ mensaje: 'Ranking desde base de datos local' })
-    } catch (err) { next(err) }
   }
 
   personajes = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { busqueda } = req.query
       if (!busqueda) return res.json([])
-      const resultado = await kitsuService.buscarPersonajes(String(busqueda))
+      const resultado = await container.animeService.buscarPersonajes(String(busqueda))
       res.json(resultado)
     } catch (err) { next(err) }
   }

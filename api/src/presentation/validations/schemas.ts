@@ -13,7 +13,12 @@ export const actualizarPerfilSchema = z.object({
   nombreDisplay: z.string().min(1).max(50).optional(),
   avatarUrl: z.string().url().optional().or(z.literal('')),
   bannerUrl: z.string().url().optional().or(z.literal('')),
-  biografia: z.string().max(160).optional(),
+  marcoUrl: z.string().url().optional().or(z.literal('')),
+  bio: z.string().max(500).optional(),
+  sitioWeb: z.string().url().optional().or(z.literal('')).or(z.string().max(255)),
+  perfilPrivado: z.boolean().optional(),
+  resenasPublicas: z.boolean().optional(),
+  listasPublicas: z.boolean().optional(),
 })
 
 export const crearResenaSchema = z.object({

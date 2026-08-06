@@ -242,5 +242,62 @@ export class PrismaResenaRepository implements IResenaRepository {
 
     return feed;
   }
+
+  async findRecientes(limit: number): Promise<any[]> {
+    return prisma.resena.findMany({
+      where: { esPublica: true },
+      orderBy: { creadoEn: 'desc' },
+      take: limit,
+      include: {
+        anime: { select: { titulo: true, externalId: true, imagenUrl: true } },
+        usuario: { select: { username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true } }
+      }
+    })
+  }
+
+  async buscar(q: string): Promise<any[]> {
+    if (q.length < 2) return []
+    return prisma.resena.findMany({
+      where: {
+        esPublica: true,
+        OR: [
+          { contenido: { contains: q, mode: 'insensitive' } },
+          { anime: { titulo: { contains: q, mode: 'insensitive' } } }
+        ]
+      },
+      orderBy: { creadoEn: 'desc' },
+      take: 50,
+      include: {
+        anime: { select: { titulo: true, externalId: true, imagenUrl: true } },
+        usuario: { select: { username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true } }
+      }
+    })
+  }
+
+  async findByAnimePaginado(animeId: string, page: number, limit: number): Promise<{ animeId: string; page: number; limit: number; resenas: any[] }> {
+    const resenas = await prisma.resena.findMany({
+      where: { animeId, esPublica: true },
+      orderBy: { creadoEn: 'desc' },
+      skip: (page - 1) * limit,
+      take: limit,
+      include: {
+        anime: { select: { titulo: true, externalId: true, imagenUrl: true } },
+        usuario: { select: { username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true } }
+      }
+    })
+    return { animeId, page, limit, resenas }
+  }
+
+  async findByUsuarioPublicas(usuarioId: string): Promise<{ usuarioId: string; resenas: any[] }> {
+    const resenas = await prisma.resena.findMany({
+      where: { usuarioId, esPublica: true },
+      orderBy: { creadoEn: 'desc' },
+      include: {
+        anime: { select: { titulo: true, externalId: true, imagenUrl: true } },
+        usuario: { select: { username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true } }
+      }
+    })
+    return { usuarioId, resenas }
+  }
 }
 

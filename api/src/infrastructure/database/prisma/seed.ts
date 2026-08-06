@@ -40,11 +40,12 @@ async function main() {
   ]
 
   for (const col of colecciones) {
-    await prisma.coleccion.upsert({
-      where:  { id: col.titulo }, // simplificado para seed
-      create: { ...col, esEditorial: true, esPublica: true },
-      update: {},
-    }).catch(() => prisma.coleccion.create({ data: { ...col, esEditorial: true, esPublica: true } }))
+    const existe = await prisma.coleccion.findFirst({
+      where: { titulo: col.titulo, esEditorial: true },
+    })
+    if (!existe) {
+      await prisma.coleccion.create({ data: { ...col, esEditorial: true, esPublica: true } })
+    }
   }
 
   console.log('✅ Seed completado')

@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from 'express'
 import { createClient } from '@supabase/supabase-js'
 import { prisma } from '../database/prisma/client'
+import { env } from '../../config/env'
 
 const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_ANON_KEY!
+  env.SUPABASE_URL,
+  env.SUPABASE_ANON_KEY
 )
 
 export interface AuthRequest extends Request {

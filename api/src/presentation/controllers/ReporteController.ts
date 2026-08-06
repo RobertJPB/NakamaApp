@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from 'express'
-import { prisma } from '../../infrastructure/database/prisma/client'
 import { AuthRequest } from '../../infrastructure/auth/SupabaseAuthMiddleware'
 import { AppError } from '../middlewares/error.middleware'
 

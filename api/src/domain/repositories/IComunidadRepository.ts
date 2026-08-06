@@ -9,4 +9,15 @@ export interface IComunidadRepository {
   unirse(usuarioId: string, comunidadId: string): Promise<void>
   salir(usuarioId: string, comunidadId: string): Promise<void>
   esMiembro(usuarioId: string, comunidadId: string): Promise<boolean>
+
+  buscar(q: string): Promise<any[]>
+  listarPublicaciones(comunidadId: string, seccion?: string, page?: number, limit?: number): Promise<any[]>
+  crearPublicacion(dto: any): Promise<any>
+  eliminarPublicacion(pubId: string, usuarioId: string): Promise<void>
+  editarPublicacion(pubId: string, usuarioId: string, contenido: string): Promise<any>
+  votarEncuesta(opcionId: string, usuarioId: string): Promise<{ accion: string }>
+  listarMiembros(comunidadId: string): Promise<any[]>
+  expulsarMiembro(comunidadId: string, objetivoId: string, adminId: string): Promise<void>
+  cambiarRol(comunidadId: string, objetivoId: string, adminId: string, rol: string): Promise<void>
+  comentarPublicacion(pubId: string, usuarioId: string, contenido: string): Promise<any>
 }

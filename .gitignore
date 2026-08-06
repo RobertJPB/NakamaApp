@@ -49,7 +49,3 @@ Thumbs.db
 
 # Markdown
 *.md
-
-# pnpm
-pnpm-workspace.yaml
-.npmrc

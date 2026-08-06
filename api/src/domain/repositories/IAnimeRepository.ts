@@ -23,4 +23,5 @@ export interface IAnimeRepository {
   getRankingTemporada(): Promise<Anime[]>
   getRankingMasVistos(limit: number): Promise<RankingItem[]>
   getRankingMasGustados(limit: number): Promise<RankingItem[]>
+  enriquecerConCalificaciones(items: Array<{ externalId: string }>): Promise<void>
 }

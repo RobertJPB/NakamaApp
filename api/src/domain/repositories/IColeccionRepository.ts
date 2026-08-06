@@ -9,4 +9,5 @@ export interface IColeccionRepository {
   delete(id: string, usuarioId: string): Promise<void>
   agregarAnime(coleccionId: string, animeId: string, posicion: number, nota?: string): Promise<void>
   quitarAnime(coleccionId: string, animeId: string): Promise<void>
+  buscar(query: string): Promise<any[]>
 }

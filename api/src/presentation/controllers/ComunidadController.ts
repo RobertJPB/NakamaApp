@@ -1,9 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { AuthRequest } from '../../infrastructure/auth/SupabaseAuthMiddleware'
 import { AppError }    from '../middlewares/error.middleware'
-import { PrismaComunidadRepository } from '../../infrastructure/repositories/PrismaComunidadRepository'
-
-const comunidadRepo = new PrismaComunidadRepository()
+import { container } from '../../infrastructure/container'
 
 export class ComunidadController {
   listar = async (req: Request, res: Response, next: NextFunction) => {
@@ -11,7 +9,7 @@ export class ComunidadController {
       const tipo  = req.query.tipo as string | undefined
       const page  = Number(req.query.page)  || 1
       const limit = Number(req.query.limit) || 20
-      const resultado = await comunidadRepo.findMany(tipo, page, limit)
+      const resultado = await container.comunidadRepo.findMany(tipo, page, limit)
       res.json(resultado)
     } catch (err) { next(err) }
   }
@@ -20,7 +18,6 @@ export class ComunidadController {
     try {
       const q = String(req.query.q ?? '').trim()
       if (q.length < 2) return res.json([])
-      const { container } = require('../../infrastructure/container')
       const comunidades = await container.buscarComunidades.execute(q)
       res.json(comunidades)
     } catch (err) { next(err) }
@@ -28,7 +25,7 @@ export class ComunidadController {
 
   detalle = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const comunidad = await comunidadRepo.findById(req.params.id)
+      const comunidad = await container.comunidadRepo.findById(req.params.id)
       if (!comunidad) throw new AppError('Comunidad no encontrada', 404)
       res.json(comunidad)
     } catch (err) { next(err) }
@@ -40,7 +37,6 @@ export class ComunidadController {
       const limit = Number(req.query.limit) || 20
       const skip = (page - 1) * limit
       const seccion = req.query.seccion as string | undefined
-      const { container } = require('../../infrastructure/container')
       const posts = await container.listarPublicacionesComunidadDirecto.execute(req.params.id, seccion, page, limit)
       res.json({ comunidadId: req.params.id, publicaciones: posts })
     } catch (err) { next(err) }
@@ -49,7 +45,7 @@ export class ComunidadController {
   crear = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       if (!req.userId) throw new AppError('No autenticado', 401)
-      const resultado = await comunidadRepo.create({
+      const resultado = await container.comunidadRepo.create({
         nombre:      req.body.nombre,
         descripcion: req.body.descripcion,
         imagenUrl:   req.body.imagenUrl,
@@ -64,7 +60,7 @@ export class ComunidadController {
   editar = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       if (!req.userId) throw new AppError('No autenticado', 401)
-      const comunidad = await comunidadRepo.findById(req.params.id)
+      const comunidad = await container.comunidadRepo.findById(req.params.id)
       if (!comunidad) throw new AppError('Comunidad no encontrada', 404)
       
       // Solo el creador puede editar (por simplicidad, o verificar rol 'admin' en la tabla Miembro)
@@ -72,7 +68,7 @@ export class ComunidadController {
         throw new AppError('No tienes permisos para editar esta comunidad', 403)
       }
 
-      const resultado = await comunidadRepo.update(req.params.id, {
+      const resultado = await container.comunidadRepo.update(req.params.id, {
         nombre:      req.body.nombre,
         descripcion: req.body.descripcion,
         imagenUrl:   req.body.imagenUrl,
@@ -86,7 +82,7 @@ export class ComunidadController {
   eliminar = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       if (!req.userId) throw new AppError('No autenticado', 401)
-      const comunidad = await comunidadRepo.findById(req.params.id)
+      const comunidad = await container.comunidadRepo.findById(req.params.id)
       if (!comunidad) throw new AppError('Comunidad no encontrada', 404)
       
       // Solo el creador puede eliminar
@@ -94,7 +90,7 @@ export class ComunidadController {
         throw new AppError('No tienes permisos para eliminar esta comunidad', 403)
       }
 
-      await comunidadRepo.delete(req.params.id)
+      await container.comunidadRepo.delete(req.params.id)
       res.json({ mensaje: 'Comunidad eliminada con éxito' })
     } catch (err) { next(err) }
   }
@@ -102,7 +98,7 @@ export class ComunidadController {
   unirse = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       if (!req.userId) throw new AppError('No autenticado', 401)
-      await comunidadRepo.unirse(req.userId, req.params.id)
+      await container.comunidadRepo.unirse(req.userId, req.params.id)
       res.json({ mensaje: 'Te uniste a la comunidad' })
     } catch (err) { next(err) }
   }
@@ -110,7 +106,7 @@ export class ComunidadController {
   salir = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       if (!req.userId) throw new AppError('No autenticado', 401)
-      await comunidadRepo.salir(req.userId, req.params.id)
+      await container.comunidadRepo.salir(req.userId, req.params.id)
       res.json({ mensaje: 'Saliste de la comunidad' })
     } catch (err) { next(err) }
   }
@@ -118,7 +114,6 @@ export class ComunidadController {
   publicar = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       if (!req.userId) throw new AppError('No autenticado', 401)
-      const { container } = require('../../infrastructure/container')
       const { tipo, titulo, contenido, imagenUrl, opciones, resenaId, seccion } = req.body
 
       const nuevaPub = await container.crearPublicacionComunidad.execute({
@@ -133,7 +128,6 @@ export class ComunidadController {
   eliminarPublicacion = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       if (!req.userId) throw new AppError('No autenticado', 401)
-      const { container } = require('../../infrastructure/container')
       await container.eliminarPublicacionComunidad.execute(req.params.pubId, req.userId)
       res.json({ mensaje: 'Publicación eliminada correctamente' })
     } catch (err) { next(err) }
@@ -142,7 +136,6 @@ export class ComunidadController {
   editarPublicacion = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       if (!req.userId) throw new AppError('No autenticado', 401)
-      const { container } = require('../../infrastructure/container')
       const { contenido } = req.body
       const actualizada = await container.editarPublicacionComunidad.execute(req.params.pubId, req.userId, contenido)
       res.json(actualizada)
@@ -152,7 +145,6 @@ export class ComunidadController {
   votarEncuesta = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       if (!req.userId) throw new AppError('No autenticado', 401)
-      const { container } = require('../../infrastructure/container')
       const opcionId = req.body.opcionId
       const resultado = await container.votarEncuestaComunidad.execute(opcionId, req.userId)
       res.json(resultado)
@@ -160,7 +152,6 @@ export class ComunidadController {
   }
   listarMiembros = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { container } = require('../../infrastructure/container')
       const miembros = await container.listarMiembrosComunidad.execute(req.params.id)
       res.json(miembros)
     } catch (err) { next(err) }
@@ -169,7 +160,6 @@ export class ComunidadController {
   expulsarMiembro = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       if (!req.userId) throw new AppError('No autenticado', 401)
-      const { container } = require('../../infrastructure/container')
       const { id: comunidadId, usuarioId: objetivoId } = req.params
       await container.expulsarMiembro.execute(comunidadId, objetivoId, req.userId)
       
@@ -180,7 +170,6 @@ export class ComunidadController {
   cambiarRol = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       if (!req.userId) throw new AppError('No autenticado', 401)
-      const { container } = require('../../infrastructure/container')
       const { id: comunidadId, usuarioId: objetivoId } = req.params
       const { rol } = req.body
       await container.cambiarRolMiembro.execute(comunidadId, objetivoId, req.userId, rol)
@@ -191,7 +180,6 @@ export class ComunidadController {
   comentar = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       if (!req.userId) throw new AppError('No autenticado', 401)
-      const { container } = require('../../infrastructure/container')
       const { pubId } = req.params
       const { contenido } = req.body
       const comentario = await container.comentarPublicacionComunidad.execute(pubId, req.userId, contenido)
