@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Layout }          from '../../../components/shared/Layout'
+import { useNavigate }     from 'react-router-dom'
 import { useBiblioteca }   from '../../../hooks/useBiblioteca'
 import { useAuthStore }    from '../../../store/authStore'
 import { api }             from '../../../lib/axios'
@@ -23,6 +24,7 @@ const getIconForList = (nombre: string) => {
 }
 
 export const BibliotecaPage: React.FC = () => {
+  const navigate = useNavigate()
   const usuario = useAuthStore(s => s.usuario)
   const { lista, columnas, cargando, eliminar, crearLista, editarLista, agregar } = useBiblioteca(usuario?.id ?? null)
   
@@ -388,7 +390,7 @@ export const BibliotecaPage: React.FC = () => {
                       imagenUrl={entrada.anime?.imagenUrl}
                       estado={""}
                       calificacion={entrada.calificacion}
-                      onClick={() => window.location.href = `/anime/${entrada.anime?.externalId}`}
+                      onClick={() => entrada.anime?.externalId && navigate(`/anime/${entrada.anime.externalId}`, { state: { initialAnime: entrada.anime } })}
                     />
                   </div>
                   

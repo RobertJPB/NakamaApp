@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { Layout } from '../../../components/shared/Layout'
 import { api }    from '../../../lib/axios'
 import { useAuth } from '../../../hooks/useAuth'
@@ -326,7 +326,7 @@ export const ConfiguracionPage: React.FC = () => {
             {exito  && <p className={styles.exitoMsg}>Perfil actualizado correctamente</p>}
 
             <div className={styles.actions}>
-              <a href="/" className={styles.btnCancel}>Cancelar</a>
+              <Link to="/" className={styles.btnCancel}>Cancelar</Link>
               <button type="submit" className={styles.btnSave} disabled={guardando}>
                 {guardando ? 'Guardando...' : 'Guardar cambios'}
               </button>

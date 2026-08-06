@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Layout }   from '../../../components/shared/Layout'
+import { Link }     from 'react-router-dom'
 import { api, getCached } from '../../../lib/axios'
 import { useAuthStore } from '../../../store/authStore'
 import { ComposerTrigger } from '../components/ComposerTrigger'
@@ -236,19 +237,19 @@ export const FeedPage: React.FC = () => {
                     </div>
                     <div className={styles.entradaContenido}>
                       <p className={styles.entradaTexto}>
-                        <a href={`/perfil/${entrada.actorUsername}`} className={styles.entradaUsuario}>
+                        <Link to={`/perfil/${entrada.actorUsername}`} className={styles.entradaUsuario}>
                           @{entrada.actorUsername}
-                        </a>
+                        </Link>
                         {' '}<span className={styles.entradaAccion}>
                           {tipo.emoji} {tipo.texto}
                           {entrada.comunidadNombre && entrada.comunidadId ? (
-                            <>{' '}<a href={`/comunidades/${entrada.comunidadId}`} className={styles.entradaAnime} onClick={e => e.stopPropagation()}>{entrada.comunidadNombre}</a></>
+                            <>{' '}<Link to={`/comunidades/${entrada.comunidadId}`} className={styles.entradaAnime} onClick={e => e.stopPropagation()}>{entrada.comunidadNombre}</Link></>
                           ) : ''}
                         </span>{' '}
                         {entrada.animeTitulo && (
-                          <a href={`/anime/${entrada.externalId}`} className={styles.entradaAnime}>
+                          <Link to={`/anime/${entrada.externalId}`} className={styles.entradaAnime}>
                             {entrada.animeTitulo}
-                          </a>
+                          </Link>
                         )}
                       </p>
 
@@ -370,9 +371,9 @@ export const FeedPage: React.FC = () => {
                     {(entrada.animeImagen || (entrada.tipo === 'resena' && entrada.calificacion)) && (
                       <div className={styles.entradaMedia}>
                         {entrada.animeImagen && (
-                          <a href={`/anime/${entrada.externalId}`} className={styles.entradaThumb}>
+                          <Link to={`/anime/${entrada.externalId}`} className={styles.entradaThumb}>
                             <img src={entrada.animeImagen} alt={entrada.animeTitulo} />
-                          </a>
+                          </Link>
                         )}
                         {entrada.tipo === 'resena' && entrada.calificacion && (
                           <div className={styles.entradaRatingBox}>

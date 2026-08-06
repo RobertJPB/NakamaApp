@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Layout }    from '../../../components/shared/Layout'
+import { useNavigate } from 'react-router-dom'
 import { api, getCached } from '../../../lib/axios'
 import { Star, Eye, Heart } from 'lucide-react'
 import styles        from './RankingPage.module.css'
@@ -60,6 +61,7 @@ function renderEstrellas(cal: number) {
 }
 
 export const RankingPage: React.FC = () => {
+  const navigate = useNavigate()
   const [tab,      setTab]      = useState<Tab>('puntuados')
   const [items,    setItems]    = useState<ReturnType<typeof normalizar>>(() => {
     const cached = getCached(TAB_CONFIG['puntuados'].endpoint, { limit: 100 })
@@ -149,7 +151,7 @@ export const RankingPage: React.FC = () => {
               <div
                 key={anime.externalId}
                 className={styles.fila}
-                onClick={() => window.location.href = `/anime/${anime.externalId}`}
+                onClick={() => navigate(`/anime/${anime.externalId}`, { state: { initialAnime: { externalId: anime.externalId, titulo: anime.titulo, imagenUrl: anime.imagenUrl, calificacionPromedio: anime.calificacion } } })}
                 role="link"
               >
                 {/* Posición */}

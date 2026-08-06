@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { api } from '../../../lib/axios'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../../../hooks/useAuth'
 import { MoreHorizontal, Flag, Pencil, AlertTriangle } from 'lucide-react'
 import { FeedItemInteractions } from '../../feed/components/FeedItemInteractions'
@@ -108,7 +109,7 @@ export const PublicacionCard: React.FC<Props> = ({ publicacion, onComentado, onV
     <article className={styles.card}>
       {/* Cabecera */}
       <div className={styles.header}>
-        <a href={`/perfil/${publicacion.usuario?.username}`} className={styles.usuario}>
+        <Link to={`/perfil/${publicacion.usuario?.username}`} className={styles.usuario}>
           <div className={styles.avatar}>
             {publicacion.usuario?.avatarUrl
               ? <img src={publicacion.usuario.avatarUrl} alt="" />
@@ -122,18 +123,18 @@ export const PublicacionCard: React.FC<Props> = ({ publicacion, onComentado, onV
               {publicacion.comunidad && (
                 <>
                   {' '}en{' '}
-                  <a 
-                    href={`/comunidades/${publicacion.comunidadId}`} 
+                  <Link 
+                    to={`/comunidades/${publicacion.comunidadId}`} 
                     className={styles.metaComunidad}
                     onClick={e => e.stopPropagation()}
                   >
                     {publicacion.comunidad.nombre}
-                  </a>
+                  </Link>
                 </>
               )}
             </p>
           </div>
-        </a>
+        </Link>
 
         {estaAutenticado && (
           <div ref={menuRef} className={styles.menuWrap}>

@@ -5,7 +5,7 @@ import { NewsSection } from '../../feed/components/NewsSection'
 import { FeaturedCarousel } from '../../anime/components/FeaturedCarousel'
 import styles from './HomePage.module.css'
 import { useAnimes } from '../../../hooks/useAnimes'
-import { prefetchAnimeDetalle } from '../../../hooks/useAnime'
+import { prefetchAnimeDetalle, usePrefetchAnimeDetalleOnView } from '../../../hooks/useAnime'
 import { useNavigate, Link } from 'react-router-dom'
 import { api } from '../../../lib/axios'
 
@@ -24,6 +24,7 @@ export const HomePage: React.FC = () => {
   const [tabActivo, setTabActivo] = useState<'hoy' | 'semana' | 'mes'>('hoy')
   const { animes, cargando, error, pagina, setPagina, totalPaginas } = useAnimes()
   const navigate = useNavigate()
+  const refForCard = usePrefetchAnimeDetalleOnView(12)
   
   const animesMostrados = React.useMemo(() => {
     if (tabActivo === 'hoy') return animes
@@ -97,6 +98,8 @@ export const HomePage: React.FC = () => {
                       state={{ initialAnime: anime }} 
                       key={anime.externalId} 
                       className={styles.animeCard}
+                      ref={refForCard}
+                      data-external-id={anime.externalId}
                       onMouseEnter={() => prefetchAnimeDetalle(anime.externalId)}
                     >
                       <div className={styles.cardPoster}>

@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react'
-import { useParams, useLocation, useNavigate } from 'react-router-dom'
+import { useParams, useLocation, useNavigate, Link } from 'react-router-dom'
 import { Layout }          from '../../../components/shared/Layout'
 import { useAnimeDetalle } from '../../../hooks/useAnime'
 import { useAuth }         from '../../../hooks/useAuth'
@@ -297,7 +297,7 @@ export const AnimePage: React.FC = () => {
                       anime.generos?.slice(0, 8).map((g: string) => {
                         const reverseMap: Record<string, string> = { "Acción": "Action", "Aventura": "Adventure", "Comedia": "Comedy", "Fantasía": "Fantasy", "Terror": "Horror", "Misterio": "Mystery", "Ciencia Ficción": "Sci-Fi", "Recuentos de la vida": "Slice of Life", "Deportes": "Sports", "Sobrenatural": "Supernatural", "Suspenso": "Thriller", "Psicológico": "Psychological", "Música": "Music", "Chicas Mágicas": "Mahou Shoujo" }
                         const queryG = reverseMap[g] || g
-                        return <a key={g} href={`/descubrir?genero=${queryG}`} className={styles.genreBadge}>{g}</a>
+                        return <Link key={g} to={`/descubrir?genero=${queryG}`} className={styles.genreBadge}>{g}</Link>
                       })
                     )}
                   </div>

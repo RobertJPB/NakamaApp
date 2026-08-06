@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useParams }          from 'react-router-dom'
+import { useParams, useNavigate, Link } from 'react-router-dom'
 import { Layout }             from '../../../components/shared/Layout'
 import { ColeccionCard }      from '../components/ColeccionCard'
 import { AnimeCard }          from '../../../components/ui/AnimeCard'
@@ -10,6 +10,7 @@ import styles                 from './ColeccionesPage.module.css'
 
 // Vista: listado de colecciones
 const ListaColecciones: React.FC = () => {
+  const navigate = useNavigate()
   const { colecciones: editoriales, cargando } = useColeccionesEditoriales()
   const usuario = useAuthStore(s => s.usuario)
   const { colecciones: misColecciones, crear } = useColeccionesUsuario(usuario?.id ?? null)
@@ -85,7 +86,7 @@ const ListaColecciones: React.FC = () => {
               <ColeccionCard
                 key={c.id}
                 coleccion={c}
-                onClick={() => window.location.href = `/colecciones/${c.id}`}
+                onClick={() => navigate(`/colecciones/${c.id}`)}
               />
             ))}
           </div>
@@ -115,7 +116,7 @@ const ListaColecciones: React.FC = () => {
               <ColeccionCard
                 key={c.id}
                 coleccion={c}
-                onClick={() => window.location.href = `/colecciones/${c.id}`}
+                onClick={() => navigate(`/colecciones/${c.id}`)}
               />
             ))}
           </div>
@@ -127,6 +128,7 @@ const ListaColecciones: React.FC = () => {
 
 // Vista: detalle de una colección
 const DetalleColeccion: React.FC<{ id: string }> = ({ id }) => {
+  const navigate = useNavigate()
   const { coleccion, cargando } = useColeccionDetalle(id)
 
   if (cargando) return <div className={styles.cargando}>Cargando colección...</div>
@@ -148,9 +150,9 @@ const DetalleColeccion: React.FC<{ id: string }> = ({ id }) => {
           {coleccion.usuario && (
             <span className={styles.detalleAutor}>
               por{' '}
-              <a href={`/perfil/${coleccion.usuario.username}`} className={styles.detalleAutorLink}>
+              <Link to={`/perfil/${coleccion.usuario.username}`} className={styles.detalleAutorLink}>
                 @{coleccion.usuario.username}
-              </a>
+              </Link>
             </span>
           )}
         </div>
@@ -178,7 +180,7 @@ const DetalleColeccion: React.FC<{ id: string }> = ({ id }) => {
                   tipo={ca.anime?.tipo}
                   anio={ca.anime?.anio}
                   calificacion={Number(ca.anime?.calificacionPromedio)}
-                  onClick={() => window.location.href = `/anime/${ca.anime?.externalId}`}
+                  onClick={() => ca.anime?.externalId && navigate(`/anime/${ca.anime.externalId}`, { state: { initialAnime: ca.anime } })}
                 />
                 {ca.nota && (
                   <p className={styles.animaNota}>"{ca.nota}"</p>
@@ -189,7 +191,7 @@ const DetalleColeccion: React.FC<{ id: string }> = ({ id }) => {
         </div>
       )}
 
-      <a href="/colecciones" className={styles.btnVolver}>← Todas las colecciones</a>
+      <Link to="/colecciones" className={styles.btnVolver}>← Todas las colecciones</Link>
     </div>
   )
 }

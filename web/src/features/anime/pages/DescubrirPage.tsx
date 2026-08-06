@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Search, X } from 'lucide-react'
 import { Layout }    from '../../../components/shared/Layout'
 import { AnimeCard } from '../../../components/ui/AnimeCard'
@@ -26,6 +26,8 @@ const Categoria = ({ titulo, animes, layout = 'grid', onVerMas }: { titulo: stri
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  const navigate = useNavigate();
 
   if (!Array.isArray(animes) || animes.length === 0) return null;
   
@@ -57,7 +59,7 @@ const Categoria = ({ titulo, animes, layout = 'grid', onVerMas }: { titulo: stri
             <div 
               key={anime.id ?? anime.externalId} 
               className={styles.categoriaItem}
-              onClick={() => window.location.href = `/anime/${anime.externalId}`}
+              onClick={() => navigate(`/anime/${anime.externalId}`, { state: { initialAnime: anime } })}
             >
               <div className={styles.categoriaPoster}>
                 <img src={anime.imagenUrl} alt={anime.titulo} loading="lazy" />
@@ -79,6 +81,7 @@ const Categoria = ({ titulo, animes, layout = 'grid', onVerMas }: { titulo: stri
 
 export const DescubrirPage: React.FC = () => {
   const location = useLocation()
+  const navigate = useNavigate()
   const params = new URLSearchParams(location.search)
   const initialQuery = params.get('q') ?? ''
   const initialGenero = params.get('genero') ?? ''
@@ -295,7 +298,7 @@ export const DescubrirPage: React.FC = () => {
                           tipo={anime.tipo}
                           anio={anime.anio}
                           calificacion={Number(anime.calificacionPromedio)}
-                          onClick={() => window.location.href = `/anime/${anime.externalId}`}
+                          onClick={() => navigate(`/anime/${anime.externalId}`, { state: { initialAnime: anime } })}
                         />
                       ))}
                     </div>

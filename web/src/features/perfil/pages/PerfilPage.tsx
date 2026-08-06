@@ -259,9 +259,9 @@ export const PerfilPage: React.FC = () => {
             <h3 className={styles.favoritosTitle}>Favoritos</h3>
             <div className={styles.favoritosList}>
               {lista.filter((x: any) => x.esFavorito).map((f: any) => (
-                <a href={`/anime/${f.anime.externalId}`} key={f.animeId} className={styles.favItem} title={f.anime.titulo}>
+                <Link to={`/anime/${f.anime.externalId}`} key={f.animeId} className={styles.favItem} title={f.anime.titulo}>
                   <img src={f.anime.imagenUrl} alt={f.anime.titulo} />
-                </a>
+                </Link>
               ))}
             </div>
           </div>
@@ -304,9 +304,9 @@ export const PerfilPage: React.FC = () => {
               <div className={styles.vacioWrap}>
                 <p className={styles.vacio}>Este usuario no ha escrito reseñas aún.</p>
                 {esMiPerfil && (
-                  <a href="/descubrir" className={`${styles.btnAction} ${styles.btnActionOutlined}`} style={{ textDecoration: 'none' }}>
+                  <Link to="/descubrir" className={`${styles.btnAction} ${styles.btnActionOutlined}`} style={{ textDecoration: 'none' }}>
                     Crear una reseña
-                  </a>
+                  </Link>
                 )}
               </div>
             ) : (
@@ -368,9 +368,9 @@ export const PerfilPage: React.FC = () => {
               <div className={styles.vacioWrap}>
                 <p className={styles.vacio}>No hay animes en esta sección.</p>
                 {esMiPerfil && (
-                  <a href="/descubrir" className={`${styles.btnAction} ${styles.btnActionOutlined}`} style={{ textDecoration: 'none' }}>
+                  <Link to="/descubrir" className={`${styles.btnAction} ${styles.btnActionOutlined}`} style={{ textDecoration: 'none' }}>
                     Crear una lista
-                  </a>
+                  </Link>
                 )}
               </div>
             ) : (

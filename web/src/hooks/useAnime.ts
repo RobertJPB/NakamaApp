@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { api } from '../lib/axios'
 
 export function useAnimePopulares(pagina = 1) {
@@ -29,7 +29,7 @@ export function useAnimeDetalle(externalId: string | null, initialData?: any) {
     if (!externalId) return
     
     // Evitar recarga visual (skeleton) si ya tenemos datos
-    setDetalle(prev => {
+    setDetalle((prev: any) => {
       if (!prev) setCargando(true)
       return prev
     })
@@ -55,6 +55,41 @@ export function useAnimeDetalle(externalId: string | null, initialData?: any) {
 export function prefetchAnimeDetalle(externalId: string) {
   // Petición silenciosa para llenar la caché de axios antes de que el usuario haga clic
   api.get(`/api/animes/${externalId}`).catch(() => {})
+}
+
+// Prefetch de detalles cuando una tarjeta está a punto de entrar al viewport (cubre touch/móvil,
+// donde no hay hover). Cada elemento debe llevar `data-external-id` y ref={refForCard}.
+// maxPrefetch limita las peticiones totales por página para no saturar el backend.
+export function usePrefetchAnimeDetalleOnView(maxPrefetch = 12) {
+  const observers = useRef(new Map<Element, IntersectionObserver>())
+  const prefetched = useRef(new Set<string>())
+  const limit = useRef(maxPrefetch)
+
+  const refForCard = useCallback((el: Element | null) => {
+    if (!el) return
+    const externalId = el.getAttribute('data-external-id')
+    if (!externalId || prefetched.current.has(externalId)) return
+    if (prefetched.current.size >= limit.current) return
+
+    const io = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && prefetched.current.size < limit.current) {
+        prefetched.current.add(externalId)
+        prefetchAnimeDetalle(externalId)
+        io.disconnect()
+        observers.current.delete(el)
+      }
+    }, { rootMargin: '600px 0px', threshold: 0.01 })
+
+    observers.current.set(el, io)
+    io.observe(el)
+  }, [])
+
+  useEffect(() => {
+    const obs = observers.current
+    return () => obs.forEach(o => o.disconnect())
+  }, [])
+
+  return refForCard
 }
 
 export function useBusqueda(query: string) {

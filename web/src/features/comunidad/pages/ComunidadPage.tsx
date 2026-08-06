@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useParams }           from 'react-router-dom'
+import { useParams, Link }           from 'react-router-dom'
 import { Layout }              from '../../../components/shared/Layout'
 import { PublicacionCard }     from '../components/PublicacionCard'
 import { NuevaPublicacion }    from '../components/NuevaPublicacion'
@@ -90,7 +90,7 @@ const ListaComunidades: React.FC = () => {
       ) : (
         <div className={styles.grid}>
           {comunidadesFiltradas.map((c: any) => (
-            <a key={c.id} href={`/comunidades/${c.id}`} className={styles.comunidadCard}>
+            <Link key={c.id} to={`/comunidades/${c.id}`} className={styles.comunidadCard}>
               <div className={styles.cardBanner}>
                 {c.bannerUrl
                   ? <img src={c.bannerUrl} alt="" />
@@ -108,7 +108,7 @@ const ListaComunidades: React.FC = () => {
                   <p className={styles.cardDesc}>{c.descripcion}</p>
                 )}
               </div>
-            </a>
+            </Link>
           ))}
         </div>
       )}

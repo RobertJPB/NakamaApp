@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { api }             from '../../../lib/axios'
 import styles              from './ResenaCard.module.css'
 import { Star, StarHalf }  from 'lucide-react'
+import { Link }            from 'react-router-dom'
 
 interface ResenaCardProps { resena: any }
 
@@ -37,14 +38,14 @@ export const ResenaCard: React.FC<ResenaCardProps> = ({ resena }) => {
       <div className={styles.entradaContenido}>
         <div className={styles.entradaHeaderWrap}>
           <p className={styles.entradaTexto}>
-            <a href={`/perfil/${resena.usuario?.username}`} className={styles.entradaUsuario}>
+            <Link to={`/perfil/${resena.usuario?.username}`} className={styles.entradaUsuario}>
               @{resena.usuario?.username}
-            </a>
+            </Link>
             {' '}<span className={styles.entradaAccion}>dejó una reseña de</span>{' '}
             {resena.anime && (
-              <a href={`/anime/${resena.anime.externalId}`} className={styles.entradaAnime}>
+              <Link to={`/anime/${resena.anime.externalId}`} className={styles.entradaAnime}>
                 {resena.anime.titulo}
-              </a>
+              </Link>
             )}
           </p>
         </div>
@@ -93,9 +94,9 @@ export const ResenaCard: React.FC<ResenaCardProps> = ({ resena }) => {
 
       <div className={styles.entradaMedia}>
         {resena.anime?.imagenUrl && (
-          <a href={`/anime/${resena.anime?.externalId}`} className={styles.entradaThumb}>
+          <Link to={`/anime/${resena.anime?.externalId}`} className={styles.entradaThumb}>
             <img src={resena.anime.imagenUrl} alt={resena.anime.titulo} />
-          </a>
+          </Link>
         )}
         <div className={styles.entradaRatingBox} style={{ marginTop: '8px', justifyContent: 'center' }}>
           <span className={styles.entradaEstrellas} style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
