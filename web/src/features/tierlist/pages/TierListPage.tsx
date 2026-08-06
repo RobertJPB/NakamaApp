@@ -289,15 +289,27 @@ export const TierListPage: React.FC = () => {
             <h1 className={styles.title}>Creador de Tier Lists</h1>
             <p className={styles.subtitle}>Arma tu lista de favoritos y descárgala para compartir.</p>
           </div>
-          <button className={styles.btnDescargarTop} onClick={handleExport} disabled={exportando} title="Exportar imagen">
-            <Download size={16} />
-            {exportando ? 'Exportando...' : 'Exportar imagen'}
-          </button>
         </div>
 
         <div className={styles.layout}>
           {/* Columna Izquierda: Tablero y Acciones */}
           <div className={styles.mainCol}>
+            {/* Acciones del Tablero (Arriba) */}
+            <div className={styles.boardActions}>
+              <button className={styles.btnDescargar} onClick={handleExport} disabled={exportando}>
+                <Download size={18} />
+                {exportando ? 'Guardando...' : 'Descargar Imagen'}
+              </button>
+              {usuario && (
+                <>
+                  <button className={styles.btnGuardar} onClick={() => setModalAbierto(true)}>
+                    <Save size={18} />
+                    Guardar Plantilla
+                  </button>
+                </>
+              )}
+            </div>
+
             <div className={styles.tierBoard} ref={boardRef}>
               {tiers.map((tier) => (
                 <div
@@ -339,22 +351,6 @@ export const TierListPage: React.FC = () => {
                   </div>
                 </div>
               ))}
-            </div>
-
-            {/* Acciones del Tablero (Abajo) */}
-            <div className={styles.boardActions}>
-              <button className={styles.btnDescargar} onClick={handleExport} disabled={exportando}>
-                <Download size={18} />
-                {exportando ? 'Guardando...' : 'Descargar Imagen'}
-              </button>
-              {usuario && (
-                <>
-                  <button className={styles.btnGuardar} onClick={() => setModalAbierto(true)}>
-                    <Save size={18} />
-                    Guardar Plantilla
-                  </button>
-                </>
-              )}
             </div>
 
             {/* Plantillas de la Comunidad */}

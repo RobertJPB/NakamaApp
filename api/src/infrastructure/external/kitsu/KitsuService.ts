@@ -370,28 +370,78 @@ export class KitsuService implements IAnimeExternalService {
 
   async buscarPersonajes(busqueda: string) {
     try {
-      // Usamos Kitsu para la búsqueda de personajes (Jikan falla mucho y AniList no permite uso comercial sin permiso)
-      const res = await fetch(`https://kitsu.io/api/edge/characters?filter[name]=${encodeURIComponent(busqueda)}&page[limit]=15`);
+      // Usamos AniList GraphQL para buscar personajes ya que Kitsu no funciona bien para nombres de anime
+      const query = `
+        query ($search: String) {
+          characters: Page(page: 1, perPage: 15) {
+            characters(search: $search, sort: [FAVOURITES_DESC]) {
+              id
+              name { full }
+              image { large }
+              media(sort: POPULARITY_DESC, type: ANIME, page: 1, perPage: 1) {
+                nodes {
+                  title { romaji }
+                }
+              }
+            }
+          }
+          anime: Page(page: 1, perPage: 3) {
+            media(search: $search, type: ANIME, sort: [POPULARITY_DESC]) {
+              title { romaji }
+              characters(sort: [FAVOURITES_DESC], page: 1, perPage: 25) {
+                nodes {
+                  id
+                  name { full }
+                  image { large }
+                }
+              }
+            }
+          }
+        }
+      `;
+
+      const res = await fetch('https://graphql.anilist.co', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query, variables: { search: busqueda } })
+      });
+
       if (!res.ok) return [];
       const json = await res.json() as any;
       
-      return (json.data || [])
-        .filter((c: any) => c.attributes?.image?.original || c.attributes?.image?.large)
-        .map((c: any) => {
-          let name = c.attributes?.canonicalName || c.attributes?.name || 'Desconocido';
-          // Si el nombre viene como "Apellido, Nombre", lo invertimos
-          if (name.includes(',')) {
-            name = name.split(',').map((s: string) => s.trim()).reverse().join(' ');
-          }
-          return {
+      const chars = json.data?.characters?.characters || [];
+      const animeChars = (json.data?.anime?.media || []).flatMap((m: any) => 
+        (m.characters?.nodes || []).map((c: any) => ({...c, animeTitle: m.title?.romaji}))
+      );
+      
+      const map = new Map<string, any>();
+      // Añadimos primero los personajes de los animes (son más relevantes si busco el nombre del anime)
+      animeChars.forEach((c: any) => {
+        if (c.image?.large && !map.has(c.id.toString())) {
+          map.set(c.id.toString(), {
             id: c.id.toString(),
-            nombre: name,
-            imagenUrl: c.attributes?.image?.original || c.attributes?.image?.large || null,
-            animeTitulo: null // Kitsu no incluye esto en esta respuesta sin múltiples peticiones costosas
-          };
-        });
+            nombre: c.name?.full || 'Desconocido',
+            imagenUrl: c.image.large,
+            animeTitulo: c.animeTitle
+          });
+        }
+      });
+
+      // Luego añadimos los resultados directos de personaje
+      chars.forEach((c: any) => {
+        if (c.image?.large && !map.has(c.id.toString())) {
+          map.set(c.id.toString(), {
+            id: c.id.toString(),
+            nombre: c.name?.full || 'Desconocido',
+            imagenUrl: c.image.large,
+            animeTitulo: c.media?.nodes?.[0]?.title?.romaji || null
+          });
+        }
+      });
+
+      return Array.from(map.values()).slice(0, 40);
     } catch (e) {
-      console.error('Error fetching characters from Kitsu:', e);
+      console.error('Error fetching characters from Anilist:', e);
       return [];
     }
   }
