@@ -389,62 +389,53 @@ export class KitsuService implements IAnimeExternalService {
       }
 
       // Usamos Kitsu ya que AniList no permite uso comercial.
-      // Hacemos 2 llamadas en paralelo:
-      // 1. Buscar personajes por nombre
-      // 2. Buscar animes por nombre y extraer sus personajes (para que "Dragon Ball" retorne a Goku)
-      
-      const charsPromise = fetch(`https://kitsu.io/api/edge/characters?filter[name]=${encodeURIComponent(busqueda)}&page[limit]=15`).then(r => r.json());
-      const animePromise = fetch(`https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(busqueda)}&include=characters.character&page[limit]=1`).then(r => r.json());
+      // Búsqueda en 2 fases (el include anterior `characters.character` descargaba cientos de
+      // personajes y ralentizaba mucho la tier list):
+      //   1. Personajes por nombre + anime más relevante, en paralelo (ligeros).
+      //   2. Solo 8 personajes del anime top (acotado), para que "dragon ball" retorne a Goku.
 
-      const [charsJson, animeJson] = await Promise.all([charsPromise, animePromise].map(p => p.catch(() => ({} as any)))) as [any, any];
-      
+      const [charsJson, animeJson] = await Promise.all([
+        fetch(`https://kitsu.io/api/edge/characters?filter[name]=${encodeURIComponent(busqueda)}&page[limit]=15&fields[character]=canonicalName,image`).then(r => r.json()).catch(() => null),
+        fetch(`https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(busqueda)}&page[limit]=1&fields[anime]=id`).then(r => r.json()).catch(() => null),
+      ]) as [any, any];
+
+      // Personajes del anime más relevante (acotado, para que "Dragon Ball" retorne a Goku)
+      let animeChars: any[] = [];
+      const topAnimeId = animeJson?.data?.[0]?.id;
+      if (topAnimeId) {
+        try {
+          const animeCharsJson: any = await fetch(
+            `https://kitsu.io/api/edge/anime/${topAnimeId}/characters?include=character&page[limit]=8&fields[character]=canonicalName,image`
+          ).then(r => r.json());
+          animeChars = (animeCharsJson?.included || []).filter((inc: any) => inc.type === 'characters' && inc.attributes?.image);
+        } catch (err) {
+          console.error('Error fetching anime characters:', err);
+        }
+      }
+
       const map = new Map<string, any>();
 
-      // Procesar personajes provenientes de los animes encontrados (suelen ser más populares para esa franquicia)
-      if (animeJson?.included) {
-        // Encontrar los nombres de los animes para asociarlos
-        const animeMap = new Map<string, string>();
-        if (animeJson.data) {
-          animeJson.data.forEach((a: any) => {
-            animeMap.set(a.id, a.attributes?.canonicalName || a.attributes?.titles?.en_jp);
+      const addChar = (c: any) => {
+        if (!c?.attributes?.image) return;
+        let name = c.attributes?.canonicalName || c.attributes?.name || 'Desconocido';
+        if (name.includes(',')) {
+          name = name.split(',').map((s: string) => s.trim()).reverse().join(' ');
+        }
+        const id = c.id.toString();
+        if (!map.has(id)) {
+          map.set(id, {
+            id,
+            nombre: name,
+            imagenUrl: c.attributes.image.original || c.attributes.image.large || null,
+            animeTitulo: null,
           });
         }
+      };
 
-        animeJson.included.forEach((inc: any) => {
-          if (inc.type === 'characters' && inc.attributes?.image) {
-            let name = inc.attributes?.canonicalName || inc.attributes?.name || 'Desconocido';
-            if (name.includes(',')) {
-              name = name.split(',').map((s: string) => s.trim()).reverse().join(' ');
-            }
-            if (!map.has(inc.id.toString())) {
-              map.set(inc.id.toString(), {
-                id: inc.id.toString(),
-                nombre: name,
-                imagenUrl: inc.attributes.image.original || inc.attributes.image.large || null,
-                animeTitulo: null // Kitsu devuelve characters en 'included' pero no sabemos directamente a cuál anime pertenece sin parsear relationships, null está bien
-              });
-            }
-          }
-        });
-      }
-
-      // Procesar resultados directos de personaje
-      if (charsJson?.data) {
-        charsJson.data.forEach((c: any) => {
-          if (c.attributes?.image && !map.has(c.id.toString())) {
-            let name = c.attributes?.canonicalName || c.attributes?.name || 'Desconocido';
-            if (name.includes(',')) {
-              name = name.split(',').map((s: string) => s.trim()).reverse().join(' ');
-            }
-            map.set(c.id.toString(), {
-              id: c.id.toString(),
-              nombre: name,
-              imagenUrl: c.attributes.image.original || c.attributes.image.large || null,
-              animeTitulo: null
-            });
-          }
-        });
-      }
+      // Priorizar los personajes del anime (suelen ser los más buscados para esa franquicia)
+      animeChars.forEach(addChar);
+      // Completar con resultados directos de personaje
+      (charsJson?.data || []).forEach(addChar);
 
       const result = Array.from(map.values()).slice(0, 40);
       responseCache.set(cacheKey, result);
