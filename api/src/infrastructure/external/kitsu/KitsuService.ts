@@ -475,10 +475,9 @@ export class KitsuService implements IAnimeExternalService {
       return true
     })
 
-    // Separar temporadas de la misma franquicia para que no queden una tras otra
-    // (p.ej. "Assassination Classroom" y "Assassination Classroom Second Season",
-    // o la versión en japonés "Ansatsu Kyoushitsu 2nd Season").
-    const GAP = 2 // mínimo de posiciones entre dos entradas de la misma franquicia
+    // Solo UNA entrada por franquicia: no mostrar "Assassination Classroom" y su "Second Season"
+    // (ni la versión en japonés "Ansatsu Kyoushitsu 2nd Season") en la misma página. Nos quedamos
+    // con la de mejor posición (mayor relevancia del género / más popular).
     const basesDe = (e: any) => {
       const arr: string[] = []
       if (e.anime.titulo) arr.push(franquiciaBase(e.anime.titulo))
@@ -486,39 +485,13 @@ export class KitsuService implements IAnimeExternalService {
       return Array.from(new Set(arr.filter(Boolean)))
     }
     const resultado: any[] = []
-    const pendientes: any[] = []
-    const ultimaPos = new Map<string, number>()
-
-    const puedeColocarse = (e: any) => {
-      for (const base of basesDe(e)) {
-        const last = ultimaPos.get(base)
-        if (last !== undefined && (resultado.length - last) < GAP) return false
-      }
-      return true
-    }
-    const colocar = (e: any) => {
-      resultado.push(e)
-      for (const base of basesDe(e)) ultimaPos.set(base, resultado.length - 1)
-    }
-
+    const franquiciasVistas = new Set<string>()
     for (const entry of sinDuplicados) {
-      if (puedeColocarse(entry)) {
-        colocar(entry)
-        // Reintentar colocar los pendientes apenas la franquicia tenga distancia suficiente
-        let i = 0
-        while (i < pendientes.length) {
-          if (puedeColocarse(pendientes[i])) {
-            colocar(pendientes.splice(i, 1)[0])
-            i = 0
-          } else {
-            i++
-          }
-        }
-      } else {
-        pendientes.push(entry)
-      }
+      const bases = basesDe(entry)
+      if (bases.some(b => franquiciasVistas.has(b))) continue
+      resultado.push(entry)
+      bases.forEach(b => franquiciasVistas.add(b))
     }
-    resultado.push(...pendientes)
 
     const animes = resultado.map((entry: any) => entry.anime)
 
