@@ -171,6 +171,8 @@ export class KitsuService implements IAnimeExternalService {
   async buscarAnimes(busqueda: string, pagina = 1, perPage = 20) {
     const limit = perPage
     const offset = (pagina - 1) * limit
+    // Acotar la búsqueda para evitar URLs gigantes y errores 414/400 de Kitsu en móvil
+    busqueda = busqueda.slice(0, 60)
     const query = encodeURIComponent(busqueda)
     
     const cacheKey = `search_${query}_${pagina}_${perPage}`
@@ -382,6 +384,8 @@ export class KitsuService implements IAnimeExternalService {
 
   async buscarPersonajes(busqueda: string) {
     try {
+      // Acotar la búsqueda para evitar URLs gigantes y errores 414/400 de Kitsu en móvil
+      busqueda = busqueda.slice(0, 60)
       const cacheKey = `personajes_${busqueda}`
       const cached = responseCache.get(cacheKey)
       if (cached !== undefined) {

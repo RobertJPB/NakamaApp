@@ -419,6 +419,9 @@ export const TierListPage: React.FC = () => {
                 className={styles.searchInput}
                 value={busqueda}
                 onChange={handleSearch}
+                maxLength={60}
+                autoComplete="off"
+                autoCapitalize="off"
                 aria-label="Buscar animes o personajes"
               />
               {buscando && (

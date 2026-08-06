@@ -234,9 +234,13 @@ export const AnimePage: React.FC = () => {
                   </div>
                 ) : (
                   <div dangerouslySetInnerHTML={{ __html: (() => {
-                    let text = (anime.sinopsis || 'Sin sinopsis disponible.').trim();
+                    let text = (anime.sinopsis || '').trim();
                     // Eliminar notas de fuente como "(Fuente: ...)" o "(Source: ...)"
                     text = text.replace(/\(?(Fuente|Source):[^\)]+\)?/gi, '').trim();
+                    // Defensa: nunca mostrar mensajes de error de traducción guardados en la DB
+                    if (/QUERY LENGTH|MAX ALLOWED QUERY/i.test(text) || !text) {
+                      text = 'Sin sinopsis disponible.';
+                    }
                     let paragraphs = text.split(/\n+/).map((p: string) => p.trim()).filter((p: string) => p.length > 0);
                     
                     if (paragraphs.length >= 2) {

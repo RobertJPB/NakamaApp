@@ -386,6 +386,13 @@
   .synopsis p:not(:first-child) {
     display: none;
   }
+  /* En móvil la sinopsis se recorta para no ser monumental */
+  .synopsis p:first-child {
+    display: -webkit-box;
+    -webkit-line-clamp: 6;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
 
   .infoRow { order: 2; }
   .section { order: 3; }
