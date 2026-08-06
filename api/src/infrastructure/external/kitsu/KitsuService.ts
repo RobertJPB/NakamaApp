@@ -370,13 +370,19 @@ export class KitsuService implements IAnimeExternalService {
 
   async buscarPersonajes(busqueda: string) {
     try {
+      const cacheKey = `personajes_${busqueda}`
+      const cached = responseCache.get(cacheKey)
+      if (cached && Date.now() - cached.ts < RESPONSE_CACHE_TTL) {
+        return cached.data
+      }
+
       // Usamos Kitsu ya que AniList no permite uso comercial.
       // Hacemos 2 llamadas en paralelo:
       // 1. Buscar personajes por nombre
       // 2. Buscar animes por nombre y extraer sus personajes (para que "Dragon Ball" retorne a Goku)
       
       const charsPromise = fetch(`https://kitsu.io/api/edge/characters?filter[name]=${encodeURIComponent(busqueda)}&page[limit]=15`).then(r => r.json());
-      const animePromise = fetch(`https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(busqueda)}&include=characters.character&page[limit]=2`).then(r => r.json());
+      const animePromise = fetch(`https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(busqueda)}&include=characters.character&page[limit]=1`).then(r => r.json());
 
       const [charsJson, animeJson] = await Promise.all([charsPromise, animePromise].map(p => p.catch(() => ({} as any)))) as [any, any];
       
@@ -428,7 +434,9 @@ export class KitsuService implements IAnimeExternalService {
         });
       }
 
-      return Array.from(map.values()).slice(0, 40);
+      const result = Array.from(map.values()).slice(0, 40);
+      responseCache.set(cacheKey, { data: result, ts: Date.now() });
+      return result;
     } catch (e) {
       console.error('Error fetching characters from Kitsu:', e);
       return [];

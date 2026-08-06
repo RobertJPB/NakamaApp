@@ -520,8 +520,8 @@
     display: contents;
   }
   .tierBoard { order: 1; }
-  .boardActions { order: 2; }
-  .sidebar { order: 3; }
+  .sidebar { order: 2; }
+  .boardActions { order: 3; }
   .plantillasSeccion { order: 4; }
   
   .header {
