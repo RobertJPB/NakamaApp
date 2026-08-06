@@ -243,6 +243,7 @@
 @media (max-width: 900px) {
   .detalleLayout { grid-template-columns: 1fr; }
   .detalleSidebar { display: none; }
+  .detalleBanner { height: 125px; }
   
   .detalleHeader {
     flex-direction: row;
