@@ -307,6 +307,44 @@
   border-radius: 50%;
 }
 
+/* ── Feedback de búsqueda ── */
+.searchSpinner {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+}
+
+.spinner {
+  width: 13px;
+  height: 13px;
+  border: 2px solid var(--color-borde);
+  border-top-color: var(--color-acento);
+  border-radius: 50%;
+  animation: tierSpin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes tierSpin {
+  to { transform: rotate(360deg); }
+}
+
+.searchStatus {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 8px;
+  font-size: 12px;
+  color: var(--color-texto-muted);
+}
+
+/* Resultados previos atenuados mientras se busca de nuevo */
+.searchResultsLoading {
+  opacity: 0.55;
+}
+
 /* ── Acciones de Tablero (Debajo de la Tier List) ── */
 .boardActions {
   display: flex;

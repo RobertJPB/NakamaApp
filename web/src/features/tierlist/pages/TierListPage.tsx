@@ -66,17 +66,22 @@ export const TierListPage: React.FC = () => {
   }
 
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const searchSeq = useRef(0)
 
-  // -- Buscador unificado --
+  // -- Buscador unificado con feedback progresivo --
+  // Cada tipo de resultado (animes / personajes) se muestra en cuanto llega,
+  // y los resultados previos se mantienen visibles (atenuados) mientras la
+  // nueva búsqueda está en curso, para que nunca parezca que no responde.
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value
     setBusqueda(val)
-    
+
     if (searchTimeout.current) {
       clearTimeout(searchTimeout.current)
     }
 
     if (val.trim().length < 2) {
+      searchSeq.current++
       setAnimesRes([])
       setPersonajesRes([])
       setBuscando(false)
@@ -84,37 +89,40 @@ export const TierListPage: React.FC = () => {
     }
 
     setBuscando(true)
-    searchTimeout.current = setTimeout(async () => {
-      try {
-        const [animesResp, personajesResp] = await Promise.all([
-          api.get(`/api/animes?busqueda=${encodeURIComponent(val)}&limit=6`).catch(() => ({ data: [] })),
-          api.get(`/api/animes/personajes?busqueda=${encodeURIComponent(val)}`).catch(() => ({ data: [] })),
-        ])
-        
-        // Verificar que el valor actual no haya cambiado
-        setBusqueda(currentVal => {
-          if (currentVal === val) {
-            const animeList = Array.isArray(animesResp.data) ? animesResp.data : (animesResp.data.animes ?? [])
-            const charList  = (Array.isArray(personajesResp.data) ? personajesResp.data : []).map((c: any) => ({
-              id: `char_${c.id}`,
-              externalId: String(c.id),
-              titulo: c.nombre || 'Desconocido',
-              imagenUrl: c.imagenUrl,
-              esPersonaje: true
-            }))
-            setAnimesRes(animeList.slice(0, 6))
-            setPersonajesRes(charList.slice(0, 50))
-            setBuscando(false)
-          }
-          return currentVal
-        })
-      } catch (err) {
-        setBusqueda(currentVal => {
-          if (currentVal === val) setBuscando(false)
-          return currentVal
-        })
+    searchTimeout.current = setTimeout(() => {
+      const seq = ++searchSeq.current
+
+      const applyAnimes = (data: any) => {
+        if (searchSeq.current !== seq) return
+        const list = Array.isArray(data) ? data : (data?.animes ?? [])
+        setAnimesRes(list.slice(0, 6))
       }
-    }, 500)
+
+      const applyPersonajes = (data: any) => {
+        if (searchSeq.current !== seq) return
+        const list = (Array.isArray(data) ? data : []).map((c: any) => ({
+          id: `char_${c.id}`,
+          externalId: String(c.id),
+          titulo: c.nombre || 'Desconocido',
+          imagenUrl: c.imagenUrl,
+          esPersonaje: true
+        }))
+        setPersonajesRes(list.slice(0, 50))
+      }
+
+      const animeReq = api.get(`/api/animes?busqueda=${encodeURIComponent(val)}&limit=6`)
+        .then(r => applyAnimes(r.data))
+        .catch(() => { if (searchSeq.current === seq) setAnimesRes([]) })
+
+      const personajesReq = api.get(`/api/animes/personajes?busqueda=${encodeURIComponent(val)}`)
+        .then(r => applyPersonajes(r.data))
+        .catch(() => { if (searchSeq.current === seq) setPersonajesRes([]) })
+
+      // Apagar el indicador cuando terminen AMBOS (con el seq correcto)
+      Promise.allSettled([animeReq, personajesReq]).then(() => {
+        if (searchSeq.current === seq) setBuscando(false)
+      })
+    }, 200)
   }
 
   const handleAddItem = (item: TierItem) => {
@@ -280,6 +288,7 @@ export const TierListPage: React.FC = () => {
   }
 
   const hasResults = animesRes.length > 0 || personajesRes.length > 0
+  const queryValida = busqueda.trim().length >= 2
 
   return (
     <Layout>
@@ -410,21 +419,27 @@ export const TierListPage: React.FC = () => {
                 className={styles.searchInput}
                 value={busqueda}
                 onChange={handleSearch}
+                aria-label="Buscar animes o personajes"
               />
               {buscando && (
-                <span style={{ 
-                  position: 'absolute', 
-                  right: '12px', 
-                  top: '50%', 
-                  transform: 'translateY(-50%)',
-                  fontSize: 11, 
-                  color: 'var(--color-texto-muted)' 
-                }}>...</span>
+                <span className={styles.searchSpinner} title="Buscando...">
+                  <span className={styles.spinner} />
+                </span>
               )}
             </div>
 
-            {hasResults && (
-              <div className={styles.searchResults}>
+            {queryValida && (hasResults || buscando) && (
+              <div className={`${styles.searchResults} ${buscando ? styles.searchResultsLoading : ''}`}>
+                {buscando && personajesRes.length === 0 && animesRes.length === 0 && (
+                  <div className={styles.searchStatus}>
+                    <span className={styles.spinner} /> Buscando "{busqueda.trim()}"...
+                  </div>
+                )}
+                {!buscando && !hasResults && (
+                  <div className={styles.searchStatus}>
+                    Sin resultados para "{busqueda.trim()}"
+                  </div>
+                )}
                 {personajesRes.length > 0 && (
                   <>
                     <div className={styles.resultSection}>
