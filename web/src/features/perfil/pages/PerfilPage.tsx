@@ -196,7 +196,7 @@ export const PerfilPage: React.FC = () => {
             className={styles.bannerDefault} 
             style={{ 
               background: (perfil.bannerUrl.startsWith('/') || perfil.bannerUrl.startsWith('http')) 
-                ? `url('${perfil.bannerUrl}') center 30% / cover no-repeat` 
+                ? `url('${perfil.bannerUrl}') center 20% / cover no-repeat` 
                 : perfil.bannerUrl 
             }} 
           />

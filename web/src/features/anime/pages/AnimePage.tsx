@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { useParams, useLocation, useNavigate, Link } from 'react-router-dom'
 import { Layout }          from '../../../components/shared/Layout'
 import { useAnimeDetalle } from '../../../hooks/useAnime'
@@ -23,7 +23,15 @@ export const AnimePage: React.FC = () => {
   const [isFavoritoLocal, setIsFavoritoLocal] = useState(false)
   const [favError, setFavError] = useState('')
   const [showLeftScroll, setShowLeftScroll] = useState(false)
+  const [sinopsisExpandida, setSinopsisExpandida] = useState(false)
+  const [esMovil, setEsMovil] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 768)
   const scrollRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleResize = () => setEsMovil(window.innerWidth <= 768)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   const handleScroll = () => {
     if (scrollRef.current) {
@@ -41,6 +49,52 @@ export const AnimePage: React.FC = () => {
     if (scrollRef.current) {
       scrollRef.current.scrollBy({ left: 300, behavior: 'smooth' })
     }
+  }
+
+  // Recorta en el límite de una frase completa (nunca a mitad de frase)
+  const recortarEnFrase = (texto: string, max: number): string => {
+    if (texto.length <= max) return texto
+    const cut = texto.slice(0, max)
+    const idx = Math.max(cut.lastIndexOf('.'), cut.lastIndexOf('!'), cut.lastIndexOf('?'))
+    if (idx >= max * 0.5) return cut.slice(0, idx + 1).trim()
+    const space = cut.lastIndexOf(' ')
+    return (space > 0 ? cut.slice(0, space) : cut).trim()
+  }
+
+  const renderSinopsis = (): string => {
+    let text = (detalle?.anime?.sinopsis || '').trim();
+    // Eliminar notas de fuente como "(Fuente: ...)" o "(Source: ...)"
+    text = text.replace(/\(?(Fuente|Source):[^\)]+\)?/gi, '').trim();
+    // Defensa: nunca mostrar mensajes de error de traducción guardados en la DB
+    if (/QUERY LENGTH|MAX ALLOWED QUERY/i.test(text) || !text) {
+      text = 'Sin sinopsis disponible.';
+    }
+    let paragraphs = text.split(/\n+/).map((p: string) => p.trim()).filter((p: string) => p.length > 0);
+
+    // En móvil, sin expandir, solo se muestra el primer párrafo recortado en frase completa
+    if (esMovil && !sinopsisExpandida && paragraphs.length > 0) {
+      return `<p>${recortarEnFrase(paragraphs[0], 240)}</p>`;
+    }
+
+    if (paragraphs.length >= 2) {
+      return `<p style="margin-bottom: 12px;">${paragraphs[0]}</p><p>${paragraphs.slice(1).join(' ')}</p>`;
+    }
+
+    // Si solo hay un párrafo pero contiene <br>, lo separamos por ahí
+    if (text.toLowerCase().includes('<br')) {
+      paragraphs = text.split(/<br\s*\/?>/ as any).map((p: string) => p.trim()).filter((p: string) => p.length > 0);
+      if (paragraphs.length >= 2) {
+        return `<p style="margin-bottom: 12px;">${paragraphs[0]}</p><p>${paragraphs.slice(1).join(' ')}</p>`;
+      }
+    }
+
+    // Si no hay saltos de línea explícitos, lo dividimos en 2 mitades para cumplir la regla
+    const sentences = paragraphs[0].match(/[^.!?]+[.!?]+/g) || [paragraphs[0]];
+    if (sentences.length <= 1) return `<p>${paragraphs[0]}</p><p></p>`; // Demasiado corto para dividir
+    const mid = Math.ceil(sentences.length / 2);
+    const p1 = sentences.slice(0, mid).join(' ').trim();
+    const p2 = sentences.slice(mid).join(' ').trim();
+    return `<p style="margin-bottom: 12px;">${p1}</p><p>${p2}</p>`;
   }
 
   React.useEffect(() => {
@@ -225,7 +279,7 @@ export const AnimePage: React.FC = () => {
                 </div>
               </header>
 
-              <section className={styles.synopsis}>
+              <section className={`${styles.synopsis} ${sinopsisExpandida ? styles.sinopsisExpandida : ''}`}>
                 {isFetching ? (
                   <div style={{ opacity: 0.6 }}>
                     <div style={{ height: 16, background: 'var(--color-surface-2)', borderRadius: 4, width: '100%', marginBottom: 8, animation: 'pulse 1.5s infinite' }} />
@@ -233,36 +287,14 @@ export const AnimePage: React.FC = () => {
                     <div style={{ height: 16, background: 'var(--color-surface-2)', borderRadius: 4, width: '95%', marginBottom: 8, animation: 'pulse 1.5s infinite' }} />
                   </div>
                 ) : (
-                  <div dangerouslySetInnerHTML={{ __html: (() => {
-                    let text = (anime.sinopsis || '').trim();
-                    // Eliminar notas de fuente como "(Fuente: ...)" o "(Source: ...)"
-                    text = text.replace(/\(?(Fuente|Source):[^\)]+\)?/gi, '').trim();
-                    // Defensa: nunca mostrar mensajes de error de traducción guardados en la DB
-                    if (/QUERY LENGTH|MAX ALLOWED QUERY/i.test(text) || !text) {
-                      text = 'Sin sinopsis disponible.';
-                    }
-                    let paragraphs = text.split(/\n+/).map((p: string) => p.trim()).filter((p: string) => p.length > 0);
-                    
-                    if (paragraphs.length >= 2) {
-                      return `<p style="margin-bottom: 12px;">${paragraphs[0]}</p><p>${paragraphs.slice(1).join(' ')}</p>`;
-                    }
-                    
-                    // Si solo hay un párrafo pero contiene <br>, lo separamos por ahí
-                    if (text.toLowerCase().includes('<br')) {
-                      paragraphs = text.split(/<br\s*\/?>/ as any).map((p: string) => p.trim()).filter((p: string) => p.length > 0);
-                      if (paragraphs.length >= 2) {
-                        return `<p style="margin-bottom: 12px;">${paragraphs[0]}</p><p>${paragraphs.slice(1).join(' ')}</p>`;
-                      }
-                    }
-
-                    // Si no hay saltos de línea explícitos, lo dividimos en 2 mitades para cumplir la regla
-                    const sentences = paragraphs[0].match(/[^.!?]+[.!?]+/g) || [paragraphs[0]];
-                    if (sentences.length <= 1) return `<p>${paragraphs[0]}</p><p></p>`; // Demasiado corto para dividir
-                    const mid = Math.ceil(sentences.length / 2);
-                    const p1 = sentences.slice(0, mid).join(' ').trim();
-                    const p2 = sentences.slice(mid).join(' ').trim();
-                    return `<p style="margin-bottom: 12px;">${p1}</p><p>${p2}</p>`;
-                  })() }}></div>
+                  <>
+                    <div dangerouslySetInnerHTML={{ __html: renderSinopsis() }} />
+                    {esMovil && (
+                      <button className={styles.sinopsisToggle} onClick={() => setSinopsisExpandida(v => !v)}>
+                        {sinopsisExpandida ? 'Ver menos' : 'Ver más'}
+                      </button>
+                    )}
+                  </>
                 )}
               </section>
 
