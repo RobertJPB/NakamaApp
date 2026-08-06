@@ -370,78 +370,67 @@ export class KitsuService implements IAnimeExternalService {
 
   async buscarPersonajes(busqueda: string) {
     try {
-      // Usamos AniList GraphQL para buscar personajes ya que Kitsu no funciona bien para nombres de anime
-      const query = `
-        query ($search: String) {
-          characters: Page(page: 1, perPage: 15) {
-            characters(search: $search, sort: [FAVOURITES_DESC]) {
-              id
-              name { full }
-              image { large }
-              media(sort: POPULARITY_DESC, type: ANIME, page: 1, perPage: 1) {
-                nodes {
-                  title { romaji }
-                }
-              }
-            }
-          }
-          anime: Page(page: 1, perPage: 3) {
-            media(search: $search, type: ANIME, sort: [POPULARITY_DESC]) {
-              title { romaji }
-              characters(sort: [FAVOURITES_DESC], page: 1, perPage: 25) {
-                nodes {
-                  id
-                  name { full }
-                  image { large }
-                }
-              }
-            }
-          }
-        }
-      `;
-
-      const res = await fetch('https://graphql.anilist.co', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query, variables: { search: busqueda } })
-      });
-
-      if (!res.ok) return [];
-      const json = await res.json() as any;
+      // Usamos Kitsu ya que AniList no permite uso comercial.
+      // Hacemos 2 llamadas en paralelo:
+      // 1. Buscar personajes por nombre
+      // 2. Buscar animes por nombre y extraer sus personajes (para que "Dragon Ball" retorne a Goku)
       
-      const chars = json.data?.characters?.characters || [];
-      const animeChars = (json.data?.anime?.media || []).flatMap((m: any) => 
-        (m.characters?.nodes || []).map((c: any) => ({...c, animeTitle: m.title?.romaji}))
-      );
+      const charsPromise = fetch(`https://kitsu.io/api/edge/characters?filter[name]=${encodeURIComponent(busqueda)}&page[limit]=15`).then(r => r.json());
+      const animePromise = fetch(`https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(busqueda)}&include=characters.character&page[limit]=2`).then(r => r.json());
+
+      const [charsJson, animeJson] = await Promise.all([charsPromise, animePromise].map(p => p.catch(() => ({} as any)))) as [any, any];
       
       const map = new Map<string, any>();
-      // Añadimos primero los personajes de los animes (son más relevantes si busco el nombre del anime)
-      animeChars.forEach((c: any) => {
-        if (c.image?.large && !map.has(c.id.toString())) {
-          map.set(c.id.toString(), {
-            id: c.id.toString(),
-            nombre: c.name?.full || 'Desconocido',
-            imagenUrl: c.image.large,
-            animeTitulo: c.animeTitle
-          });
-        }
-      });
 
-      // Luego añadimos los resultados directos de personaje
-      chars.forEach((c: any) => {
-        if (c.image?.large && !map.has(c.id.toString())) {
-          map.set(c.id.toString(), {
-            id: c.id.toString(),
-            nombre: c.name?.full || 'Desconocido',
-            imagenUrl: c.image.large,
-            animeTitulo: c.media?.nodes?.[0]?.title?.romaji || null
+      // Procesar personajes provenientes de los animes encontrados (suelen ser más populares para esa franquicia)
+      if (animeJson?.included) {
+        // Encontrar los nombres de los animes para asociarlos
+        const animeMap = new Map<string, string>();
+        if (animeJson.data) {
+          animeJson.data.forEach((a: any) => {
+            animeMap.set(a.id, a.attributes?.canonicalName || a.attributes?.titles?.en_jp);
           });
         }
-      });
+
+        animeJson.included.forEach((inc: any) => {
+          if (inc.type === 'characters' && inc.attributes?.image) {
+            let name = inc.attributes?.canonicalName || inc.attributes?.name || 'Desconocido';
+            if (name.includes(',')) {
+              name = name.split(',').map((s: string) => s.trim()).reverse().join(' ');
+            }
+            if (!map.has(inc.id.toString())) {
+              map.set(inc.id.toString(), {
+                id: inc.id.toString(),
+                nombre: name,
+                imagenUrl: inc.attributes.image.original || inc.attributes.image.large || null,
+                animeTitulo: null // Kitsu devuelve characters en 'included' pero no sabemos directamente a cuál anime pertenece sin parsear relationships, null está bien
+              });
+            }
+          }
+        });
+      }
+
+      // Procesar resultados directos de personaje
+      if (charsJson?.data) {
+        charsJson.data.forEach((c: any) => {
+          if (c.attributes?.image && !map.has(c.id.toString())) {
+            let name = c.attributes?.canonicalName || c.attributes?.name || 'Desconocido';
+            if (name.includes(',')) {
+              name = name.split(',').map((s: string) => s.trim()).reverse().join(' ');
+            }
+            map.set(c.id.toString(), {
+              id: c.id.toString(),
+              nombre: name,
+              imagenUrl: c.attributes.image.original || c.attributes.image.large || null,
+              animeTitulo: null
+            });
+          }
+        });
+      }
 
       return Array.from(map.values()).slice(0, 40);
     } catch (e) {
-      console.error('Error fetching characters from Anilist:', e);
+      console.error('Error fetching characters from Kitsu:', e);
       return [];
     }
   }

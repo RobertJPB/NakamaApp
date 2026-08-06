@@ -1,49 +1,22 @@
-const query = `
-query ($search: String) {
-  characters: Page(page: 1, perPage: 15) {
-    characters(search: $search, sort: [FAVOURITES_DESC]) {
-      id
-      name { full }
-      image { large }
-      media(sort: POPULARITY_DESC, type: ANIME, page: 1, perPage: 1) {
-        nodes {
-          title { romaji }
-        }
-      }
-    }
-  }
-  anime: Page(page: 1, perPage: 3) {
-    media(search: $search, type: ANIME, sort: [POPULARITY_DESC]) {
-      title { romaji }
-      characters(sort: [FAVOURITES_DESC], page: 1, perPage: 25) {
-        nodes {
-          id
-          name { full }
-          image { large }
-        }
-      }
-    }
-  }
-}
-`;
+const fetch = require('node-fetch'); // or native fetch in node 18+
 
-fetch('https://graphql.anilist.co', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ query, variables: { search: "Dragon Ball" } })
-}).then(r => r.json()).then(d => {
-  const chars = d.data.characters.characters;
-  const animeChars = d.data.anime.media.flatMap(m => m.characters.nodes.map(c => ({...c, animeTitle: m.title.romaji})));
+async function testKitsu() {
+  const q = "Dragon Ball";
+  const url = `https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(q)}&include=characters.character&page[limit]=1`;
   
-  const map = new Map();
-  // Add anime characters first
-  animeChars.forEach(c => map.set(c.id, c));
-  // Add matching characters
-  chars.forEach(c => {
-    if (!map.has(c.id)) {
-      map.set(c.id, { ...c, animeTitle: c.media?.nodes?.[0]?.title?.romaji });
-    }
-  });
+  const res = await fetch(url);
+  const json = await res.json();
   
-  console.log(Array.from(map.values()).slice(0, 50).map(c => c.name.full));
-});
+  if (!json.included) {
+    console.log("No included data");
+    return;
+  }
+  
+  const characters = json.included
+    .filter(inc => inc.type === 'characters')
+    .map(c => c.attributes.canonicalName || c.attributes.name);
+    
+  console.log(characters.slice(0, 50));
+}
+
+testKitsu();
