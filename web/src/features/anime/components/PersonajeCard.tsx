@@ -7,7 +7,7 @@ export const PersonajeCard: React.FC<PersonajeCardProps> = ({ personaje }) => (
   <div className={styles.card}>
     <div className={styles.imagen}>
       {personaje.image?.large
-        ? <img src={personaje.image.large} alt={personaje.name?.full} />
+        ? <img src={personaje.image.large} alt={personaje.name?.full} loading="lazy" decoding="async" />
         : <div className={styles.placeholder}>{personaje.name?.full?.[0]}</div>
       }
       {personaje.rol === 'MAIN' && <span className={styles.rolBadge}>Principal</span>}

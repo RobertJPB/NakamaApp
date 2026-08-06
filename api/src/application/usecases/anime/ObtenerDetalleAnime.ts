@@ -35,9 +35,13 @@ export class ObtenerDetalleAnime {
     const { anime: datos, personajes, generos } = await this.animeService.obtenerDetalle(externalId)
     if (!datos) throw new AppError('Anime no encontrado', 404)
 
-    // Si la traducción en vivo falló, usamos la sinopsis local si existe (para no sobrescribir español con inglés)
-    if ((datos as any).traducido === false && animeLocal?.sinopsis) {
-      datos.sinopsis = animeLocal.sinopsis;
+    // Si la traducción en vivo falló, usamos la sinopsis local si existe (para no sobrescribir español con inglés).
+    // Ojo: no usar sinopsis locales corruptas (p.ej. error "QUERY LENGTH LIMIT" de MyMemory guardado en la DB).
+    const localSinopsisValida = animeLocal?.sinopsis && !/QUERY LENGTH/i.test(animeLocal.sinopsis)
+      ? animeLocal.sinopsis
+      : null;
+    if ((datos as any).traducido === false && localSinopsisValida) {
+      datos.sinopsis = localSinopsisValida;
     }
 
     // Actualizamos siempre para guardar la traducción y limpieza

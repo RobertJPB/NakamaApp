@@ -5,7 +5,6 @@ import { useAnimeDetalle } from '../../../hooks/useAnime'
 import { useAuth }         from '../../../hooks/useAuth'
 import { ResenaCard }      from '../components/ResenaCard'
 import { ResenaForm }      from '../components/ResenaForm'
-import { PersonajeCard }   from '../components/PersonajeCard'
 import { BotonLista }      from '../components/BotonLista'
 import { useBiblioteca }   from '../../../hooks/useBiblioteca'
 import styles              from './AnimePage.module.css'
@@ -331,7 +330,7 @@ export const AnimePage: React.FC = () => {
                         {(personajes ?? []).map((p: any) => (
                           <div key={p.id} className={styles.castItem}>
                             <div className={styles.castImgWrapper}>
-                              <img src={p.imagenUrl} alt={p.nombre} title={p.nombre} />
+                              <img src={p.imagenUrl} alt={p.nombre} title={p.nombre} loading="lazy" decoding="async" />
                             </div>
                             <span className={styles.castName}>{p.nombre.split(' ')[0]}</span>
                           </div>
