@@ -16,5 +16,5 @@ export interface IAnimeExternalService {
     generos?: string[]
     personajes: any[]
   }>
-  obtenerPopulares(pagina?: number, perPage?: number, genre?: string, seasonYear?: number): Promise<Partial<Anime>[]>
+  obtenerPopulares(pagina?: number, perPage?: number, genre?: string, seasonYear?: number, tipo?: string, demografia?: string, temporada?: string): Promise<Partial<Anime>[]>
 }

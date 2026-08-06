@@ -134,6 +134,28 @@ const GENRE_MAP: Record<string, string> = {
   "Ecchi": "Ecchi"
 };
 
+// Clave de "franquicia" a partir del título, para detectar temporadas/OVAs de un mismo anime
+// y no mostrarlas una seguida de otra dentro de una categoría.
+function franquiciaBase(titulo: string): string {
+  return (titulo || '')
+    .toLowerCase()
+    .replace(/\s*\([^)]*\)\s*/g, ' ')
+    .replace(/\s*[:\-]\s.*$/, '') // corta en ":" o " - " ("Attack on Titan: Chronicle" -> "attack on titan")
+    .replace(/-/g, ' ') // unifica "One-Punch Man" -> "one punch man"
+    .replace(/\b(1st|2nd|3rd|4th|[0-9]+(?:st|nd|rd|th))\s+(season|series|cour|part)\b/g, ' ')
+    .replace(/\b(second|third|fourth|fifth)\s+season\b/g, ' ')
+    .replace(/\bseason\s+[0-9]+\b/g, ' ')
+    .replace(/\bpart\s+[0-9]+\b/g, ' ')
+    .replace(/\bchapter\s+[0-9]+\s*$/g, '')
+    .replace(/\s+[0-9]+\s*$/g, '')
+    .replace(/\s*√\w+\s*$/g, '')
+    .replace(/\s*:\s*re(\s*[0-9]+)?\s*$/g, '')
+    .replace(/\s+(ii|iii|iv|v|vi|vii|viii)\s*$/g, '')
+    .replace(/\s+(specials|ova|movie|film|recap)\s*$/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
 export class KitsuService implements IAnimeExternalService {
   private async fetchKitsu(endpoint: string) {
     const url = `${KITSU_URL}${endpoint}`
@@ -362,11 +384,11 @@ export class KitsuService implements IAnimeExternalService {
     return result
   }
 
-  async obtenerPopulares(pagina = 1, perPage = 18, genre?: string, seasonYear?: number) {
+  async obtenerPopulares(pagina = 1, perPage = 18, genre?: string, seasonYear?: number, tipo?: string, demografia?: string, temporada?: string) {
     const limit = perPage
     const offset = (pagina - 1) * limit
     
-    const cacheKey = `populares_${pagina}_${perPage}_${genre || 'all'}_${seasonYear || 'all'}`
+    const cacheKey = `populares_${pagina}_${perPage}_${genre || 'all'}_${seasonYear || 'all'}_${tipo || 'all'}_${demografia || 'all'}_${temporada || 'all'}`
     const cached = responseCache.get(cacheKey)
     if (cached !== undefined) {
       return cached
@@ -374,12 +396,13 @@ export class KitsuService implements IAnimeExternalService {
 
     let animes: Partial<Anime>[] = []
 
-    if (genre) {
-      // Dentro de una categoría, en lugar de ordenar solo por popularidad global
-      // (que hace que siempre salgan los mismos animes con muchos géneros, p.ej.
-      // Attack on Titan, en todas las categorías), priorizamos los animes donde el
-      // género consultado representa la mayor proporción de sus categorías.
-      const pool = await this.obtenerPoolPorGenero(genre, seasonYear)
+    const hayFiltros = genre || tipo || demografia || temporada
+    if (hayFiltros) {
+      // Dentro de un filtro, en lugar de ordenar solo por popularidad global (que hace que
+      // siempre salgan los mismos animes con muchos géneros, p.ej. Attack on Titan, en todas
+      // las categorías), priorizamos los animes donde el género consultado representa la mayor
+      // proporción de sus categorías, y separamos temporadas de la misma franquicia.
+      const pool = await this.obtenerPoolPorGenero({ genre, seasonYear, tipo, demografia, temporada })
       animes = pool.slice(offset, offset + limit)
     } else {
       let url = `/anime?sort=-userCount`
@@ -392,27 +415,46 @@ export class KitsuService implements IAnimeExternalService {
     return animes
   }
 
-  // Pool de animes de una categoría reordenados por relevancia del género:
+  // Pool de animes de un filtro reordenados por relevancia del género:
   // a mayor proporción de categorías que coinciden con el género consultado,
   // más arriba queda. Desempata con la popularidad original (userCount).
-  private async obtenerPoolPorGenero(genre: string, seasonYear?: number) {
-    const cacheKey = `pool_${genre}_${seasonYear || 'all'}`
+  private async obtenerPoolPorGenero(params: { genre?: string; seasonYear?: number; tipo?: string; demografia?: string; temporada?: string }) {
+    const { genre, seasonYear, tipo, demografia, temporada } = params
+    const cacheKey = `pool_${genre || 'all'}_${seasonYear || 'all'}_${tipo || 'all'}_${demografia || 'all'}_${temporada || 'all'}`
     const cached = responseCache.get(cacheKey)
     if (cached !== undefined) {
       return cached
     }
 
     const POOL_SIZE = 100
-    let url = `/anime?sort=-userCount&filter[categories]=${encodeURIComponent(genre)}&include=categories`
-    if (seasonYear) url += `&filter[seasonYear]=${seasonYear}`
+
+    // Kitsu solo permite filtrar por temporada junto a un año; si no hay año usamos el actual.
+    const anioSeason = seasonYear ?? new Date().getFullYear()
+
+    const filtros: string[] = []
+    if (genre) filtros.push(`filter[categories]=${encodeURIComponent(genre)}`)
+    if (demografia) filtros.push(`filter[categories]=${encodeURIComponent(demografia)}`)
+    if (tipo) filtros.push(`filter[subtype]=${encodeURIComponent(tipo)}`)
+    if (temporada) {
+      filtros.push(`filter[season]=${temporada.toLowerCase()}`)
+      filtros.push(`filter[seasonYear]=${anioSeason}`)
+    } else if (seasonYear) {
+      filtros.push(`filter[seasonYear]=${seasonYear}`)
+    }
+
+    // Solo incluimos categorías cuando hay género, que es cuando necesitamos medir la relevancia
+    let url = `/anime?sort=-userCount&${filtros.join('&')}`
+    if (genre) url += `&include=categories`
 
     const data = await this.fetchKitsuPaginated(url, POOL_SIZE, 0)
     const titleById = new Map<string, string>()
-    for (const inc of data.included || []) {
-      if (inc.type === 'categories') titleById.set(inc.id, inc.attributes?.title)
+    if (genre) {
+      for (const inc of data.included || []) {
+        if (inc.type === 'categories') titleById.set(inc.id, inc.attributes?.title)
+      }
     }
 
-    const target = genre.toLowerCase()
+    const target = genre?.toLowerCase()
     const rankeado = (data.data || [])
       .map((anime: any, index: number) => {
         const cats = (anime.relationships?.categories?.data || [])
@@ -426,14 +468,59 @@ export class KitsuService implements IAnimeExternalService {
 
     // Kitsu duplica algunas entradas (reemisiones con el mismo título): nos quedamos con la primera
     const vistos = new Set<string>()
-    const animes = rankeado
-      .filter((entry: any) => {
-        const key = (entry.anime.titulo || '').toLowerCase().trim()
-        if (!key || vistos.has(key)) return false
-        vistos.add(key)
-        return true
-      })
-      .map((entry: any) => entry.anime)
+    const sinDuplicados = rankeado.filter((entry: any) => {
+      const key = (entry.anime.titulo || '').toLowerCase().trim()
+      if (!key || vistos.has(key)) return false
+      vistos.add(key)
+      return true
+    })
+
+    // Separar temporadas de la misma franquicia para que no queden una tras otra
+    // (p.ej. "Assassination Classroom" y "Assassination Classroom Second Season",
+    // o la versión en japonés "Ansatsu Kyoushitsu 2nd Season").
+    const GAP = 2 // mínimo de posiciones entre dos entradas de la misma franquicia
+    const basesDe = (e: any) => {
+      const arr: string[] = []
+      if (e.anime.titulo) arr.push(franquiciaBase(e.anime.titulo))
+      if (e.anime.tituloRomaji) arr.push(franquiciaBase(e.anime.tituloRomaji))
+      return Array.from(new Set(arr.filter(Boolean)))
+    }
+    const resultado: any[] = []
+    const pendientes: any[] = []
+    const ultimaPos = new Map<string, number>()
+
+    const puedeColocarse = (e: any) => {
+      for (const base of basesDe(e)) {
+        const last = ultimaPos.get(base)
+        if (last !== undefined && (resultado.length - last) < GAP) return false
+      }
+      return true
+    }
+    const colocar = (e: any) => {
+      resultado.push(e)
+      for (const base of basesDe(e)) ultimaPos.set(base, resultado.length - 1)
+    }
+
+    for (const entry of sinDuplicados) {
+      if (puedeColocarse(entry)) {
+        colocar(entry)
+        // Reintentar colocar los pendientes apenas la franquicia tenga distancia suficiente
+        let i = 0
+        while (i < pendientes.length) {
+          if (puedeColocarse(pendientes[i])) {
+            colocar(pendientes.splice(i, 1)[0])
+            i = 0
+          } else {
+            i++
+          }
+        }
+      } else {
+        pendientes.push(entry)
+      }
+    }
+    resultado.push(...pendientes)
+
+    const animes = resultado.map((entry: any) => entry.anime)
 
     responseCache.set(cacheKey, animes)
     return animes

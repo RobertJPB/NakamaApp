@@ -249,12 +249,30 @@
     flex-direction: row;
     align-items: flex-start; /* Alinea el logo con el nombre (arriba) */
     text-align: left;
-    margin-top: -60px; /* Sube la imagen y el texto hacia el banner */
+    margin-top: -60px; /* Solo el logo queda sobre el banner */
     gap: var(--space-4);
   }
   .detalleAvatar {
     width: 80px; height: 80px;
     border-width: 3px;
+  }
+
+  /* El nombre no debe quedar sobre el banner */
+  .detalleInfo {
+    margin-top: 60px;
+    padding-top: 0;
+    min-width: 0;
+  }
+  .detalleNombre {
+    font-size: 1.35rem;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    max-width: 100%;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
   
   .detalleTop {

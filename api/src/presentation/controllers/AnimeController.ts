@@ -41,12 +41,15 @@ export class AnimeController {
 
   populares = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { page = 1, perPage = 22, genero, anio } = req.query
+      const { page = 1, perPage = 22, genero, anio, tipo, demografia, temporada } = req.query
       const resultado = await container.animeService.obtenerPopulares(
         Number(page), 
         Number(perPage),
         genero ? String(genero) : undefined,
-        anio ? Number(anio) : undefined
+        anio ? Number(anio) : undefined,
+        tipo ? String(tipo) : undefined,
+        demografia ? String(demografia) : undefined,
+        temporada ? String(temporada) : undefined
       )
       
       // Enriquecer con notas MAL de la base de datos local

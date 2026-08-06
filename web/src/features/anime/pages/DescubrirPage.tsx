@@ -14,9 +14,26 @@ const GENEROS = [
   { value: 'Slice of Life', label: 'Recuentos de la vida' }, { value: 'Sports', label: 'Deportes' }, { value: 'Supernatural', label: 'Sobrenatural' },
   { value: 'Thriller', label: 'Suspenso' }, { value: 'Mecha', label: 'Mecha' }
 ]
-const TIPOS   = ['TV','MOVIE','OVA','ONA','SPECIAL']
-const TEMPORADAS = ['WINTER','SPRING','SUMMER','FALL']
-const DEMOGRAFIAS = ['Shounen', 'Shoujo', 'Seinen', 'Josei', 'Kids']
+const TIPOS   = [
+  { valor: 'TV', label: 'Serie' },
+  { valor: 'MOVIE', label: 'Película' },
+  { valor: 'OVA', label: 'OVA' },
+  { valor: 'ONA', label: 'ONA' },
+  { valor: 'SPECIAL', label: 'Especial' },
+]
+const TEMPORADAS = [
+  { valor: 'WINTER', label: 'Invierno' },
+  { valor: 'SPRING', label: 'Primavera' },
+  { valor: 'SUMMER', label: 'Verano' },
+  { valor: 'FALL', label: 'Otoño' },
+]
+const DEMOGRAFIAS = [
+  { valor: 'Shounen', label: 'Shōnen' },
+  { valor: 'Shoujo', label: 'Shōjo' },
+  { valor: 'Seinen', label: 'Seinen' },
+  { valor: 'Josei', label: 'Josei' },
+  { valor: 'Kids', label: 'Infantil' },
+]
 
 const Categoria = ({ titulo, animes, layout = 'grid', onVerMas }: { titulo: string, animes: any[], layout?: 'grid', onVerMas?: () => void }) => {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -165,7 +182,7 @@ export const DescubrirPage: React.FC = () => {
     params.set('page', page.toString())
     params.set('perPage', '60')
     
-    // Usamos populares para que busque en AniList
+    // Usamos populares para que aplique los filtros de género/tipo/temporada/demografía en Kitsu
     api.get(`/api/animes/populares?${params.toString()}`)
       .then(({ data }) => setAnimes(Array.isArray(data) ? data : data.animes ?? []))
       .finally(() => setCargando(false))
@@ -227,7 +244,7 @@ export const DescubrirPage: React.FC = () => {
                 <div className={styles.filtroOpcionesH}>
                   <button className={`${styles.chipH} ${!tipo ? styles.chipActivo : ''}`} onClick={() => handleSetTipo('')}>Todos</button>
                   {TIPOS.map(t => (
-                    <button key={t} className={`${styles.chipH} ${tipo === t ? styles.chipActivo : ''}`} onClick={() => handleSetTipo(t)}>{t}</button>
+                    <button key={t.valor} className={`${styles.chipH} ${tipo === t.valor ? styles.chipActivo : ''}`} onClick={() => handleSetTipo(t.valor)}>{t.label}</button>
                   ))}
                 </div>
               </div>
@@ -236,7 +253,7 @@ export const DescubrirPage: React.FC = () => {
                 <div className={styles.filtroOpcionesH}>
                   <button className={`${styles.chipH} ${!temporada ? styles.chipActivo : ''}`} onClick={() => handleSetTemporada('')}>Todas</button>
                   {TEMPORADAS.map(t => (
-                    <button key={t} className={`${styles.chipH} ${temporada === t ? styles.chipActivo : ''}`} onClick={() => handleSetTemporada(t)}>{t}</button>
+                    <button key={t.valor} className={`${styles.chipH} ${temporada === t.valor ? styles.chipActivo : ''}`} onClick={() => handleSetTemporada(t.valor)}>{t.label}</button>
                   ))}
                 </div>
               </div>
@@ -245,7 +262,7 @@ export const DescubrirPage: React.FC = () => {
                 <div className={styles.filtroOpcionesH}>
                   <button className={`${styles.chipH} ${!demografia ? styles.chipActivo : ''}`} onClick={() => handleSetDemografia('')}>Todas</button>
                   {DEMOGRAFIAS.map(d => (
-                    <button key={d} className={`${styles.chipH} ${demografia === d ? styles.chipActivo : ''}`} onClick={() => handleSetDemografia(d)}>{d}</button>
+                    <button key={d.valor} className={`${styles.chipH} ${demografia === d.valor ? styles.chipActivo : ''}`} onClick={() => handleSetDemografia(d.valor)}>{d.label}</button>
                   ))}
                 </div>
               </div>
