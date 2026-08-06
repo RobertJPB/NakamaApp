@@ -156,6 +156,12 @@ function franquiciaBase(titulo: string): string {
     .trim()
 }
 
+// Franquicias que Kitsu marca con un género solo por sus especiales/parodias, pero que
+// no deberían aparecer en esa categoría. Claves en formato de franquiciaBase().
+const EXCLUIDOS_POR_GENERO: Record<string, string[]> = {
+  Comedy: ['attack on titan'],
+}
+
 export class KitsuService implements IAnimeExternalService {
   private async fetchKitsu(endpoint: string) {
     const url = `${KITSU_URL}${endpoint}`
@@ -477,17 +483,20 @@ export class KitsuService implements IAnimeExternalService {
 
     // Solo UNA entrada por franquicia: no mostrar "Assassination Classroom" y su "Second Season"
     // (ni la versión en japonés "Ansatsu Kyoushitsu 2nd Season") en la misma página. Nos quedamos
-    // con la de mejor posición (mayor relevancia del género / más popular).
+    // con la de mejor posición (mayor relevancia del género / más popular). También excluimos
+    // franquicias que no deberían aparecer en esta categoría (ver EXCLUIDOS_POR_GENERO).
     const basesDe = (e: any) => {
       const arr: string[] = []
       if (e.anime.titulo) arr.push(franquiciaBase(e.anime.titulo))
       if (e.anime.tituloRomaji) arr.push(franquiciaBase(e.anime.tituloRomaji))
       return Array.from(new Set(arr.filter(Boolean)))
     }
+    const excluidos = EXCLUIDOS_POR_GENERO[genre || '']
     const resultado: any[] = []
     const franquiciasVistas = new Set<string>()
     for (const entry of sinDuplicados) {
       const bases = basesDe(entry)
+      if (excluidos && bases.some(b => excluidos.includes(b))) continue
       if (bases.some(b => franquiciasVistas.has(b))) continue
       resultado.push(entry)
       bases.forEach(b => franquiciasVistas.add(b))
