@@ -163,9 +163,10 @@ export class KitsuService implements IAnimeExternalService {
 
     const results = await Promise.all(promises)
     const combinedData = results.reduce((acc: any[], curr: any) => acc.concat(curr.data || []), [])
+    const combinedIncluded = results.reduce((acc: any[], curr: any) => acc.concat(curr.included || []), [])
     const count = results[0]?.meta?.count || 0
 
-    return { data: combinedData, meta: { count } }
+    return { data: combinedData, included: combinedIncluded, meta: { count } }
   }
 
   async buscarAnimes(busqueda: string, pagina = 1, perPage = 20) {
@@ -371,12 +372,68 @@ export class KitsuService implements IAnimeExternalService {
       return cached
     }
 
-    let url = `/anime?sort=-userCount`
-    if (genre) url += `&filter[categories]=${encodeURIComponent(genre)}`
+    let animes: Partial<Anime>[] = []
+
+    if (genre) {
+      // Dentro de una categoría, en lugar de ordenar solo por popularidad global
+      // (que hace que siempre salgan los mismos animes con muchos géneros, p.ej.
+      // Attack on Titan, en todas las categorías), priorizamos los animes donde el
+      // género consultado representa la mayor proporción de sus categorías.
+      const pool = await this.obtenerPoolPorGenero(genre, seasonYear)
+      animes = pool.slice(offset, offset + limit)
+    } else {
+      let url = `/anime?sort=-userCount`
+      if (seasonYear) url += `&filter[seasonYear]=${seasonYear}`
+      const data = await this.fetchKitsuPaginated(url, limit, offset)
+      animes = (data.data || []).map(mapKitsuToAnime)
+    }
+
+    responseCache.set(cacheKey, animes)
+    return animes
+  }
+
+  // Pool de animes de una categoría reordenados por relevancia del género:
+  // a mayor proporción de categorías que coinciden con el género consultado,
+  // más arriba queda. Desempata con la popularidad original (userCount).
+  private async obtenerPoolPorGenero(genre: string, seasonYear?: number) {
+    const cacheKey = `pool_${genre}_${seasonYear || 'all'}`
+    const cached = responseCache.get(cacheKey)
+    if (cached !== undefined) {
+      return cached
+    }
+
+    const POOL_SIZE = 100
+    let url = `/anime?sort=-userCount&filter[categories]=${encodeURIComponent(genre)}&include=categories`
     if (seasonYear) url += `&filter[seasonYear]=${seasonYear}`
 
-    const data = await this.fetchKitsuPaginated(url, limit, offset)
-    const animes = (data.data || []).map(mapKitsuToAnime)
+    const data = await this.fetchKitsuPaginated(url, POOL_SIZE, 0)
+    const titleById = new Map<string, string>()
+    for (const inc of data.included || []) {
+      if (inc.type === 'categories') titleById.set(inc.id, inc.attributes?.title)
+    }
+
+    const target = genre.toLowerCase()
+    const rankeado = (data.data || [])
+      .map((anime: any, index: number) => {
+        const cats = (anime.relationships?.categories?.data || [])
+          .map((rel: any) => titleById.get(rel.id) || '')
+          .filter(Boolean)
+        const total = cats.length || 1
+        const coincide = cats.some((c: string) => c.toLowerCase() === target)
+        return { anime: mapKitsuToAnime(anime), score: coincide ? 1 / total : 0, rank: index }
+      })
+      .sort((a: any, b: any) => (b.score - a.score) || (a.rank - b.rank))
+
+    // Kitsu duplica algunas entradas (reemisiones con el mismo título): nos quedamos con la primera
+    const vistos = new Set<string>()
+    const animes = rankeado
+      .filter((entry: any) => {
+        const key = (entry.anime.titulo || '').toLowerCase().trim()
+        if (!key || vistos.has(key)) return false
+        vistos.add(key)
+        return true
+      })
+      .map((entry: any) => entry.anime)
 
     responseCache.set(cacheKey, animes)
     return animes
