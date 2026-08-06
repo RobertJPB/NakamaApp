@@ -112,6 +112,28 @@
   background: var(--color-surface-2);
 }
 
+.avatarWrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* Sello del tipo (Usuario) sobre el avatar */
+.tipoCorner {
+  position: absolute;
+  bottom: -3px;
+  right: -3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--color-acento);
+  color: #1f2124;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--color-surface);
+  z-index: 1;
+}
+
 .userAvatar {
   width: 40px;
   height: 40px;
@@ -159,6 +181,32 @@
 .resenaCard:hover, .comunidadCard:hover {
   background: var(--color-surface-2);
   border-color: rgba(255,255,255,0.05);
+}
+
+/* Fila con el logo del tipo a la izquierda */
+.rowCard {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.cardBody {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Logo del tipo (Usuario / Reseña / Comunidad / Lista) */
+.tipoBadge {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-borde);
+  color: var(--color-acento);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .resenaHeader {
@@ -214,9 +262,16 @@
 }
 
 .sectionHeader h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: var(--text-xl);
   font-weight: 700;
   color: var(--color-texto);
+}
+
+.sectionHeader h3 svg {
+  color: var(--color-acento);
 }
 
 .sectionHeader button {
@@ -230,4 +285,28 @@
 
 .sectionHeader button:hover {
   text-decoration: underline;
+}
+
+/* Móvil */
+@media (max-width: 768px) {
+  .toggles {
+    width: 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .toggles::-webkit-scrollbar {
+    display: none;
+  }
+  .toggle {
+    flex-shrink: 0;
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-xs);
+  }
+  .userRow {
+    max-width: 100%;
+  }
+  .animeGrid {
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  }
 }

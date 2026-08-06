@@ -100,11 +100,14 @@ export const SearchPage: React.FC = () => {
       <div className={styles.listContainer}>
         {list.map(user => (
           <div key={user.id} className={styles.userRow} onClick={() => navigate(`/perfil/${user.username}`)}>
-            {user.avatarUrl ? (
-              <img src={user.avatarUrl} alt={user.username} className={styles.userAvatar} />
-            ) : (
-              <div className={styles.userAvatarFallback}>{user.nombreDisplay?.[0] || user.username[0]}</div>
-            )}
+            <div className={styles.avatarWrap}>
+              {user.avatarUrl ? (
+                <img src={user.avatarUrl} alt={user.username} className={styles.userAvatar} />
+              ) : (
+                <div className={styles.userAvatarFallback}>{user.nombreDisplay?.[0] || user.username[0]}</div>
+              )}
+              <span className={styles.tipoCorner}><User size={10} /></span>
+            </div>
             <div className={styles.userInfo}>
               <div className={styles.userName}>{user.nombreDisplay || user.username}</div>
               <div className={styles.userHandle}>@{user.username}</div>
@@ -121,12 +124,15 @@ export const SearchPage: React.FC = () => {
     return (
       <div className={styles.listContainer}>
         {list.map(resena => (
-          <div key={resena.id} className={styles.resenaCard} onClick={() => navigate(`/anime/${resena.anime?.externalId}`)}>
-            <div className={styles.resenaHeader}>
-              <span>{resena.usuario?.username} sobre <strong>{resena.anime?.titulo}</strong></span>
-              <span style={{ color: 'var(--color-acento)' }}>★ {resena.calificacion}</span>
+          <div key={resena.id} className={`${styles.resenaCard} ${styles.rowCard}`} onClick={() => navigate(`/anime/${resena.anime?.externalId}`)}>
+            <div className={styles.tipoBadge}><MessageSquare size={15} /></div>
+            <div className={styles.cardBody}>
+              <div className={styles.resenaHeader}>
+                <span>{resena.usuario?.username} sobre <strong>{resena.anime?.titulo}</strong></span>
+                <span style={{ color: 'var(--color-acento)' }}>★ {resena.calificacion}</span>
+              </div>
+              <p className={styles.resenaContent}>{resena.contenido}</p>
             </div>
-            <p className={styles.resenaContent}>{resena.contenido}</p>
           </div>
         ))}
       </div>
@@ -139,10 +145,13 @@ export const SearchPage: React.FC = () => {
     return (
       <div className={styles.listContainer}>
         {list.map(com => (
-          <div key={com.id} className={styles.comunidadCard} onClick={() => navigate(`/comunidades/${com.id}`)}>
-            <div className={styles.comName}>{com.nombre}</div>
-            <div className={styles.comDesc}>{com.descripcion}</div>
-            <div className={styles.comMeta}>{com._count?.miembros ?? 0} miembros</div>
+          <div key={com.id} className={`${styles.comunidadCard} ${styles.rowCard}`} onClick={() => navigate(`/comunidades/${com.id}`)}>
+            <div className={styles.tipoBadge}><Users size={15} /></div>
+            <div className={styles.cardBody}>
+              <div className={styles.comName}>{com.nombre}</div>
+              <div className={styles.comDesc}>{com.descripcion}</div>
+              <div className={styles.comMeta}>{com._count?.miembros ?? 0} miembros</div>
+            </div>
           </div>
         ))}
       </div>
@@ -155,10 +164,13 @@ export const SearchPage: React.FC = () => {
     return (
       <div className={styles.listContainer}>
         {list.map(lista => (
-          <div key={lista.id} className={styles.comunidadCard} onClick={() => navigate(`/listas/${lista.id}`)}>
-            <div className={styles.comName}>{lista.titulo}</div>
-            <div className={styles.comDesc}>{lista.descripcion}</div>
-            <div className={styles.comMeta}>Por {lista.usuario?.username}</div>
+          <div key={lista.id} className={`${styles.comunidadCard} ${styles.rowCard}`} onClick={() => navigate(`/listas/${lista.id}`)}>
+            <div className={styles.tipoBadge}><Library size={15} /></div>
+            <div className={styles.cardBody}>
+              <div className={styles.comName}>{lista.titulo}</div>
+              <div className={styles.comDesc}>{lista.descripcion}</div>
+              <div className={styles.comMeta}>Por {lista.usuario?.username}</div>
+            </div>
           </div>
         ))}
       </div>
@@ -179,7 +191,7 @@ export const SearchPage: React.FC = () => {
         {resultados.animes.length > 0 && (
           <section className={styles.section}>
             <div className={styles.sectionHeader}>
-              <h3>Animes</h3>
+              <h3><Tv size={16} /> Animes</h3>
             </div>
             {renderAnimes()}
           </section>
@@ -188,7 +200,7 @@ export const SearchPage: React.FC = () => {
         {resultados.usuarios.length > 0 && (
           <section className={styles.section}>
             <div className={styles.sectionHeader}>
-              <h3>Usuarios</h3>
+              <h3><User size={16} /> Usuarios</h3>
               {resultados.usuarios.length > 4 && <button onClick={() => setTab('usuarios')}>Ver más</button>}
             </div>
             {renderUsuarios(4)}
@@ -198,7 +210,7 @@ export const SearchPage: React.FC = () => {
         {resultados.resenas.length > 0 && (
           <section className={styles.section}>
             <div className={styles.sectionHeader}>
-              <h3>Reseñas</h3>
+              <h3><MessageSquare size={16} /> Reseñas</h3>
               {resultados.resenas.length > 3 && <button onClick={() => setTab('resenas')}>Ver más</button>}
             </div>
             {renderResenas(3)}
@@ -208,7 +220,7 @@ export const SearchPage: React.FC = () => {
         {resultados.comunidades.length > 0 && (
           <section className={styles.section}>
             <div className={styles.sectionHeader}>
-              <h3>Comunidades</h3>
+              <h3><Users size={16} /> Comunidades</h3>
               {resultados.comunidades.length > 3 && <button onClick={() => setTab('comunidades')}>Ver más</button>}
             </div>
             {renderComunidades(3)}
@@ -218,7 +230,7 @@ export const SearchPage: React.FC = () => {
         {resultados.listas.length > 0 && (
           <section className={styles.section}>
             <div className={styles.sectionHeader}>
-              <h3>Listas</h3>
+              <h3><Library size={16} /> Listas</h3>
               {resultados.listas.length > 3 && <button onClick={() => setTab('listas')}>Ver más</button>}
             </div>
             {renderListas(3)}
