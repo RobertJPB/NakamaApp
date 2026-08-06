@@ -843,6 +843,8 @@
   border-radius: 6px;
   overflow: hidden;
   transition: all 0.3s ease;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 340px;
 }
 
 .animeCard:hover {
@@ -1072,6 +1074,8 @@
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 52px;
 }
 
 .rankingItem:hover {
@@ -1163,6 +1167,8 @@
   max-height: 160px;
   overflow: hidden;
   transition: border-color 0.2s, background 0.2s;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 160px;
 }
 
 .resenaCard:hover {

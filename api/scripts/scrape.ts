@@ -1,4 +1,4 @@
-import { NewsScraperService } from './src/infrastructure/services/NewsScraperService';
+import { NewsScraperService } from '../src/infrastructure/services/NewsScraperService';
 
 const scraper = new NewsScraperService();
 scraper.fetchAndStoreNews()

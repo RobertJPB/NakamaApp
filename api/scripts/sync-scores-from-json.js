@@ -6,7 +6,7 @@ const path = require('path');
 const prisma = new PrismaClient();
 
 async function run() {
-  const filePath = path.join(__dirname, 'src/infrastructure/data/mal-ranking.json');
+  const filePath = path.join(__dirname, '../src/infrastructure/data/mal-ranking.json');
   const ranking = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
   
   console.log(`Sincronizando ${ranking.length} animes desde mal-ranking.json...`);

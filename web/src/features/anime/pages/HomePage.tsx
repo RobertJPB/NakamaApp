@@ -1,19 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { 
-  Calendar, 
-  Tv, 
-  Star, 
-  Trophy, 
-  MessageCircle,
-  Users,
-  Table2,
-  Library
-} from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { Star, Trophy, MessageCircle } from 'lucide-react'
 import { Layout } from '../../../components/shared/Layout'
 import { NewsSection } from '../../feed/components/NewsSection'
-import { RuletaIcon } from '../../../components/icons/RuletaIcon'
+import { FeaturedCarousel } from '../../anime/components/FeaturedCarousel'
 import styles from './HomePage.module.css'
-import { useAuth } from '../../../hooks/useAuth'
 import { useAnimes } from '../../../hooks/useAnimes'
 import { prefetchAnimeDetalle } from '../../../hooks/useAnime'
 import { useNavigate, Link } from 'react-router-dom'
@@ -30,72 +20,8 @@ const getTimeAgo = (dateStr: string) => {
   return `hace ${days}d`
 }
 
-/* ─── Animes destacados (hero rotativo - 3D Stack) ─────────────────────────── */
-const FEATURED = [
-  {
-    id: 41370,
-    badge: 'Anime destacado',
-    titulo: 'Kimetsu no Yaiba',
-    subtitulo: 'Demon Slayer: Kimetsu no Yaiba',
-    descripcion:
-      'En el Japón de la era Taisho, Tanjiro Kamado se convierte en cazador de demonios para salvar a su hermana Nezuko, convertida en demonio tras el ataque que destruyó a su familia.',
-    anio: '2019',
-    episodios: '26 eps',
-    genero: 'Acción · Sobrenatural',
-    puntuacion: '9.0',
-    imagen: 'https://i.blogs.es/e2f53f/kimetsu/1200_800.webp',
-    color: 'rgba(160, 28, 28, 0.4)',
-    slug: 'kimetsu-no-yaiba',
-  },
-  {
-    id: 42765,
-    badge: 'Muy valorado',
-    titulo: 'Jujutsu Kaisen',
-    subtitulo: 'Jujutsu Kaisen',
-    descripcion:
-      'Yuji Itadori ingresa al mundo de los hechiceros al tragarse un dedo de Ryomen Sukuna, el rey de las maldiciones, para proteger a sus amigos de seres sobrenaturales.',
-    anio: '2020',
-    episodios: '24 eps',
-    genero: 'Acción · Oscuro',
-    puntuacion: '8.8',
-    imagen: 'https://static0.colliderimages.com/wordpress/wp-content/uploads/2023/10/jujutsu-kaisen-poster.jpg?q=50&fit=crop&w=1232&h=693&dpr=1.5',
-    color: 'rgba(18, 70, 160, 0.4)',
-    slug: 'jujutsu-kaisen',
-  },
-  {
-    id: 12,
-    badge: 'Clásico',
-    titulo: 'One Piece',
-    subtitulo: 'One Piece',
-    descripcion:
-      'Monkey D. Luffy lidera a los Sombreros de Paja en busca del One Piece, el legendario tesoro que convertirá a su portador en el Rey de los Piratas.',
-    anio: '1999',
-    episodios: '1000+ eps',
-    genero: 'Aventura · Comedia',
-    puntuacion: '8.7',
-    imagen: 'https://5motivi.it/wp-content/uploads/2025/04/One-Piece-Cappello-di-Paglia-cose-da-sapere-ciurma-Monkey-D-Luffy-1-1024x576.jpg',
-    color: 'rgba(160, 100, 18, 0.4)',
-    slug: 'one-piece',
-  },
-]
-
-/* ─── Pinned / Fast Launch (Seguimiento Rápido en Sidebar) ──────────────── */
-const FAST_LAUNCH = [
-  { id: 41370, titulo: 'Demon Slayer', ep: 'Ep 12/26', pct: 46, imagen: 'https://i.blogs.es/e2f53f/kimetsu/1200_800.webp' },
-  { id: 42765, titulo: 'Jujutsu Kaisen', ep: 'Ep 22/24', pct: 91, imagen: 'https://static0.colliderimages.com/wordpress/wp-content/uploads/2023/10/jujutsu-kaisen-poster.jpg?q=50&fit=crop&w=1232&h=693&dpr=1.5' },
-  { id: 12, titulo: 'One Piece', ep: 'Ep 950/1000', pct: 95, imagen: 'https://5motivi.it/wp-content/uploads/2025/04/One-Piece-Cappello-di-Paglia-cose-da-sapere-ciurma-Monkey-D-Luffy-1-1024x576.jpg' },
-]
-
-
-
-
-
-
-
 export const HomePage: React.FC = () => {
-  const [featuredIdx,  setFeaturedIdx]  = useState(0)
-  const [tabActivo,    setTabActivo]    = useState<'hoy' | 'semana' | 'mes'>('hoy')
-  const { usuario, estaAutenticado, signOut } = useAuth()
+  const [tabActivo, setTabActivo] = useState<'hoy' | 'semana' | 'mes'>('hoy')
   const { animes, cargando, error, pagina, setPagina, totalPaginas } = useAnimes()
   const navigate = useNavigate()
   
@@ -126,151 +52,11 @@ export const HomePage: React.FC = () => {
       .finally(() => setCargandoResenas(false))
   }, [])
 
-  // Auto-avance del carrusel cada 5 segundos
-  // Pre-cargar TODOS los slides al montar para que el primer clic sea instantáneo
-  useEffect(() => {
-    FEATURED.forEach(item => prefetchAnimeDetalle(String(item.id)))
-  }, [])
-
-  // Pre-calentar también el siguiente slide cuando cambia la selección
-  useEffect(() => {
-    const nextIdx = (featuredIdx + 1) % FEATURED.length
-    prefetchAnimeDetalle(String(FEATURED[nextIdx].id))
-  }, [featuredIdx])
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setFeaturedIdx((prev) => (prev + 1) % FEATURED.length)
-    }, 5000)
-    return () => clearInterval(interval)
-  }, [])
-
-  // Pre-calentar detalle de todos los animes del grid cuando carguen
-  // Escalonado cada 80ms para no saturar Kitsu/backend
-  useEffect(() => {
-    if (animes.length === 0) return
-    const timers: ReturnType<typeof setTimeout>[] = []
-    animes.forEach((anime, i) => {
-      const t = setTimeout(() => {
-        prefetchAnimeDetalle(anime.externalId)
-      }, i * 80)
-      timers.push(t)
-    })
-    return () => timers.forEach(clearTimeout)
-  }, [animes])
-
-  console.log('[DEBUG] HomePage render -> animes.length:', animes.length, 'cargando:', cargando, 'error:', error)
-
-  const nextSlide = () => {
-    setFeaturedIdx((prev) => (prev + 1) % FEATURED.length)
-  }
-
-  const prevSlide = () => {
-    setFeaturedIdx((prev) => (prev - 1 + FEATURED.length) % FEATURED.length)
-  }
-
-  const touchStartX = useRef(0)
-  const touchEndX = useRef(0)
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX
-    touchEndX.current = e.touches[0].clientX
-  }
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    touchEndX.current = e.touches[0].clientX
-  }
-
-  const handleTouchEnd = () => {
-    if (touchStartX.current - touchEndX.current > 50) {
-      nextSlide()
-    } else if (touchStartX.current - touchEndX.current < -50) {
-      prevSlide()
-    }
-  }
-
   return (
     <Layout>
 
-
       {/* 3D CAROUSEL BANNERS */}
-        <section className={styles.carouselSection}>
-          <div 
-            className={styles.carouselContainer}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-          >
-            {FEATURED.map((item, idx) => {
-              // Calculate positioning classes relative to active slide
-              let positionClass = styles.slideHidden
-              if (idx === featuredIdx) {
-                positionClass = styles.slideActive
-              } else if (idx === (featuredIdx + 1) % FEATURED.length) {
-                positionClass = styles.slideNext
-              } else if (idx === (featuredIdx - 1 + FEATURED.length) % FEATURED.length) {
-                positionClass = styles.slidePrev
-              }
-
-              return (
-                <div 
-                  key={item.id} 
-                  className={`${styles.carouselCard} ${positionClass}`}
-                  onClick={() => idx !== featuredIdx && setFeaturedIdx(idx)}
-                >
-                  <img src={item.imagen} alt={item.titulo} className={styles.cardBgImage} />
-                  <div className={styles.cardOverlayGlow} style={{ background: `linear-gradient(to top, rgba(6, 5, 10, 0.99) 25%, rgba(6, 5, 10, 0.7) 60%, rgba(6, 5, 10, 0.2) 100%)` }} />
-                  
-                  {idx === featuredIdx && (
-                    <div className={styles.cardContent}>
-                      <span className={styles.cardBadge}>{item.badge}</span>
-                      <h2 className={styles.cardTitle}>{item.titulo}</h2>
-                      <p className={styles.cardSub}>{item.subtitulo}</p>
-                      
-                      <div className={styles.cardMeta}>
-                        <span className={styles.metaItem}>
-                          <Calendar size={13} /> {item.anio}
-                        </span>
-                        <span className={styles.metaItem}>
-                          <Tv size={13} /> {item.episodios}
-                        </span>
-                        <span className={styles.metaItem}>
-                          <Star className={styles.starYellow} size={13} fill="currentColor" /> {item.puntuacion}
-                        </span>
-                      </div>
-                      
-                      <p className={styles.cardDesc}>{item.descripcion}</p>
-                      
-                      <div className={styles.cardActions}>
-                        <Link 
-                          to={`/anime/${item.id}`} 
-                          state={{ initialAnime: { externalId: item.id, titulo: item.titulo, imagenUrl: item.imagen, calificacionPromedio: Number(item.puntuacion), sinopsis: item.descripcion } }}
-                          className={styles.btnPrimary}
-                          onMouseEnter={() => prefetchAnimeDetalle(String(item.id))}
-                        >
-                          Ver Ficha
-                        </Link>
-                        <Link 
-                          to={`/anime/${item.id}`} 
-                          state={{ initialAnime: { externalId: item.id, titulo: item.titulo, imagenUrl: item.imagen, calificacionPromedio: Number(item.puntuacion), sinopsis: item.descripcion } }}
-                          className={styles.btnSecondary}
-                          onMouseEnter={() => prefetchAnimeDetalle(String(item.id))}
-                        >
-                          Añadir a Lista
-                        </Link>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-
-          <button className={`${styles.sliderArrow} ${styles.arrowLeft}`} onClick={prevSlide}>‹</button>
-          <button className={`${styles.sliderArrow} ${styles.arrowRight}`} onClick={nextSlide}>›</button>
-        </section>
-
-        {/* BOTTOM SECTIONS */}
+      <FeaturedCarousel />
         <section className={styles.bottomGrid}>
           <div className={styles.mainGridContent}>
             
@@ -409,7 +195,7 @@ export const HomePage: React.FC = () => {
                 <article key={r.id} className={styles.resenaCard}>
                   <div className={styles.resenaHeader}>
                     <Link to={`/perfil/${r.usuario.username}`} className={styles.resenaAvatar} style={{ textDecoration: 'none' }}>
-                      {r.usuario.avatarUrl ? <img src={r.usuario.avatarUrl} alt="" style={{width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%'}} /> : r.usuario.username.charAt(0).toUpperCase()}
+                      {r.usuario.avatarUrl ? <img src={r.usuario.avatarUrl} alt="" loading="lazy" decoding="async" style={{width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%'}} /> : r.usuario.username.charAt(0).toUpperCase()}
                     </Link>
                     <div className={styles.resenaUserInfo}>
                       <Link to={`/perfil/${r.usuario.username}`} className={styles.resenaUsuario} style={{ textDecoration: 'none' }}>{r.usuario.username}</Link>

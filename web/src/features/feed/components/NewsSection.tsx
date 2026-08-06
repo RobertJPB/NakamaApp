@@ -12,13 +12,14 @@ interface NewsSectionProps {
 
 export function NewsSection({ title = "Noticias de Anime", compact = false, limit, forceLoading }: NewsSectionProps) {
   const { noticias, cargando } = useNoticias(limit || (compact ? 6 : 60), compact ? 'popular' : 'default')
+  const skeletonCount = Math.min(limit || (compact ? 6 : 60), 12)
 
   if (cargando || forceLoading) {
     return (
       <div className={`${styles.newsContainer} ${compact ? styles.compactContainer : ''}`}>
         <h2 className={styles.title}>{title}</h2>
         <div className={`${styles.newsList} ${compact ? styles.compactList : ''}`}>
-          {Array.from({ length: limit || (compact ? 6 : 60) }).map((_, i) => (
+          {Array.from({ length: skeletonCount }).map((_, i) => (
             <div key={i} className={`${styles.newsCard} ${compact ? styles.compactCard : ''}`} style={{ display: 'flex', gap: '12px' }}>
               <div className={styles.newsImageWrapper} style={{ background: 'var(--color-surface-2)', animation: 'pulse 1.5s ease-in-out infinite' }} />
               <div className={styles.newsContent}>
@@ -48,6 +49,7 @@ export function NewsSection({ title = "Noticias de Anime", compact = false, limi
                   alt={noticia.titulo} 
                   className={styles.newsImage} 
                   loading="lazy" 
+                  decoding="async"
                 />
               </div>
             ) : (
