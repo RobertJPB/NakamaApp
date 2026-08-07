@@ -206,16 +206,23 @@ export const FeedItemInteractions: React.FC<FeedItemInteractionsProps> = ({
                 </span>
               </div>
               
-              {!!usuario && c.usuario?.id !== usuario?.id && (
+              {!!usuario && (
                 <div className={styles.menuWrap} ref={openMenuId === c.id ? menuRef : null}>
                   <button className={styles.btnMore} onClick={() => setOpenMenuId(openMenuId === c.id ? null : c.id)} title="Opciones">
                     <MoreHorizontal size={14} />
                   </button>
                   {openMenuId === c.id && (
                     <div className={styles.dropdown}>
-                      <button className={`${styles.dropdownItem} ${styles.dropdownDanger}`} onClick={() => { setOpenMenuId(null); handleReportar(); }}>
-                        <Flag size={14} /> Denunciar
-                      </button>
+                      {c.usuario?.id === usuario.id && (
+                        <button className={`${styles.dropdownItem} ${styles.dropdownDanger}`} onClick={() => { setOpenMenuId(null); handleDeleteComment(c.id); }}>
+                          <Trash2 size={14} /> Eliminar
+                        </button>
+                      )}
+                      {c.usuario?.id !== usuario.id && (
+                        <button className={`${styles.dropdownItem} ${styles.dropdownDanger}`} onClick={() => { setOpenMenuId(null); handleReportar(); }}>
+                          <Flag size={14} /> Denunciar
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>
@@ -233,11 +240,6 @@ export const FeedItemInteractions: React.FC<FeedItemInteractionsProps> = ({
               }}>
                 <MessageSquare size={14} />
               </button>
-              {usuario && c.usuario?.id === usuario.id && (
-                <button className={`${styles.commentActionBtn} ${styles.commentDeleteBtn}`} title="Eliminar comentario" onClick={() => handleDeleteComment(c.id)}>
-                  <Trash2 size={14} />
-                </button>
-              )}
             </div>
           </div>
         </div>

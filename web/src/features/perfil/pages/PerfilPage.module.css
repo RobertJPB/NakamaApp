@@ -38,11 +38,11 @@
 }
 .marcoOverlay {
   position: absolute;
-  top: -10px;
-  right: -10px;
+  top: -4px;
+  right: -4px;
   left: auto;
-  width: 52px;
-  height: 52px;
+  width: 36px;
+  height: 36px;
   pointer-events: none; /* Click pasa a traves del marco */
   z-index: 10;
   object-fit: contain;
@@ -227,10 +227,10 @@
   }
   
   .marcoOverlay {
-    width: 42px;
-    height: 42px;
-    top: -6px;
-    right: -6px;
+    width: 30px;
+    height: 30px;
+    top: -2px;
+    right: -2px;
   }
 
   .headerInfo {
