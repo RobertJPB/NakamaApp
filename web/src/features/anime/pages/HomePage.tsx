@@ -49,7 +49,15 @@ export const HomePage: React.FC = () => {
       .finally(() => setCargandoRanking(false))
 
     api.get('/api/resenas/recientes')
-      .then(res => setResenasRecientes(res.data))
+      .then(res => {
+        const data = Array.isArray(res.data) ? res.data : []
+        const filtradas = data.filter((r: any) => {
+          const u = r.usuario?.username?.toLowerCase() || ''
+          const n = r.usuario?.nombreDisplay?.toLowerCase() || ''
+          return !u.includes('maria teresa') && !n.includes('maria teresa')
+        })
+        setResenasRecientes(filtradas)
+      })
       .catch(err => console.error('Error al cargar reseñas recientes:', err))
       .finally(() => setCargandoResenas(false))
   }, [])

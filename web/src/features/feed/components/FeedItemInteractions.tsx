@@ -191,7 +191,12 @@ export const FeedItemInteractions: React.FC<FeedItemInteractionsProps> = ({
     return (
       <div key={c.id} className={styles.commentNode}>
         <div className={styles.comment}>
-          <img src={c.usuario?.avatarUrl || `https://ui-avatars.com/api/?name=${c.usuario?.username}`} alt="avatar" className={styles.commentAvatar} />
+          <div className={styles.commentAvatarWrap}>
+            <img src={c.usuario?.avatarUrl || `https://ui-avatars.com/api/?name=${c.usuario?.username}`} alt="avatar" className={styles.commentAvatar} />
+            {c.usuario?.marcoUrl && (
+              <img src={c.usuario.marcoUrl} alt="Marco" className={styles.commentMarco} />
+            )}
+          </div>
           <div className={styles.commentBody}>
             <div className={styles.commentHeader}>
               <div className={styles.commentMeta}>
