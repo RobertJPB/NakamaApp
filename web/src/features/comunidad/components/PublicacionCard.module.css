@@ -225,4 +225,28 @@
     margin: 0 -16px;
     width: calc(100% + 32px);
   }
+  
+  .resenaBox {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    box-sizing: border-box;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-3);
+  }
+  .resenaAnimeInfo {
+    flex: 1;
+    min-width: 0;
+  }
+  .resenaAnimeInfo h4 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: var(--text-sm);
+  }
+  .resenaEstrellas {
+    flex-shrink: 0;
+    font-size: var(--text-base);
+  }
 }
