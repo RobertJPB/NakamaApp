@@ -19,7 +19,11 @@ export const Header: React.FC = () => {
   const [buscando, setBuscando] = useState(false)
   const [mostrarNotif, setMostrarNotif] = useState(false)
   const [searchExpanded, setSearchExpanded] = useState(false)
+  const [isSearchFocused, setIsSearchFocused] = useState(false)
   const [menuMovilAbierto, setMenuMovilAbierto] = useState(false)
+  const [busquedasRecientes, setBusquedasRecientes] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem('busquedasRecientes') || '[]') } catch { return [] }
+  })
   
   const dropdownRef = useRef<HTMLDivElement>(null)
   const notifRef = useRef<HTMLDivElement>(null)
@@ -51,6 +55,7 @@ export const Header: React.FC = () => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setAnimesRes([])
         setUsuariosRes([])
+        setIsSearchFocused(false)
       }
       if (!(e.target as Element).closest(`.${styles.notifWrapper}`)) {
         setMostrarNotif(false)
@@ -65,6 +70,15 @@ export const Header: React.FC = () => {
     setUsuariosRes([])
     setBusqueda('')
     setSearchExpanded(false)
+    setIsSearchFocused(false)
+  }
+
+  const guardarBusqueda = (query: string) => {
+    if (!query.trim()) return
+    const q = query.trim()
+    const nuevas = [q, ...busquedasRecientes.filter(b => b !== q)].slice(0, 5)
+    setBusquedasRecientes(nuevas)
+    localStorage.setItem('busquedasRecientes', JSON.stringify(nuevas))
   }
 
   const hayResultados = animesRes.length > 0 || usuariosRes.length > 0
@@ -158,9 +172,11 @@ export const Header: React.FC = () => {
                 type="text" 
                 placeholder="Buscar animes o usuarios..." 
                 value={busqueda}
+                onFocus={() => setIsSearchFocused(true)}
                 onChange={(e) => setBusqueda(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && busqueda.trim().length > 1) {
+                    guardarBusqueda(busqueda)
                     closeDropdown()
                     navigate(`/buscar?q=${encodeURIComponent(busqueda.trim())}`)
                   }
@@ -176,11 +192,11 @@ export const Header: React.FC = () => {
               </button>
             </div>
             
-            {(hayResultados || buscando) && (
+            {(hayResultados || buscando || (isSearchFocused && busquedasRecientes.length > 0 && busqueda.trim().length < 2)) && (
               <div className={styles.searchDropdown}>
                 {buscando ? (
                   <div className={styles.searchLoading}>Buscando...</div>
-                ) : (
+                ) : hayResultados ? (
                   <>
                     {/* Sección Usuarios */}
                     {usuariosRes.length > 0 && (
@@ -226,13 +242,36 @@ export const Header: React.FC = () => {
                         ))}
                         <div 
                           className={styles.searchVerTodos}
-                          onClick={() => { closeDropdown(); navigate(`/descubrir?q=${encodeURIComponent(busqueda.trim())}`) }}
+                          onClick={() => { guardarBusqueda(busqueda); closeDropdown(); navigate(`/descubrir?q=${encodeURIComponent(busqueda.trim())}`) }}
                         >
                           Ver todos los animes →
                         </div>
                       </div>
                     )}
                   </>
+                ) : (
+                  <div>
+                    <div className={styles.searchSectionLabel} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      Búsquedas recientes
+                      <button onClick={(e) => { e.stopPropagation(); setBusquedasRecientes([]); localStorage.removeItem('busquedasRecientes'); }} style={{ background: 'transparent', border: 'none', color: 'var(--color-texto-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px' }} title="Borrar historial"><X size={14} /></button>
+                    </div>
+                    {busquedasRecientes.map(q => (
+                      <div
+                        key={q}
+                        className={styles.searchResultItem}
+                        onClick={() => { 
+                          guardarBusqueda(q)
+                          closeDropdown()
+                          navigate(`/buscar?q=${encodeURIComponent(q)}`) 
+                        }}
+                      >
+                        <Search size={16} style={{ opacity: 0.5, marginRight: '12px', flexShrink: 0 }} />
+                        <div className={styles.searchResultInfo}>
+                          <div className={styles.searchResultTitle}>{q}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
             )}

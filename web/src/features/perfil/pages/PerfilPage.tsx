@@ -270,7 +270,9 @@ export const PerfilPage: React.FC = () => {
 
       {/* Tabs */}
       <div className={styles.tabs}>
-        {(['resenas', 'listas', 'actividad', 'medallas'] as Tab[]).map(t => (
+        {(['resenas', 'listas', 'actividad', 'medallas'] as Tab[])
+          .filter(t => t !== 'actividad' || esMiPerfil)
+          .map(t => (
           <button
             key={t}
             className={`${styles.tab} ${tab === t ? styles.tabActiva : ''}`}
