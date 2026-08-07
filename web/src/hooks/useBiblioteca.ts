@@ -42,7 +42,18 @@ export function useBiblioteca(usuarioId: string | null) {
 
   useEffect(() => { cargar() }, [cargar])
 
-  const agregar = async (animeId: string, estado: string, propietarioId?: string) => {
+  const agregar = async (animeId: string, estado: string, propietarioId?: string, animeInfo?: any) => {
+    // Actualización optimista
+    setLista(prev => {
+      const existe = prev.find(e => e.animeId === animeId)
+      if (existe) {
+        const nuevosEstados = existe.estados.includes(estado) ? existe.estados : [...existe.estados, estado]
+        return prev.map(e => e.animeId === animeId ? { ...e, estados: nuevosEstados } : e)
+      } else {
+        return [...prev, { animeId, estados: [estado], episodiosVistos: 0, anime: animeInfo || { id: animeId } }]
+      }
+    })
+
     await api.post('/api/biblioteca', { animeId, estado, propietarioId })
     cargar()
   }
@@ -53,6 +64,11 @@ export function useBiblioteca(usuarioId: string | null) {
   }
 
   const eliminar = async (animeId: string, propietarioId?: string, estado?: string) => {
+    // Actualización optimista: Si 'estado' se provee, podríamos quitar solo ese estado, 
+    // pero la API actual de eliminar borra todo el registro del anime.
+    // Así que lo removemos optimísticamente.
+    setLista(prev => prev.filter(e => e.animeId !== animeId))
+
     await api.delete(`/api/biblioteca/${animeId}`, { data: { propietarioId, estado } })
     cargar()
   }
