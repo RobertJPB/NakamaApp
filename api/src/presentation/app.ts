@@ -23,6 +23,7 @@ app.use(helmet())
 app.use(limiterGeneral)
 
 const ALLOWED_ORIGINS = new Set([
+  'https://nakama-app-web.vercel.app',
   env.FRONTEND_URL,
   'http://localhost:5173',
   'http://127.0.0.1:5173',
