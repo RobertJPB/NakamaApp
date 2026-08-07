@@ -497,8 +497,11 @@ export const PerfilPage: React.FC = () => {
                                 <img src={col.imagenUrl} alt={col.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                               </div>
                             )}
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                              <span className={styles.folderName}><Icon size={18} color={iconColor} /> {col.nombre}</span>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', gap: '12px' }}>
+                              <span className={styles.folderName} style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                <Icon size={18} color={iconColor} style={{ flexShrink: 0 }} /> 
+                                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{col.nombre}</span>
+                              </span>
                               <span className={styles.folderCount}>{animesEnColumna.length}</span>
                             </div>
                             {col.descripcion && (
