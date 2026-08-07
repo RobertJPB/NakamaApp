@@ -420,7 +420,7 @@
     padding: var(--space-2);
   }
   .listRowLeft {
-    width: 90px;
+    width: 110px;
     flex-shrink: 0;
     margin: 0;
   }

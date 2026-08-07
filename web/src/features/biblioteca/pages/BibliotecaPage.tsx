@@ -32,6 +32,7 @@ export const BibliotecaPage: React.FC = () => {
   const [showCrearModal, setShowCrearModal] = useState(false)
   const [showEditarModal, setShowEditarModal] = useState(false)
   const [listaSeleccionada, setListaSeleccionada] = useState<any | null>(null)
+  const [confirmBiblModal, setConfirmBiblModal] = useState<{ animeId: string; propietarioId: string; listaNombre: string } | null>(null)
 
   // Modal de búsqueda
   const [showSearch, setShowSearch] = useState(false)
@@ -411,9 +412,7 @@ export const BibliotecaPage: React.FC = () => {
                           className={styles.btnEliminarItem}
                           onClick={(e) => {
                             e.stopPropagation()
-                            if (window.confirm('¿Estás seguro de que quieres eliminar este anime de la lista?')) {
-                              eliminar(entrada.animeId, listaSeleccionada?.propietario?.id, listaSeleccionada?.nombre)
-                            }
+                            setConfirmBiblModal({ animeId: entrada.animeId, propietarioId: listaSeleccionada?.propietario?.id, listaNombre: listaSeleccionada?.nombre })
                           }}
                           title="Eliminar de la lista"
                         >
@@ -577,6 +576,59 @@ export const BibliotecaPage: React.FC = () => {
           onClose={() => setShowEditarModal(false)}
           onEditar={handleEditarColumna}
         />
+      )}
+      {/* Modal de confirmación para eliminar anime */}
+      {confirmBiblModal && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.85)', zIndex: 10000,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: '16px'
+        }} onClick={() => setConfirmBiblModal(null)}>
+          <div style={{
+            background: '#1f2124', borderRadius: '12px', padding: '24px',
+            width: '100%', maxWidth: '360px', border: '1px solid var(--color-borde)',
+            display: 'flex', flexDirection: 'column', gap: '16px',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.6)'
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ background: 'rgba(255,71,87,0.15)', borderRadius: '50%', padding: '10px', display: 'flex' }}>
+                <Trash2 size={20} color="#ff4757" />
+              </div>
+              <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700 }}>Eliminar de la lista</h3>
+            </div>
+            <p style={{ margin: 0, color: 'var(--color-texto-muted)', fontSize: '0.9rem', lineHeight: 1.5 }}>
+              ¿Estás seguro de que quieres eliminar este anime de la lista? Esta acción no se puede deshacer.
+            </p>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setConfirmBiblModal(null)}
+                style={{
+                  background: 'transparent', border: '1px solid var(--color-borde)',
+                  color: 'var(--color-texto)', padding: '8px 16px',
+                  borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '0.9rem'
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => {
+                  if (confirmBiblModal) {
+                    eliminar(confirmBiblModal.animeId, confirmBiblModal.propietarioId, confirmBiblModal.listaNombre)
+                    setConfirmBiblModal(null)
+                  }
+                }}
+                style={{
+                  background: '#ff4757', border: 'none', color: '#fff',
+                  padding: '8px 16px', borderRadius: '8px', cursor: 'pointer',
+                  fontWeight: 700, fontSize: '0.9rem'
+                }}
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </Layout>
   )
