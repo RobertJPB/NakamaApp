@@ -172,7 +172,11 @@ export const AnimePage: React.FC = () => {
   // Mostrar la calificación general
   const promedioVisual = (!anime?.calificacionPromedio || Number(anime.calificacionPromedio) === 0) 
     ? '—' 
-    : Number(anime.calificacionPromedio).toFixed(2)
+    : Number(anime.calificacionPromedio).toFixed(1)
+
+  // Calificación propia del usuario autenticado
+  const miResena = usuario ? (anime.resenas ?? []).find((r: any) => r.usuario?.id === usuario.id || r.usuarioId === usuario.id) : null
+  const miCalificacion = miResena?.calificacion ?? null
 
   return (
     <Layout>
@@ -195,10 +199,18 @@ export const AnimePage: React.FC = () => {
               </div>
               
               <div className={styles.statsPanel}>
-                <div className={styles.statItem} title="Estrellas">
-                  <span className={styles.statIconTextStar}>★</span>
-                  <span>{promedioVisual}</span>
+                <div className={styles.statItem} title="Nota general">
+                  <span className={styles.statIconTextStar} style={{ color: '#f1c40f' }}>★</span>
+                  <span style={{ color: '#f1c40f', fontWeight: 800 }}>{promedioVisual}</span>
+                  <span style={{ color: 'var(--color-texto-muted)', fontSize: '10px', marginLeft: '1px' }}>/10</span>
                 </div>
+                {miCalificacion !== null && (
+                  <div className={styles.statItem} title="Tu calificación">
+                    <span style={{ color: '#f1c40f', fontSize: '14px' }}>★</span>
+                    <span style={{ color: 'var(--color-texto-suave)', fontSize: '11px' }}>{miCalificacion}</span>
+                    <span style={{ color: 'var(--color-texto-muted)', fontSize: '9px' }}>Tú</span>
+                  </div>
+                )}
                 <div className={styles.statItem} title="Viendo">
                   <Eye size={16} color="#27ae60" />
                   <span>{statsLocales.viendo}</span>
