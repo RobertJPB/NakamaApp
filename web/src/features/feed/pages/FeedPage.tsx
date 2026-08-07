@@ -325,6 +325,16 @@ export const FeedPage: React.FC = () => {
                             />
                           )}
                           
+                          {(entrada.imagenUrl || entrada.referencia?.imagenUrl) && (
+                            <div className={styles.postImageContainer} style={{ marginTop: '12px', borderRadius: '8px', overflow: 'hidden' }}>
+                              <img 
+                                src={entrada.imagenUrl || entrada.referencia?.imagenUrl} 
+                                alt="Imagen de la publicación" 
+                                style={{ width: '100%', maxHeight: '400px', objectFit: 'cover' }}
+                              />
+                            </div>
+                          )}
+
                           {entrada.tipo === 'encuesta' && (entrada.referencia?.opciones || entrada.opciones) && (
                             <div className={styles.encuestaContainer} style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px', maxWidth: '450px' }}>
                               {(() => {
@@ -432,17 +442,25 @@ export const FeedPage: React.FC = () => {
                         {menuAbiertoId === entrada.id && (
                           <div className={styles.dropdown}>
                             {entrada.actorUsername === (usuario.username || usuario.user_metadata?.username) && (
-                              <button className={styles.dropdownItem} onClick={() => { 
-                                setMenuAbiertoId(null); 
-                                if (entrada.tipo === 'resena') {
-                                  setEditingResena(entrada.referencia || entrada)
-                                } else {
-                                  setEditandoId(entrada.id)
-                                  setEditContenido(entrada.referencia?.contenido || entrada.contenido || '')
-                                }
-                              }}>
-                                <Pencil size={14} /> Editar
-                              </button>
+                              <>
+                                <button className={styles.dropdownItem} onClick={() => { 
+                                  setMenuAbiertoId(null); 
+                                  if (entrada.tipo === 'resena') {
+                                    setEditingResena(entrada.referencia || entrada)
+                                  } else {
+                                    setEditandoId(entrada.id)
+                                    setEditContenido(entrada.referencia?.contenido || entrada.contenido || '')
+                                  }
+                                }}>
+                                  <Pencil size={14} /> Editar
+                                </button>
+                                <button className={`${styles.dropdownItem} ${styles.dropdownDanger}`} onClick={() => { 
+                                  setMenuAbiertoId(null); 
+                                  handleEliminar(entrada.id, entrada.tipo);
+                                }}>
+                                  <Trash2 size={14} /> Eliminar
+                                </button>
+                              </>
                             )}
                             <button className={`${styles.dropdownItem} ${styles.dropdownDanger}`} onClick={() => { setMenuAbiertoId(null); reportar(entrada.id) }}>
                               <Flag size={14} /> Denunciar

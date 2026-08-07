@@ -287,12 +287,6 @@ export const FeedItemInteractions: React.FC<FeedItemInteractionsProps> = ({
           <MessageSquare size={18} />
           <span>{commentsCount}</span>
         </button>
-
-        {isOwner && (
-          <button className={`${styles.actionBtn} ${styles.deleteBtn}`} onClick={() => setShowConfirmDelete(true)} title="Eliminar">
-            <Trash2 size={18} />
-          </button>
-        )}
       </div>
 
       {!showComments && commentTree.length > 0 && (

@@ -152,6 +152,11 @@ export const PublicacionCard: React.FC<Props> = ({ publicacion, onComentado, onV
                     <Pencil size={14} /> Editar
                   </button>
                 )}
+                {(publicacion.usuario?.id === usuario?.id || miRol === 'admin' || miRol === 'moderador') && (
+                  <button className={`${styles.dropdownItem} ${styles.dropdownDanger}`} onClick={() => { setMenuAbierto(false); if(window.confirm('¿Seguro?')) { if (onEliminar) onEliminar(publicacion.id); else api.delete(`/api/feed/${publicacion.tipo === 'resena' ? 'resena' : 'publicacion'}/${publicacion.id}`).then(() => window.location.reload()) } }}>
+                    <Trash2 size={14} /> Eliminar
+                  </button>
+                )}
                 {publicacion.usuario?.id !== usuario?.id && (
                   <button className={`${styles.dropdownItem} ${styles.dropdownDanger}`} onClick={() => { setMenuAbierto(false); reportar('publicacion', publicacion.id) }}>
                     <Flag size={14} /> Denunciar
@@ -191,8 +196,10 @@ export const PublicacionCard: React.FC<Props> = ({ publicacion, onComentado, onV
         )
       )}
       
-      {publicacion.tipo === 'imagen' && publicacion.imagenUrl && (
-        <img src={publicacion.imagenUrl} alt="" className={styles.imagen} />
+      {publicacion.imagenUrl && (
+        <div style={{ marginTop: '12px', borderRadius: '8px', overflow: 'hidden' }}>
+          <img src={publicacion.imagenUrl} alt="" className={styles.imagen} style={{ width: '100%', maxHeight: '400px', objectFit: 'cover' }} />
+        </div>
       )}
 
       {publicacion.tipo === 'encuesta' && renderOpcionesEncuesta()}
