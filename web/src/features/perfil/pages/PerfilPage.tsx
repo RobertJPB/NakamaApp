@@ -398,14 +398,14 @@ export const PerfilPage: React.FC = () => {
               <div style={{
                 marginTop: '32px',
                 padding: '24px',
-                background: 'rgba(0, 0, 0, 0.4)',
+                background: 'rgba(0, 0, 0, 0.2)',
                 borderRadius: '12px',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '12px',
-                border: '1px dashed var(--color-borde)',
+                border: '1px solid var(--color-borde-suave)',
                 textAlign: 'center'
               }}>
                 <p style={{ color: 'var(--color-acento)', fontWeight: 600, fontSize: '1.1rem', margin: 0 }}>
