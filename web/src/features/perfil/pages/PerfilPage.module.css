@@ -239,7 +239,25 @@
   }
 
   .favoritosWrap {
+    display: flex;
+    max-width: 100%;
+    margin-top: var(--space-6);
+    margin-bottom: var(--space-2);
+  }
+  .favoritosList {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .favoritosList::-webkit-scrollbar {
     display: none;
+  }
+  .favItem {
+    flex-shrink: 0;
+    width: 60px;
+    height: 85px;
   }
 
   .statsRow {

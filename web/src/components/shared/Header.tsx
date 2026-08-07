@@ -153,7 +153,7 @@ export const Header: React.FC = () => {
         <div className={styles.headerLeft}>
           {!searchExpanded && (
             <Link to="/" className={styles.logoLink}>
-              <img src="/nakama-cat-new.jpg" alt="Nakama Logo" className={styles.logoImg} />
+              <img src="/nakama-cat.png" alt="Nakama Logo" className={styles.logoImg} />
             </Link>
           )}
 
@@ -307,7 +307,7 @@ export const Header: React.FC = () => {
               <div className={styles.mobileMenuOverlay} onClick={() => setMenuMovilAbierto(false)} />
               <div className={styles.mobileMenuDropdown}>
                 <div className={styles.mobileMenuHeader}>
-                  <img src="/nakama-cat-new.jpg" alt="Nakama Logo" className={styles.mobileMenuLogo} />
+                  <img src="/nakama-cat.png" alt="Nakama Logo" className={styles.mobileMenuLogo} />
                   <button className={styles.mobileMenuClose} onClick={() => setMenuMovilAbierto(false)}>
                     <X size={24} />
                   </button>
