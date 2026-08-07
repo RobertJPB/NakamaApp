@@ -99,7 +99,7 @@ export const AnimePage: React.FC = () => {
   }
 
   React.useEffect(() => {
-    const entrada = lista.find(x => String(x.animeId) === String(id))
+    const entrada = lista.find(x => String(x.anime?.externalId) === String(id))
     if (entrada) setIsFavoritoLocal(!!entrada.esFavorito)
   }, [lista, id])
 
