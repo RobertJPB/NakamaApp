@@ -154,3 +154,14 @@
   align-self: flex-start; color: var(--color-acento); font-size: var(--text-sm); font-weight: 600;
   padding: var(--space-2) 0; background: transparent;
 }
+
+@media (max-width: 768px) {
+  .crearBox, .form {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    margin: 0 -16px;
+    width: calc(100% + 32px);
+    box-sizing: border-box;
+  }
+}

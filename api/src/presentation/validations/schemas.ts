@@ -41,6 +41,8 @@ export const postFeedSchema = z.object({
   tipo: z.enum(['texto', 'encuesta', 'imagen']).optional(),
   opciones: z.array(z.string()).optional(),
   imagenUrl: z.string().optional().or(z.literal('')),
+  titulo: z.string().optional(),
+  seccion: z.string().optional(),
 })
 
 export const crearComunidadSchema = z.object({
