@@ -20,6 +20,7 @@ export const PublicacionCard: React.FC<Props> = ({ publicacion, onComentado, onV
   const [editando,    setEditando]    = useState(false)
   const [editTexto,   setEditTexto]   = useState(publicacion.contenido ?? '')
   const [spoilerAceptado, setSpoilerAceptado] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -153,7 +154,7 @@ export const PublicacionCard: React.FC<Props> = ({ publicacion, onComentado, onV
                   </button>
                 )}
                 {(publicacion.usuario?.id === usuario?.id || miRol === 'admin' || miRol === 'moderador') && (
-                  <button className={`${styles.dropdownItem} ${styles.dropdownDanger}`} onClick={() => { setMenuAbierto(false); if(window.confirm('¿Seguro?')) { if (onEliminar) onEliminar(publicacion.id); else api.delete(`/api/feed/${publicacion.tipo === 'resena' ? 'resena' : 'publicacion'}/${publicacion.id}`).then(() => window.location.reload()) } }}>
+                  <button className={`${styles.dropdownItem} ${styles.dropdownDanger}`} onClick={() => { setMenuAbierto(false); setConfirmDelete(true) }}>
                     <Trash2 size={14} /> Eliminar
                   </button>
                 )}
@@ -216,7 +217,6 @@ export const PublicacionCard: React.FC<Props> = ({ publicacion, onComentado, onV
         </div>
       )}
 
-      {/* Acciones y Comentarios integrados */}
       <FeedItemInteractions 
         tipo={publicacion.tipo === 'resena' ? 'resena' : 'publicacion'}
         itemId={publicacion.id}
@@ -227,6 +227,23 @@ export const PublicacionCard: React.FC<Props> = ({ publicacion, onComentado, onV
         isOwner={publicacion.usuario?.id === usuario?.id || miRol === 'admin' || miRol === 'moderador'}
         onDeleted={onEliminar || (() => {})}
       />
+
+      {confirmDelete && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <h3 className={styles.modalTitle}>¿Seguro que quieres eliminar esto?</h3>
+            <p className={styles.modalText}>Esta acción no se puede deshacer.</p>
+            <div className={styles.modalActions}>
+              <button className={styles.modalBtnCancel} onClick={() => setConfirmDelete(false)}>Cancelar</button>
+              <button className={styles.modalBtnDelete} onClick={() => { 
+                setConfirmDelete(false); 
+                if (onEliminar) onEliminar(publicacion.id); 
+                else api.delete(`/api/feed/${publicacion.tipo === 'resena' ? 'resena' : 'publicacion'}/${publicacion.id}`).then(() => window.location.reload()) 
+              }}>Eliminar</button>
+            </div>
+          </div>
+        </div>
+      )}
     </article>
   )
 }

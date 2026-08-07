@@ -53,6 +53,9 @@ export const FeedPage: React.FC = () => {
   const [editandoId, setEditandoId] = useState<string | null>(null)
   const [editContenido, setEditContenido] = useState('')
   const [editingResena, setEditingResena] = useState<any>(null)
+  
+  // Custom modal state for deleting
+  const [itemToDelete, setItemToDelete] = useState<{ id: string, tipo: string } | null>(null)
 
   const handleVote = async (publicacionId: string, opcionId: string) => {
     // Buscar la publicación y determinar la acción localmente (Optimistic Update)
@@ -173,17 +176,23 @@ export const FeedPage: React.FC = () => {
   }
 
   const handleEliminar = async (id: string, tipo: string) => {
-    if (!window.confirm('¿Seguro que quieres eliminar esta publicación?')) return
+    setItemToDelete({ id, tipo })
+  }
+
+  const handleEliminarConfirmed = async () => {
+    if (!itemToDelete) return
+    const { id, tipo } = itemToDelete
+    setItemToDelete(null)
+    
     try {
-      const ruta = tipo === 'resena' ? `/api/resenas/${id}` : `/api/comunidades/_/publicaciones/${id}`
-      await api.delete(ruta)
-      setFeed(prev => prev.filter(p => p.id !== id))
+      await api.delete(`/api/feed/${tipo}/${id}`)
+      setFeed(prev => prev.filter(e => e.id !== id))
     } catch (err) {
       alert('Error al eliminar')
     }
   }
 
-  const reportar = (id: string) => {
+  const reportar = async (id: string) => {
     const r = window.prompt('Razón de la denuncia (spam, ofensivo, etc):')
     if (r) {
       alert('Denuncia enviada. Gracias por ayudar a mantener la comunidad segura.')
@@ -503,6 +512,20 @@ export const FeedPage: React.FC = () => {
           }}
         />
       )}
+
+      {itemToDelete && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <h3 className={styles.modalTitle}>¿Seguro que quieres eliminar esto?</h3>
+            <p className={styles.modalText}>Esta acción no se puede deshacer.</p>
+            <div className={styles.modalActions}>
+              <button className={styles.modalBtnCancel} onClick={() => setItemToDelete(null)}>Cancelar</button>
+              <button className={styles.modalBtnDelete} onClick={handleEliminarConfirmed}>Eliminar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </Layout>
   )
 }
