@@ -465,17 +465,7 @@ export const PerfilPage: React.FC = () => {
                   {esMiPerfil && (
                     <button 
                       onClick={() => setShowCrearModal(true)}
-                      style={{ 
-                        border: 'none', 
-                        padding: '6px 12px', 
-                        background: 'var(--color-acento)', 
-                        color: '#000', 
-                        borderRadius: '6px', 
-                        cursor: 'pointer', 
-                        fontWeight: 'bold',
-                        fontSize: '0.9rem',
-                        whiteSpace: 'nowrap'
-                      }}
+                      className={styles.btnPrimarioPequeño}
                     >
                       Añadir Lista
                     </button>
@@ -585,15 +575,7 @@ export const PerfilPage: React.FC = () => {
                   {esMiPerfil && (
                     <button
                       onClick={() => setShowSearch(true)}
-                      style={{
-                        background: 'var(--color-acento)', color: '#1f2124',
-                        fontWeight: 700, fontSize: 'var(--text-sm)',
-                        padding: '6px 12px', border: 'none', borderRadius: '6px',
-                        cursor: 'pointer', transition: 'background var(--transition-fast)',
-                        whiteSpace: 'nowrap'
-                      }}
-                      onMouseEnter={e => e.currentTarget.style.background = 'var(--color-acento-hover)'}
-                      onMouseLeave={e => e.currentTarget.style.background = 'var(--color-acento)'}
+                      className={styles.btnPrimarioPequeño}
                     >
                       Añadir Anime
                     </button>
@@ -609,14 +591,14 @@ export const PerfilPage: React.FC = () => {
                     listaPublica.filter((e: any) => e.estados?.includes(listaSeleccionada.nombre)).map((entrada: any) => {
                       const resena = resenas.find(r => r.anime?.externalId === entrada.anime?.externalId || r.animeId === entrada.animeId)
                       return (
-                        <div key={entrada.animeId} className={styles.listRow}>
+                        <div key={entrada.animeId} className={styles.listRow} onClick={() => window.location.href = `/anime/${entrada.anime?.externalId}`}>
                           <div className={styles.listRowLeft}>
                             <AnimeCard
                               externalId={entrada.anime?.externalId}
                               titulo={entrada.anime?.titulo}
                               imagenUrl={entrada.anime?.imagenUrl}
                               estado={""}
-                              calificacion={entrada.calificacion}
+                              calificacion={0}
                             />
                           </div>
                           <div className={styles.listRowRight}>
@@ -633,13 +615,13 @@ export const PerfilPage: React.FC = () => {
                                     }}
                                     title="Eliminar de la lista"
                                   >
-                                    <Trash2 size={18} />
+                                    <Trash2 size={16} />
                                   </button>
                                 )}
                               </div>
                               <div className={styles.listRowMetadata} style={{ display: 'flex', flexDirection: 'column', gap: '6px', color: 'var(--color-texto-muted)', fontSize: '0.8rem' }}>
                                 {entrada.anime?.tipo && (
-                                  <span><strong>Formato:</strong> {tipoAnimeLabel(entrada.anime.tipo)}</span>
+                                  <span><strong>Formato:</strong> {entrada.anime.tipo.toLowerCase() === 'tv' ? 'Anime' : entrada.anime.tipo.toLowerCase() === 'movie' ? 'Película' : tipoAnimeLabel(entrada.anime.tipo)}</span>
                                 )}
                                 {entrada.anime?.estadoEmision && (
                                   <span><strong>Estado:</strong> {

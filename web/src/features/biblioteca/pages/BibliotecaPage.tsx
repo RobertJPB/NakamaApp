@@ -400,8 +400,6 @@ export const BibliotecaPage: React.FC = () => {
                       externalId={entrada.anime?.externalId}
                       titulo={entrada.anime?.titulo}
                       imagenUrl={entrada.anime?.imagenUrl}
-                      estado={""}
-                      calificacion={entrada.calificacion}
                       onClick={() => entrada.anime?.externalId && navigate(`/anime/${entrada.anime.externalId}`, { state: { initialAnime: entrada.anime } })}
                     />
                   </div>
@@ -425,29 +423,23 @@ export const BibliotecaPage: React.FC = () => {
                       
                       <div className={styles.listRowMetadata} style={{ display: 'flex', flexDirection: 'column', gap: '6px', color: 'var(--color-texto-muted)', fontSize: '0.8rem' }}>
                         {entrada.anime?.tipo && (
-                          <span>
-                            <strong>Formato:</strong> {tipoAnimeLabel(entrada.anime.tipo)}
-                          </span>
+                          <span><strong>Formato:</strong> {entrada.anime.tipo.toLowerCase() === 'tv' ? 'Anime' : entrada.anime.tipo.toLowerCase() === 'movie' ? 'Película' : tipoAnimeLabel(entrada.anime.tipo)}</span>
                         )}
                         {entrada.anime?.estadoEmision && (
-                          <span>
-                            <strong>Estado:</strong> {
-                              entrada.anime.estadoEmision === 'RELEASING' ? 'En Emisión' :
-                              entrada.anime.estadoEmision === 'FINISHED' ? 'Finalizado' :
-                              entrada.anime.estadoEmision === 'NOT_YET_RELEASED' ? 'Próximamente' :
-                              entrada.anime.estadoEmision === 'CANCELLED' ? 'Cancelado' :
-                              entrada.anime.estadoEmision
-                            }
-                          </span>
+                          <span><strong>Estado:</strong> {
+                            entrada.anime.estadoEmision === 'RELEASING' ? 'En Emisión' :
+                            entrada.anime.estadoEmision === 'FINISHED' ? 'Finalizado' :
+                            entrada.anime.estadoEmision === 'NOT_YET_RELEASED' ? 'Próximamente' :
+                            entrada.anime.estadoEmision === 'CANCELLED' ? 'Cancelado' :
+                            entrada.anime.estadoEmision
+                          }</span>
                         )}
                         <span><strong>Episodios:</strong> {
                           entrada.anime?.episodios ? entrada.anime.episodios : 
                           (entrada.anime?.titulo?.toLowerCase().includes('one piece') ? '+1000' : '?')
                         }</span>
                         {entrada.anime?.demografia && <span><strong>Demografía:</strong> {entrada.anime.demografia}</span>}
-                        <span>
-                          <strong>Nota General:</strong> ★ {Number(entrada.anime?.calificacionPromedio) > 0 ? Number(entrada.anime.calificacionPromedio).toFixed(1) + '/10' : '?'}
-                        </span>
+                        <span><strong>Nota General:</strong> ★ {Number(entrada.anime?.calificacionPromedio) > 0 ? Number(entrada.anime.calificacionPromedio).toFixed(1) + '/10' : '?'}</span>
                         {entrada.episodiosVistos > 0 && <span><strong>Vistos:</strong> {entrada.episodiosVistos}</span>}
                       </div>
                     </div>
