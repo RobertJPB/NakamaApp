@@ -98,6 +98,7 @@ export const PerfilPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<any[]>([])
   const [isSearching, setIsSearching] = useState(false)
+  const [addingStates, setAddingStates] = useState<Record<string, 'adding' | 'added' | 'error'>>({})
   const searchTimeoutRef = React.useRef<any>(null)
 
   // Modal followers state
@@ -237,9 +238,8 @@ export const PerfilPage: React.FC = () => {
   const handleAgregarAnime = async (anime: any) => {
     if (!listaSeleccionada) return
     
-    setShowSearch(false)
-    setSearchQuery('')
-    setSearchResults([])
+    const key = anime.id || anime.externalId || anime.titulo;
+    setAddingStates(prev => ({ ...prev, [key]: 'adding' }))
 
     // Update optimista
     setLista(prev => {
@@ -263,8 +263,10 @@ export const PerfilPage: React.FC = () => {
 
     try {
       await api.post('/api/biblioteca', { animeId: anime.externalId, estado: listaSeleccionada.nombre, propietarioId: perfil.id, animeInfo: anime })
+      setAddingStates(prev => ({ ...prev, [key]: 'added' }))
     } catch (e) {
       console.error(e)
+      setAddingStates(prev => ({ ...prev, [key]: 'error' }))
     }
   }
 
@@ -595,22 +597,22 @@ export const PerfilPage: React.FC = () => {
                             />
                           </div>
                           <div className={styles.listRowRight}>
-                            <div className={styles.listRowDetails} style={{ paddingRight: 0 }}>
-                              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '8px' }}>
-                                {esMiPerfil && (
-                                  <button
-                                    className={styles.btnEliminarItem}
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      setConfirmModal({ animeId: entrada.animeId, listaNombre: listaSeleccionada.nombre })
-                                    }}
-                                    title="Eliminar de la lista"
-                                  >
-                                    <Trash2 size={16} />
-                                  </button>
-                                )}
-                              </div>
-                              <div className={styles.listRowMetadata} style={{ display: 'flex', flexDirection: 'column', gap: '6px', color: 'var(--color-texto-muted)', fontSize: '0.8rem' }}>
+                            <div className={styles.listRowDetails} style={{ paddingRight: 0, position: 'relative' }}>
+                              {esMiPerfil && (
+                                <button
+                                  className={styles.btnEliminarItem}
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    setConfirmModal({ animeId: entrada.animeId, listaNombre: listaSeleccionada.nombre })
+                                  }}
+                                  title="Eliminar de la lista"
+                                  style={{ position: 'absolute', top: 0, right: 0 }}
+                                >
+                                  <Trash2 size={16} />
+                                </button>
+                              )}
+                              
+                              <div className={styles.listRowMetadata} style={{ display: 'flex', flexDirection: 'column', gap: '6px', color: '#b0b3b8', fontSize: '0.8rem', marginTop: '4px' }}>
                                 {entrada.anime?.tipo && (
                                   <span><strong>Formato:</strong> {entrada.anime.tipo.toLowerCase() === 'tv' ? 'Anime' : entrada.anime.tipo.toLowerCase() === 'movie' ? 'Película' : tipoAnimeLabel(entrada.anime.tipo)}</span>
                                 )}
@@ -625,7 +627,7 @@ export const PerfilPage: React.FC = () => {
                                 )}
                                 <span><strong>Episodios:</strong> {entrada.anime?.episodios || '?'}</span>
                                 {entrada.anime?.demografia && <span><strong>Demografía:</strong> {entrada.anime.demografia}</span>}
-                                <span><strong>Nota General:</strong> ★ {Number(entrada.anime?.calificacionPromedio) > 0 ? Number(entrada.anime.calificacionPromedio).toFixed(1) + '/10' : '?'}</span>
+                                <span><strong>Nota General:</strong> <span style={{ color: '#f1c40f' }}>★</span> {Number(entrada.anime?.calificacionPromedio) > 0 ? Number(entrada.anime.calificacionPromedio).toFixed(1) + '/10' : '?'}</span>
                                 {entrada.episodiosVistos > 0 && <span><strong>Vistos:</strong> {entrada.episodiosVistos}</span>}
                               </div>
                             </div>
@@ -766,7 +768,13 @@ export const PerfilPage: React.FC = () => {
                     <div style={{ flex: 1 }}>
                       <h4 style={{ fontSize: '0.9rem', margin: 0 }}>{anime.titulo || anime.title?.romaji}</h4>
                     </div>
-                    <span style={{ color: 'var(--color-acento)', fontSize: '0.8rem', fontWeight: 'bold' }}>+ Añadir</span>
+                    {addingStates[anime.id || anime.externalId || anime.titulo] === 'adding' ? (
+                      <span style={{ color: '#b0b3b8', fontSize: '0.8rem' }}>Añadiendo...</span>
+                    ) : addingStates[anime.id || anime.externalId || anime.titulo] === 'added' ? (
+                      <span style={{ color: '#27ae60', fontSize: '0.8rem', fontWeight: 'bold' }}>✓ Añadido</span>
+                    ) : (
+                      <span style={{ color: 'var(--color-acento)', fontSize: '0.8rem', fontWeight: 'bold' }}>+ Añadir</span>
+                    )}
                   </div>
                 ))
               ) : searchQuery ? (

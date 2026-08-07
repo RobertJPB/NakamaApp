@@ -39,6 +39,7 @@ export const BibliotecaPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<any[]>([])
   const [isSearching, setIsSearching] = useState(false)
+  const [addingStates, setAddingStates] = useState<Record<string, 'adding' | 'added' | 'error'>>({})
 
   // Reseñas del usuario
   const [resenas, setResenas] = useState<any[]>([])
@@ -88,8 +89,8 @@ export const BibliotecaPage: React.FC = () => {
     if (!listaSeleccionada) return
     const propietarioId = listaSeleccionada.propietario?.id
     
-    // Feedback inmediato
-    alert(`Tu anime se añadió a la lista "${listaSeleccionada.nombre}"`)
+    const key = anime.id || anime.externalId || anime.titulo;
+    setAddingStates(prev => ({ ...prev, [key]: 'adding' }))
 
     // Proceso en segundo plano sin bloquear la UI
     const procesarAgregar = async () => {
@@ -100,14 +101,19 @@ export const BibliotecaPage: React.FC = () => {
           localAnimeId = data.anime?.id
         } catch (e) {
           console.error("Error obteniendo detalles del anime", e);
+          setAddingStates(prev => ({ ...prev, [key]: 'error' }))
           return;
         }
       }
 
-      if (!localAnimeId) return;
+      if (!localAnimeId) {
+        setAddingStates(prev => ({ ...prev, [key]: 'error' }))
+        return;
+      }
 
       const animeCompleto = { ...anime, id: localAnimeId };
       agregar(localAnimeId, listaSeleccionada.nombre, propietarioId, animeCompleto)
+      setAddingStates(prev => ({ ...prev, [key]: 'added' }))
     }
 
     procesarAgregar();
@@ -405,21 +411,20 @@ export const BibliotecaPage: React.FC = () => {
                   </div>
                   
                   <div className={styles.listRowRight}>
-                    <div className={styles.listRowDetails} style={{ paddingRight: 0 }}>
-                      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '8px' }}>
-                        <button
-                          className={styles.btnEliminarItem}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setConfirmBiblModal({ animeId: entrada.animeId, propietarioId: listaSeleccionada?.propietario?.id, listaNombre: listaSeleccionada?.nombre })
-                          }}
-                          title="Eliminar de la lista"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
+                    <div className={styles.listRowDetails} style={{ paddingRight: 0, position: 'relative' }}>
+                      <button
+                        className={styles.btnEliminarItem}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setConfirmBiblModal({ animeId: entrada.animeId, propietarioId: listaSeleccionada?.propietario?.id, listaNombre: listaSeleccionada?.nombre })
+                        }}
+                        title="Eliminar de la lista"
+                        style={{ position: 'absolute', top: 0, right: 0 }}
+                      >
+                        <Trash2 size={18} />
+                      </button>
                       
-                      <div className={styles.listRowMetadata} style={{ display: 'flex', flexDirection: 'column', gap: '6px', color: 'var(--color-texto-muted)', fontSize: '0.8rem' }}>
+                      <div className={styles.listRowMetadata} style={{ display: 'flex', flexDirection: 'column', gap: '6px', color: '#b0b3b8', fontSize: '0.8rem', marginTop: '4px' }}>
                         {entrada.anime?.tipo && (
                           <span><strong>Formato:</strong> {entrada.anime.tipo.toLowerCase() === 'tv' ? 'Anime' : entrada.anime.tipo.toLowerCase() === 'movie' ? 'Película' : tipoAnimeLabel(entrada.anime.tipo)}</span>
                         )}
@@ -437,7 +442,7 @@ export const BibliotecaPage: React.FC = () => {
                           (entrada.anime?.titulo?.toLowerCase().includes('one piece') ? '+1000' : '?')
                         }</span>
                         {entrada.anime?.demografia && <span><strong>Demografía:</strong> {entrada.anime.demografia}</span>}
-                        <span><strong>Nota General:</strong> ★ {Number(entrada.anime?.calificacionPromedio) > 0 ? Number(entrada.anime.calificacionPromedio).toFixed(1) + '/10' : '?'}</span>
+                        <span><strong>Nota General:</strong> <span style={{ color: '#f1c40f' }}>★</span> {Number(entrada.anime?.calificacionPromedio) > 0 ? Number(entrada.anime.calificacionPromedio).toFixed(1) + '/10' : '?'}</span>
                         {entrada.episodiosVistos > 0 && <span><strong>Vistos:</strong> {entrada.episodiosVistos}</span>}
                       </div>
                     </div>
@@ -539,7 +544,13 @@ export const BibliotecaPage: React.FC = () => {
                       <div style={{ flex: 1 }}>
                         <h4 style={{ fontSize: '0.9rem', margin: 0 }}>{anime.titulo || anime.title?.romaji}</h4>
                       </div>
-                      <span style={{ color: 'var(--color-acento)', fontSize: '0.8rem', fontWeight: 'bold' }}>+ Añadir</span>
+                      {addingStates[anime.id || anime.externalId || anime.titulo] === 'adding' ? (
+                        <span style={{ color: '#b0b3b8', fontSize: '0.8rem' }}>Añadiendo...</span>
+                      ) : addingStates[anime.id || anime.externalId || anime.titulo] === 'added' ? (
+                        <span style={{ color: '#27ae60', fontSize: '0.8rem', fontWeight: 'bold' }}>✓ Añadido</span>
+                      ) : (
+                        <span style={{ color: 'var(--color-acento)', fontSize: '0.8rem', fontWeight: 'bold' }}>+ Añadir</span>
+                      )}
                     </div>
                   ))
                 ) : searchQuery ? (
