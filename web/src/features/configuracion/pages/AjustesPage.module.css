@@ -160,6 +160,7 @@
 .toggle {
   width: 44px;
   height: 24px;
+  flex-shrink: 0;
   background: var(--color-surface-2);
   border-radius: 12px;
   border: none;

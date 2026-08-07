@@ -8,7 +8,7 @@ import { ResenaCard }   from '../../anime/components/ResenaCard'
 import { PublicacionCard } from '../../comunidad/components/PublicacionCard'
 import { FeedItemInteractions } from '../../feed/components/FeedItemInteractions'
 import { FollowListModal } from '../components/FollowListModal'
-import { Heart, Clock, Eye, CheckSquare, Layers } from 'lucide-react'
+import { Heart, Clock, Eye, CheckSquare, Layers, PlusCircle } from 'lucide-react'
 import styles           from './PerfilPage.module.css'
 
 type Tab = 'resenas' | 'listas' | 'actividad' | 'medallas'
@@ -393,6 +393,29 @@ export const PerfilPage: React.FC = () => {
                 </div>
               )
             }
+            
+            {esMiPerfil && (
+              <div style={{
+                marginTop: '32px',
+                padding: '24px',
+                background: 'var(--color-surface-2)',
+                borderRadius: '12px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '12px',
+                border: '1px dashed var(--color-borde)',
+                textAlign: 'center'
+              }}>
+                <p style={{ color: 'var(--color-texto-muted)', margin: 0 }}>
+                  ¿Quieres editar o crear tus propias listas?
+                </p>
+                <Link to="/mi-lista" className={styles.btnAction} style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                  <Layers size={18} /> Ve a Mis Listas
+                </Link>
+              </div>
+            )}
           </div>
         )}
 

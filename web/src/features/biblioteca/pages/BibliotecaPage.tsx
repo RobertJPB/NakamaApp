@@ -86,7 +86,26 @@ export const BibliotecaPage: React.FC = () => {
   const handleAgregarAnime = async (anime: any) => {
     if (!listaSeleccionada) return
     const propietarioId = listaSeleccionada.propietario?.id
-    await agregar(anime.id || anime.externalId, listaSeleccionada.nombre, propietarioId)
+    
+    let localAnimeId = anime.id;
+    if (!localAnimeId) {
+      // Si viene de Kitsu, hacer fetch del detalle para que se guarde en la BD local
+      try {
+        const { data } = await api.get(`/api/animes/${anime.externalId}`)
+        localAnimeId = data.anime?.id
+      } catch (e) {
+        console.error("Error obteniendo detalles del anime para agregarlo a la lista", e);
+        alert("Hubo un error al agregar el anime. Inténtalo de nuevo.");
+        return;
+      }
+    }
+
+    if (!localAnimeId) {
+      alert("No se pudo obtener el ID del anime.");
+      return;
+    }
+
+    await agregar(localAnimeId, listaSeleccionada.nombre, propietarioId)
     setShowSearch(false)
     setSearchQuery('')
     setSearchResults([])
@@ -522,7 +541,7 @@ export const BibliotecaPage: React.FC = () => {
                 ) : searchResults.length > 0 ? (
                   searchResults.map(anime => (
                     <div 
-                      key={anime.id}
+                      key={anime.id || anime.externalId || anime.titulo}
                       style={{
                         display: 'flex', gap: '12px', padding: '8px', borderRadius: '8px',
                         background: 'rgba(255,255,255,0.02)', cursor: 'pointer', alignItems: 'center'
@@ -531,7 +550,12 @@ export const BibliotecaPage: React.FC = () => {
                       onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
                       onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.02)')}
                     >
-                      <img src={anime.imagenUrl || anime.coverImage?.large} alt={anime.titulo || anime.title?.romaji} style={{ width: '40px', height: '56px', objectFit: 'cover', borderRadius: '4px' }} />
+                      <img 
+                        src={anime.imagenUrl || anime.coverImage?.large || 'https://placehold.co/40x56/1e2023/5c6066?text=?'} 
+                        alt={anime.titulo || anime.title?.romaji || 'Anime'} 
+                        style={{ width: '40px', height: '56px', objectFit: 'cover', borderRadius: '4px' }} 
+                        onError={(e) => { e.currentTarget.src = 'https://placehold.co/40x56/1e2023/5c6066?text=?' }}
+                      />
                       <div style={{ flex: 1 }}>
                         <h4 style={{ fontSize: '0.9rem', margin: 0 }}>{anime.titulo || anime.title?.romaji}</h4>
                       </div>

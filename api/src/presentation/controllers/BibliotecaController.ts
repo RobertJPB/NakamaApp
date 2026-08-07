@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from 'express'
 import { AuthRequest } from '../../infrastructure/auth/SupabaseAuthMiddleware'
 import { container } from '../../infrastructure/container'
 import { AppError } from '../middlewares/error.middleware'
+import { prisma } from '../../infrastructure/database/prisma/client'
+import { invalidateDetalleAnimeCache } from '../../application/usecases/anime/ObtenerDetalleAnime'
 
 export class BibliotecaController {
   getLista = async (req: Request, res: Response, next: NextFunction) => {
@@ -146,6 +148,10 @@ export class BibliotecaController {
         esPrivada: esPrivada,
         notasPrivadas: notasPrivadas,
       })
+
+      const animeDb = await prisma.anime.findUnique({ where: { id: animeId }, select: { externalId: true } })
+      if (animeDb?.externalId) invalidateDetalleAnimeCache(animeDb.externalId)
+
       res.status(201).json(entrada)
     } catch (err) {
       next(err)
@@ -190,6 +196,10 @@ export class BibliotecaController {
         usuarioId: targetUserId,
         animeId: req.params.animeId,
       })
+
+      const animeDb = await prisma.anime.findUnique({ where: { id: req.params.animeId }, select: { externalId: true } })
+      if (animeDb?.externalId) invalidateDetalleAnimeCache(animeDb.externalId)
+
       res.status(204).send()
     } catch (err) {
       next(err)
@@ -201,6 +211,10 @@ export class BibliotecaController {
       if (!req.userId) throw new AppError('No autenticado', 401)
       const { animeId } = req.params
       const resultado = await container.toggleFavoritoBiblioteca.execute(animeId, req.userId)
+
+      const animeDb = await prisma.anime.findUnique({ where: { id: animeId }, select: { externalId: true } })
+      if (animeDb?.externalId) invalidateDetalleAnimeCache(animeDb.externalId)
+
       res.json(resultado)
     } catch (err) {
       next(err)
