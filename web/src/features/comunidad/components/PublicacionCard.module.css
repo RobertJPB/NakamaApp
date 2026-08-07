@@ -103,7 +103,18 @@
 .encuestaText { position: relative; z-index: 2; font-weight: 500; font-size: var(--text-sm); }
 .encuestaPercent { position: relative; z-index: 2; font-weight: 700; color: var(--color-texto); font-size: var(--text-sm); }
 .disabledOpcion { cursor: default; }
-.voted { border-color: var(--color-texto); }
+
+.voted { 
+  border-color: #cc8400 !important; 
+  background: #cc8400 !important; 
+}
+.voted .encuestaText, .voted .encuestaPercent {
+  color: #ffffff !important;
+}
+.voted .encuestaBar {
+  background: rgba(255, 255, 255, 0.15);
+}
+
 .encuestaTotal { font-size: var(--text-xs); color: var(--color-texto-muted); margin-top: var(--space-1); }
 
 /* Styles for Resenas */
