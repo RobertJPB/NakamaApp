@@ -355,11 +355,12 @@ export const PerfilPage: React.FC = () => {
                       const animesEnColumna = listaPublica.filter((e: any) => e.estados?.includes(col.nombre))
                       
                       let Icon = Layers
+                      let iconColor = 'var(--color-texto-muted)'
                       const nombreLower = col.nombre.toLowerCase()
-                      if (nombreLower.includes('favorito') || nombreLower.includes('me gusta')) Icon = Heart
-                      else if (nombreLower.includes('por ver') || nombreLower.includes('plan to watch')) Icon = Clock
-                      else if (nombreLower.includes('viendo') || nombreLower.includes('watching')) Icon = Eye
-                      else if (nombreLower.includes('terminado') || nombreLower.includes('completed')) Icon = CheckSquare
+                      if (nombreLower.includes('favorito') || nombreLower.includes('me gusta')) { Icon = Heart; iconColor = '#ff4757'; }
+                      else if (nombreLower.includes('por ver') || nombreLower.includes('plan to watch')) { Icon = Clock; iconColor = '#ffa502'; }
+                      else if (nombreLower.includes('viendo') || nombreLower.includes('watching')) { Icon = Eye; iconColor = '#2ed573'; }
+                      else if (nombreLower.includes('terminado') || nombreLower.includes('completed')) { Icon = CheckSquare; iconColor = '#1e90ff'; }
                       
                       return (
                         <div 
@@ -374,7 +375,7 @@ export const PerfilPage: React.FC = () => {
                               </div>
                             )}
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                              <span className={styles.folderName}><Icon size={18} color="var(--color-acento)" /> {col.nombre}</span>
+                              <span className={styles.folderName}><Icon size={18} color={iconColor} /> {col.nombre}</span>
                               <span className={styles.folderCount}>{animesEnColumna.length}</span>
                             </div>
                             {col.descripcion && (
