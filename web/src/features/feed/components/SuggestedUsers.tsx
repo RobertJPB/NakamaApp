@@ -20,7 +20,15 @@ export const SuggestedUsers: React.FC<SuggestedUsersProps> = ({ forceLoading }) 
   const fetchSugeridos = async (signal?: AbortSignal) => {
     try {
       const { data } = await api.get('/api/usuarios/sugeridos', { signal, timeout: 8000 })
-      setSugeridos(Array.isArray(data) ? data : [])
+      let users = Array.isArray(data) ? data : []
+      // Petición del usuario: ocultar a Maria Teresa y olasbb de las sugerencias
+      users = users.filter((u: any) => {
+        const username = u.username?.toLowerCase() || ''
+        const nombreDisplay = u.nombreDisplay?.toLowerCase() || ''
+        return !username.includes('maria teresa') && !nombreDisplay.includes('maria teresa') &&
+               !username.includes('olasbb') && !nombreDisplay.includes('olasbb')
+      })
+      setSugeridos(users)
     } catch (error: any) {
       if (error?.name === 'CanceledError' || error?.name === 'AbortError') return
       console.error('Error fetching suggested users:', error)
