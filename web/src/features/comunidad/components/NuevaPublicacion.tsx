@@ -3,7 +3,7 @@ import { Image as ImageIcon, MessageSquare, BarChart2, Star, X } from 'lucide-re
 import styles from './NuevaPublicacion.module.css'
 
 interface Props { 
-  onPublicar: (datos: { tipo: string; titulo?: string; contenido?: string; imagenUrl?: string; opciones?: {texto: string, imagenUrl?: string}[]; resenaId?: string; seccion?: string }) => Promise<void> 
+  onPublicar: (datos: { tipo: string; titulo?: string; contenido?: string; imagenUrl?: string; opciones?: string[]; resenaId?: string; seccion?: string }) => Promise<void> 
   usuarioAvatar?: string
   seccionActiva?: string
 }
@@ -16,10 +16,7 @@ export const NuevaPublicacion: React.FC<Props> = ({ onPublicar, usuarioAvatar, s
   const [titulo, setTitulo] = useState('')
   const [contenido, setContenido] = useState('')
   const [imagenUrl, setImagenUrl] = useState('')
-  const [opciones, setOpciones] = useState<{texto: string, imagenUrl?: string}[]>([
-    {texto: '', imagenUrl: ''}, 
-    {texto: '', imagenUrl: ''}
-  ])
+  const [opciones, setOpciones] = useState<string[]>(['', ''])
   
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState('')
@@ -67,13 +64,13 @@ export const NuevaPublicacion: React.FC<Props> = ({ onPublicar, usuarioAvatar, s
     setError('')
     if (tipo === 'texto' && !contenido.trim()) { setError('El contenido no puede estar vacío'); return }
     if (tipo === 'resena' && !titulo.trim()) { setError('Debes incluir un título para tu reseña'); return }
-    if (tipo === 'encuesta' && (!titulo.trim() || opciones.some(o => !o.texto.trim()))) { setError('Completa el título y todas las opciones'); return }
+    if (tipo === 'encuesta' && (!titulo.trim() || opciones.some(o => !o.trim()))) { setError('Completa el título y todas las opciones'); return }
     
     setEnviando(true)
     try {
-      await onPublicar({ tipo, titulo, contenido, imagenUrl, opciones: opciones.filter(o => o.texto.trim() !== ''), seccion })
+      await onPublicar({ tipo, titulo, contenido, imagenUrl, opciones: opciones.filter(o => o.trim() !== ''), seccion })
       setAbierto(false)
-      setTitulo(''); setContenido(''); setImagenUrl(''); setOpciones([{texto: '', imagenUrl: ''}, {texto: '', imagenUrl: ''}])
+      setTitulo(''); setContenido(''); setImagenUrl(''); setOpciones(['', ''])
     } catch { 
       setError('Error al publicar. Intenta de nuevo.') 
     } finally { 
@@ -157,20 +154,10 @@ export const NuevaPublicacion: React.FC<Props> = ({ onPublicar, usuarioAvatar, s
                 <input 
                   className={styles.input} 
                   placeholder={`Opción ${i + 1}`} 
-                  value={opt.texto}
+                  value={opt}
                   onChange={e => {
                     const newOpts = [...opciones]
-                    newOpts[i].texto = e.target.value
-                    setOpciones(newOpts)
-                  }}
-                />
-                <input
-                  className={styles.inputUrl}
-                  placeholder="URL imagen (opcional)"
-                  value={opt.imagenUrl || ''}
-                  onChange={e => {
-                    const newOpts = [...opciones]
-                    newOpts[i].imagenUrl = e.target.value
+                    newOpts[i] = e.target.value
                     setOpciones(newOpts)
                   }}
                 />
@@ -182,7 +169,7 @@ export const NuevaPublicacion: React.FC<Props> = ({ onPublicar, usuarioAvatar, s
               </div>
             ))}
             {opciones.length < 6 && (
-              <button className={styles.btnAddOption} onClick={() => setOpciones([...opciones, { texto: '', imagenUrl: '' }])}>
+              <button className={styles.btnAddOption} onClick={() => setOpciones([...opciones, ''])}>
                 Añadir opción
               </button>
             )}

@@ -306,6 +306,12 @@ export const Header: React.FC = () => {
             <>
               <div className={styles.mobileMenuOverlay} onClick={() => setMenuMovilAbierto(false)} />
               <div className={styles.mobileMenuDropdown}>
+                <div className={styles.mobileMenuHeader}>
+                  <img src="/nakama-cat-new.jpg" alt="Nakama Logo" className={styles.mobileMenuLogo} />
+                  <button className={styles.mobileMenuClose} onClick={() => setMenuMovilAbierto(false)}>
+                    <X size={24} />
+                  </button>
+                </div>
                 <Link to="/mi-lista" className={styles.mobileMenuLink} onClick={() => setMenuMovilAbierto(false)}>
                   <Library size={18} /> Mis Listas
                 </Link>
