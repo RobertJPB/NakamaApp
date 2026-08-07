@@ -215,7 +215,6 @@ export const AnimePage: React.FC = () => {
 
               <div className={styles.leftActions}>
                 <BotonLista animeId={anime.id} onListaChange={(estado, agregado) => {
-                  recargar();
                   if (estado !== undefined && agregado !== undefined) {
                     const estadoLower = estado.toLowerCase();
                     if (estadoLower.includes('viendo') || estadoLower.includes('watching')) {

@@ -111,26 +111,20 @@ export const ResenaPersonajeModal: React.FC<ResenaPersonajeModalProps> = ({
                       return (
                         <div key={starIndex} className={styles.starWrapper}>
                           <div 
-                            className={`${styles.starHalf} ${styles.starLeft}`}
+                            className={`${styles.starClickArea} ${styles.leftHalf}`}
                             onMouseEnter={() => setHover(leftVal)}
                             onMouseLeave={() => setHover(0)}
                             onClick={() => setCalificacion(leftVal)}
                           />
                           <div 
-                            className={`${styles.starHalf} ${styles.starRight}`}
+                            className={`${styles.starClickArea} ${styles.rightHalf}`}
                             onMouseEnter={() => setHover(rightVal)}
                             onMouseLeave={() => setHover(0)}
                             onClick={() => setCalificacion(rightVal)}
                           />
-                          <svg viewBox="0 0 24 24" className={styles.starSvg}>
-                            <defs>
-                              <linearGradient id={`gradPersonaje-${starIndex}`}>
-                                <stop offset={isHalf ? "50%" : isFull ? "100%" : "0%"} stopColor="#F5C518" />
-                                <stop offset={isHalf ? "50%" : isFull ? "100%" : "0%"} stopColor="rgba(255,255,255,0.1)" />
-                              </linearGradient>
-                            </defs>
-                            <path fill={`url(#gradPersonaje-${starIndex})`} d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-                          </svg>
+                          <div className={`${styles.starIcon} ${isFull ? styles.starFull : isHalf ? styles.starHalf : styles.starEmpty}`}>
+                            ★
+                          </div>
                         </div>
                       )
                     })}

@@ -43,13 +43,14 @@ export const BotonLista: React.FC<{ animeId: string, onListaChange?: (estado?: s
       nuevosEstados.push(estado)
     }
     setOptimisticEstados(nuevosEstados)
+    if (onListaChange) onListaChange(estado, nuevosEstados.includes(estado))
     
     try {
       await agregar(animeId, estado)
-      if (onListaChange) onListaChange(estado, nuevosEstados.includes(estado))
     } catch (error) {
       console.error("Error al actualizar la lista", error)
       setOptimisticEstados(estadosActivos)
+      if (onListaChange) onListaChange(estado, estadosActivos.includes(estado)) // revert
     }
   }
 
