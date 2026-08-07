@@ -439,7 +439,7 @@
   }
   .composeLayout {
     display: grid;
-    grid-template-columns: 150px 1fr auto;
+    grid-template-columns: 110px 1fr auto;
     grid-template-areas: 
       "title title title"
       "poster date date"
@@ -462,14 +462,14 @@
   .tagsBlock { grid-area: tags; }
   .ratingBlock { grid-area: rating; align-items: flex-start; }
   .ratingBlock label { font-size: 12px; }
-  .starWrapper { width: 32px; height: 32px; }
-  .starIcon { font-size: 32px; }
+  .starWrapper { width: 28px; height: 28px; }
+  .starIcon { font-size: 28px; }
 
   .modal {
-    max-height: 95vh;
-    overflow-y: auto;
+    max-height: 85vh;
   }
   .searchBody, .composeBody {
+    overflow-y: auto;
     padding: 16px;
   }
 }
