@@ -515,7 +515,7 @@ export const BibliotecaPage: React.FC = () => {
             display: 'flex', alignItems: 'center', justifyContent: 'center'
           }} onClick={() => setShowSearch(false)}>
             <div style={{
-              background: 'var(--color-surface)', padding: '24px', borderRadius: '16px',
+              background: '#121212', padding: '24px', borderRadius: '8px',
               width: '90%', maxWidth: '500px', border: '1px solid var(--color-borde)',
               display: 'flex', flexDirection: 'column', gap: '16px'
             }} onClick={e => e.stopPropagation()}>
@@ -529,8 +529,8 @@ export const BibliotecaPage: React.FC = () => {
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 style={{
-                  width: '100%', padding: '12px', borderRadius: '8px',
-                  background: 'var(--color-surface-2)', border: '1px solid var(--color-borde)',
+                  width: '100%', padding: '12px', borderRadius: '4px',
+                  background: 'rgba(0,0,0,0.4)', border: '1px solid var(--color-borde-suave)',
                   color: '#fff', fontSize: '1rem'
                 }}
               />
