@@ -17,7 +17,7 @@ export class PrismaBibliotecaRepository implements IBibliotecaRepository {
     // Una sola consulta para todas las colaboraciones (evita N+1).
     let listasAjenas: any[] = []
     if (colaboraciones.length > 0) {
-      const condiciones = colaboraciones.map((colab) => ({
+      const condiciones = colaboraciones.map((colab: { columna: { usuarioId: string; nombre: string } }) => ({
         usuarioId: colab.columna.usuarioId,
         estados: { has: colab.columna.nombre },
       }))

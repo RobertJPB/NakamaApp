@@ -1,6 +1,6 @@
 import { prisma } from '../../../infrastructure/database/prisma/client'
 import { AppError } from '../../../presentation/middlewares/error.middleware'
-import { TipoPublicacion } from '@prisma/client'
+import { Prisma } from '@prisma/client'
 
 interface Input {
   usuarioId: string
@@ -30,7 +30,7 @@ export class CrearResenaPersonaje {
       throw new AppError('Ya has reseñado a este personaje', 400)
     }
 
-    return await prisma.$transaction(async (tx) => {
+    return await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const resena = await tx.resenaPersonaje.create({
         data: {
           usuarioId,
@@ -52,7 +52,7 @@ export class CrearResenaPersonaje {
       await tx.publicacion.create({
         data: {
           usuarioId,
-          tipo: TipoPublicacion.resena_personaje,
+          tipo: 'resena_personaje',
           resenaPersonajeId: resena.id,
           contenido: null
         }

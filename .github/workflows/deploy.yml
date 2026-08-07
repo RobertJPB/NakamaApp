@@ -24,6 +24,9 @@ jobs:
 
       - run: pnpm install --no-frozen-lockfile
 
+      - name: Generate Prisma Client
+        run: cd api && pnpm exec prisma generate --schema=src/infrastructure/database/prisma/schema.prisma
+
       - name: Type check API
         run: cd api && pnpm exec tsc --noEmit
 
