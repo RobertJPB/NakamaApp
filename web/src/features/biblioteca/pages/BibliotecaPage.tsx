@@ -406,12 +406,8 @@ export const BibliotecaPage: React.FC = () => {
                   </div>
                   
                   <div className={styles.listRowRight}>
-                    {/* Detalles */}
-                    <div className={styles.listRowDetails}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
-                        <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: 0 }}>
-                          {entrada.anime?.titulo}
-                        </h2>
+                    <div className={styles.listRowDetails} style={{ paddingRight: 0 }}>
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '8px' }}>
                         <button
                           className={styles.btnEliminarItem}
                           onClick={(e) => {
@@ -424,7 +420,7 @@ export const BibliotecaPage: React.FC = () => {
                         </button>
                       </div>
                       
-                      <div className={styles.listRowMetadata} style={{ display: 'flex', flexDirection: 'column', gap: '8px', color: 'var(--color-texto-muted)', fontSize: '0.9rem' }}>
+                      <div className={styles.listRowMetadata} style={{ display: 'flex', flexDirection: 'column', gap: '6px', color: 'var(--color-texto-muted)', fontSize: '0.8rem' }}>
                         {entrada.anime?.tipo && (
                           <span>
                             <strong>Formato:</strong> {tipoAnimeLabel(entrada.anime.tipo)}

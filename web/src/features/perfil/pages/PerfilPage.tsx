@@ -514,9 +514,9 @@ export const PerfilPage: React.FC = () => {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                     <button 
                       onClick={() => setListaSeleccionada(null)}
-                      style={{ background: 'none', border: 'none', color: 'var(--color-texto-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                      style={{ background: 'none', border: 'none', color: 'var(--color-texto-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '4px' }}
                     >
-                      <ArrowLeft size={18} /> Volver a Listas
+                      <ArrowLeft size={24} />
                     </button>
                     <h2 style={{ margin: 0, fontSize: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
                       {listaSeleccionada.nombre}
@@ -529,7 +529,8 @@ export const PerfilPage: React.FC = () => {
                         background: 'var(--color-acento)', color: '#1f2124',
                         fontWeight: 700, fontSize: 'var(--text-sm)',
                         padding: '6px 12px', border: 'none', borderRadius: '6px',
-                        cursor: 'pointer', transition: 'background var(--transition-fast)'
+                        cursor: 'pointer', transition: 'background var(--transition-fast)',
+                        whiteSpace: 'nowrap'
                       }}
                       onMouseEnter={e => e.currentTarget.style.background = 'var(--color-acento-hover)'}
                       onMouseLeave={e => e.currentTarget.style.background = 'var(--color-acento)'}
@@ -539,7 +540,7 @@ export const PerfilPage: React.FC = () => {
                   )}
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   {listaPublica.filter((e: any) => e.estados?.includes(listaSeleccionada.nombre)).length === 0 ? (
                     <div className={styles.vacioWrap}>
                       <p className={styles.vacio}>No hay animes en esta lista.</p>
@@ -559,11 +560,8 @@ export const PerfilPage: React.FC = () => {
                             />
                           </div>
                           <div className={styles.listRowRight}>
-                            <div className={styles.listRowDetails}>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
-                                <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: 0 }}>
-                                  {entrada.anime?.titulo}
-                                </h2>
+                            <div className={styles.listRowDetails} style={{ paddingRight: 0 }}>
+                              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '8px' }}>
                                 {esMiPerfil && (
                                   <button
                                     className={styles.btnEliminarItem}
@@ -577,7 +575,7 @@ export const PerfilPage: React.FC = () => {
                                   </button>
                                 )}
                               </div>
-                              <div className={styles.listRowMetadata} style={{ display: 'flex', flexDirection: 'column', gap: '8px', color: 'var(--color-texto-muted)', fontSize: '0.9rem' }}>
+                              <div className={styles.listRowMetadata} style={{ display: 'flex', flexDirection: 'column', gap: '6px', color: 'var(--color-texto-muted)', fontSize: '0.8rem' }}>
                                 {entrada.anime?.tipo && (
                                   <span><strong>Formato:</strong> {tipoAnimeLabel(entrada.anime.tipo)}</span>
                                 )}
@@ -597,21 +595,21 @@ export const PerfilPage: React.FC = () => {
                               </div>
                             </div>
                             <div className={styles.listRowReview}>
-                              <h3 style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--color-texto)', marginBottom: '12px' }}>Mi Reseña</h3>
+                              <h3 style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--color-texto)', marginBottom: '8px' }}>Mi Reseña</h3>
                               {resena ? (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                                    <span style={{ color: '#f1c40f', fontWeight: '900', fontSize: '2rem', lineHeight: 1 }}>★ {resena.calificacion}<span style={{ fontSize: '1rem', color: 'var(--color-texto-muted)' }}>/10</span></span>
-                                    <span style={{ color: 'var(--color-texto-muted)', fontSize: '0.85rem', marginLeft: '8px' }}>{new Date(resena.creadoEn).toLocaleDateString()}</span>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                                    <span style={{ color: '#f1c40f', fontWeight: '900', fontSize: '1.25rem', lineHeight: 1 }}>★ {resena.calificacion}<span style={{ fontSize: '0.8rem', color: 'var(--color-texto-muted)' }}>/10</span></span>
+                                    <span style={{ color: 'var(--color-texto-muted)', fontSize: '0.75rem', marginLeft: '4px' }}>{new Date(resena.creadoEn).toLocaleDateString()}</span>
                                   </div>
                                   {resena.contenido ? (
-                                    <p style={{ margin: 0, color: 'var(--color-texto-suave)', fontSize: '1rem', lineHeight: 1.6, maxWidth: '600px' }}>{resena.contenido}</p>
+                                    <p style={{ margin: 0, color: 'var(--color-texto-suave)', fontSize: '0.85rem', lineHeight: 1.4, maxWidth: '600px' }}>{resena.contenido}</p>
                                   ) : (
-                                    <p style={{ margin: 0, color: 'var(--color-texto-muted)', fontSize: '0.9rem' }}>Solo calificación</p>
+                                    <p style={{ margin: 0, color: 'var(--color-texto-muted)', fontSize: '0.8rem' }}>Solo calificación</p>
                                   )}
                                 </div>
                               ) : (
-                                <p style={{ color: 'var(--color-texto-muted)', fontSize: '0.9rem', margin: 0 }}>No has escrito ninguna reseña.</p>
+                                <p style={{ color: 'var(--color-texto-muted)', fontSize: '0.8rem', margin: 0 }}>No has escrito ninguna reseña.</p>
                               )}
                             </div>
                           </div>
