@@ -19,8 +19,11 @@ import reporteRoutes from './routes/reporte.routes'
 
 const app = express()
 
+// Necesario en Render (y Vercel/Heroku) para leer correctamente las IPs reales de los usuarios
+// y no la del balanceador de carga (si no, el rate limit bloquea a todo el mundo a la vez)
+app.set('trust proxy', 1)
+
 app.use(helmet())
-app.use(limiterGeneral)
 
 const ALLOWED_ORIGINS = new Set([
   'https://nakama-app-web.vercel.app',
@@ -54,6 +57,11 @@ app.use(
     credentials: true,
   })
 )
+
+// Importante: El limitador de requests debe ir DESPUÉS de CORS para que, si el limitador
+// bloquea una petición, la respuesta de error siga teniendo los headers CORS y el navegador no lance fallo de red.
+app.use(limiterGeneral)
+
 app.use(express.json({ limit: '5mb' }))
 
 app.get('/health', (_req, res) => res.json({ status: 'ok', app: 'Nakama API' }))
