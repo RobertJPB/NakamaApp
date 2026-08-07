@@ -153,9 +153,17 @@ export const FeedPage: React.FC = () => {
 
   const guardarEdicion = async (id: string, nuevoContenido: string, tipo: string) => {
     try {
-      if (tipo === 'texto') {
-        const res = await api.put(`/api/comunidad/publicaciones/${id}`, { contenido: nuevoContenido })
-        setFeed(prev => prev.map(p => p.id === id ? { ...p, contenido: nuevoContenido } : p))
+      if (tipo !== 'resena' && tipo !== 'lista_update') {
+        await api.put(`/api/comunidades/publicaciones/${id}`, { contenido: nuevoContenido })
+        setFeed(prev => prev.map(p => {
+          if (p.id === id) {
+            if (p.referencia) {
+              return { ...p, referencia: { ...p.referencia, contenido: nuevoContenido } }
+            }
+            return { ...p, contenido: nuevoContenido }
+          }
+          return p
+        }))
       }
       setEditandoId(null)
       setEditContenido('')
