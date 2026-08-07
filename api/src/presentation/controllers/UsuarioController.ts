@@ -124,7 +124,15 @@ export class UsuarioController {
       }
 
       const all = req.query.all === 'true'
-      const sugeridos = await container.usuarioRepo.findSugeridos(excludedIds, all ? 50 : 4)
+      let sugeridos = await container.usuarioRepo.findSugeridos(excludedIds, all ? 50 : 4)
+
+      // Filtrar usuarios vetados (Maria Teresa, olasbb) a nivel global en la API
+      sugeridos = sugeridos.filter((u: any) => {
+        const username = u.username?.toLowerCase() || ''
+        const nombreDisplay = u.nombreDisplay?.toLowerCase() || ''
+        return !username.includes('maria teresa') && !nombreDisplay.includes('maria teresa') &&
+               !username.includes('olasbb') && !nombreDisplay.includes('olasbb')
+      })
 
       res.json(all ? { usuarios: sugeridos } : sugeridos)
     } catch (err) {
