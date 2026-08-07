@@ -1,5 +1,5 @@
-import { prisma } from '../../infrastructure/database/prisma/client'
-import { AppError } from '../../presentation/middlewares/error.middleware'
+import { prisma } from '../../../infrastructure/database/prisma/client'
+import { AppError } from '../../../presentation/middlewares/error.middleware'
 import { TipoPublicacion } from '@prisma/client'
 
 interface Input {
