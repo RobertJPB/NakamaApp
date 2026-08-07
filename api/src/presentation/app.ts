@@ -48,7 +48,7 @@ app.use(
 
       // Los orígenes de producción/preview deben agregarse explícitamente
       // (FRONTEND_URL o CORS_ORIGINS). Ya no se acepta cualquier subdominio .vercel.app.
-      cb(new Error(`CORS: origin ${origin} not allowed`))
+      cb(new Error(`CORS: origin ${origin} not allowed. Allowed: ${Array.from(ALLOWED_ORIGINS).join(', ')}`))
     },
     credentials: true,
   })
