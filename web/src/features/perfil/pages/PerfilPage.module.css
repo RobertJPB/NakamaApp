@@ -240,8 +240,9 @@
 
   .favoritosWrap {
     display: flex;
+    flex-direction: column;
     max-width: 100%;
-    margin-top: var(--space-6);
+    margin-top: var(--space-3);
     margin-bottom: var(--space-2);
   }
   .favoritosList {
