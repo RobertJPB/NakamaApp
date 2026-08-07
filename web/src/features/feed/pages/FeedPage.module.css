@@ -94,7 +94,7 @@
 @keyframes shimmer { to { background-position: -200% 0; } }
 
 /* Vacío */
-.vacio { display: flex; flex-direction: column; align-items: center; gap: var(--space-3); padding: 60px 0; margin-top: 60px; text-align: center; }
+.vacio { display: flex; flex-direction: column; align-items: center; gap: var(--space-3); padding: 20px 0; margin-top: 20px; text-align: center; }
 .vacioTexto { font-size: var(--text-lg); font-weight: 700; }
 .vacioSub   { font-size: var(--text-sm); color: var(--color-texto-muted); }
 .vacioCta   { color: var(--color-acento); font-weight: 600; font-size: var(--text-sm); }
