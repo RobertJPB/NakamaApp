@@ -259,8 +259,11 @@ export const PerfilPage: React.FC = () => {
             <h3 className={styles.favoritosTitle}>Favoritos</h3>
             <div className={styles.favoritosList}>
               {lista.filter((x: any) => x.esFavorito).map((f: any) => (
-                <Link to={`/anime/${f.anime.externalId}`} key={f.animeId} className={styles.favItem} title={f.anime.titulo}>
-                  <img src={f.anime.imagenUrl} alt={f.anime.titulo} />
+                <Link to={`/anime/${f.anime.externalId}`} key={f.animeId} className={styles.favItemWrap} title={f.anime.titulo}>
+                  <div className={styles.favItem}>
+                    <img src={f.anime.imagenUrl} alt={f.anime.titulo} />
+                  </div>
+                  <span className={styles.favItemTitle}>{f.anime.titulo}</span>
                 </Link>
               ))}
             </div>

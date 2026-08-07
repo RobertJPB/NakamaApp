@@ -207,5 +207,9 @@
   .metricaValor {
     font-size: 1.1rem;
   }
+  
+  .filaEstrellas {
+    display: none;
+  }
 }
 

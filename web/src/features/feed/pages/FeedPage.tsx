@@ -13,6 +13,7 @@ import { Star, StarHalf, MoreHorizontal, Pencil, Trash2, Flag } from 'lucide-rea
 
 const TIPO_LABEL: Record<string, { emoji: string; texto: string }> = {
   resena:       { emoji: '', texto: 'dejó una reseña de' },
+  resena_personaje: { emoji: '', texto: 'dejó una reseña del personaje' },
   lista_update: { emoji: '📋', texto: 'actualizó su lista:' },
   texto:        { emoji: '', texto: 'publicó' },
   encuesta:     { emoji: '', texto: 'creó una encuesta' },
@@ -289,7 +290,16 @@ export const FeedPage: React.FC = () => {
                             <>{' '}<Link to={`/comunidades/${entrada.comunidadId}`} className={styles.entradaAnime} onClick={e => e.stopPropagation()}>{entrada.comunidadNombre}</Link></>
                           ) : ''}
                         </span>{' '}
-                        {entrada.animeTitulo && (
+                        {entrada.tipo === 'resena_personaje' && entrada.resenaPersonaje && (
+                          <>
+                            <strong>{entrada.resenaPersonaje.personajeNombre}</strong> (
+                            <Link to={`/anime/${entrada.resenaPersonaje.externalId}`} className={styles.entradaAnime}>
+                              {entrada.resenaPersonaje.animeTitulo}
+                            </Link>
+                            )
+                          </>
+                        )}
+                        {entrada.tipo !== 'resena_personaje' && entrada.animeTitulo && (
                           <Link to={`/anime/${entrada.externalId}`} className={styles.entradaAnime}>
                             {entrada.animeTitulo}
                           </Link>
@@ -297,7 +307,7 @@ export const FeedPage: React.FC = () => {
                       </p>
 
                       {/* Detalle según tipo */}
-                      {entrada.tipo === 'resena' && (
+                      {(entrada.tipo === 'resena' || entrada.tipo === 'resena_personaje') && (
                         <div className={styles.entradaDetalle}>
                           {entrada.contenido && <SpoilerText contenido={entrada.contenido} contieneSpoiler={entrada.contieneSpoiler} />}
                           {entrada.etiquetas && entrada.etiquetas.length > 0 && (
@@ -413,7 +423,7 @@ export const FeedPage: React.FC = () => {
                         )}
                       </p>
 
-                      {(entrada.tipo === 'resena' || entrada.tipo === 'texto' || entrada.tipo === 'encuesta') && (
+                      {(entrada.tipo === 'resena' || entrada.tipo === 'texto' || entrada.tipo === 'encuesta' || entrada.tipo === 'resena_personaje') && (
                         <FeedItemInteractions
                           itemId={entrada.id}
                           tipo={entrada.tipo === 'resena' ? 'resena' : 'publicacion'}
@@ -426,24 +436,29 @@ export const FeedPage: React.FC = () => {
                       )}
                     </div>
 
-                    {(entrada.animeImagen || (entrada.tipo === 'resena' && entrada.calificacion)) && (
+                    {(entrada.animeImagen || (entrada.tipo === 'resena' && entrada.calificacion) || (entrada.tipo === 'resena_personaje' && entrada.resenaPersonaje?.calificacion)) && (
                       <div className={styles.entradaMedia}>
-                        {entrada.animeImagen && (
+                        {entrada.tipo === 'resena_personaje' && entrada.resenaPersonaje?.personajeImagen ? (
+                          <Link to={`/anime/${entrada.resenaPersonaje.externalId}`} className={styles.entradaThumb}>
+                            <img src={entrada.resenaPersonaje.personajeImagen} alt={entrada.resenaPersonaje.personajeNombre} />
+                          </Link>
+                        ) : entrada.animeImagen && (
                           <Link to={`/anime/${entrada.externalId}`} className={styles.entradaThumb}>
                             <img src={entrada.animeImagen} alt={entrada.animeTitulo} />
                           </Link>
                         )}
-                        {entrada.tipo === 'resena' && entrada.calificacion && (
+                        
+                        {(entrada.tipo === 'resena' || entrada.tipo === 'resena_personaje') && (entrada.calificacion || entrada.resenaPersonaje?.calificacion) && (
                           <div className={styles.entradaRatingBox}>
                             <span className={styles.entradaEstrellas} style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
                               {Array.from({ length: 5 }).map((_, i) => {
-                                const val = (entrada.calificacion / 10) * 5
+                                const val = ((entrada.calificacion || entrada.resenaPersonaje?.calificacion) / 10) * 5
                                 if (val >= i + 1) return <Star key={i} size={14} fill="currentColor" strokeWidth={0} />
                                 if (val >= i + 0.5) return <StarHalf key={i} size={14} fill="currentColor" strokeWidth={0} />
-                                return <Star key={i} size={14} fill="#4b5563" strokeWidth={0} /> // Empty star color
+                                return <Star key={i} size={14} fill="#4b5563" strokeWidth={0} />
                               })}
                             </span>
-                            <span className={styles.entradaCalificacionNum}>{entrada.calificacion}/10</span>
+                            <span className={styles.entradaCalificacionNum}>{entrada.calificacion || entrada.resenaPersonaje?.calificacion}/10</span>
                           </div>
                         )}
                       </div>

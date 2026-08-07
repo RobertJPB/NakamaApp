@@ -205,6 +205,12 @@ export class PrismaResenaRepository implements IResenaRepository {
         resena: {
           include: { anime: { select: { titulo: true, externalId: true, imagenUrl: true } } },
         },
+        resenaPersonaje: {
+          include: { 
+            anime: { select: { titulo: true, externalId: true } },
+            personaje: { select: { nombre: true, imagenUrl: true } }
+          }
+        },
       },
     })
 
@@ -249,6 +255,18 @@ export class PrismaResenaRepository implements IResenaRepository {
             externalId: p.resena.anime.externalId,
             animeImagen: p.resena.anime.imagenUrl,
             calificacion: p.resena.calificacion,
+          }
+        : null,
+      resenaPersonaje: p.resenaPersonaje
+        ? {
+            id: p.resenaPersonaje.id,
+            personajeNombre: p.resenaPersonaje.personaje.nombre,
+            personajeImagen: p.resenaPersonaje.personaje.imagenUrl,
+            animeTitulo: p.resenaPersonaje.anime.titulo,
+            externalId: p.resenaPersonaje.anime.externalId,
+            calificacion: p.resenaPersonaje.calificacion,
+            contenido: p.resenaPersonaje.contenido,
+            contieneSpoiler: p.resenaPersonaje.contieneSpoiler,
           }
         : null,
       opciones:

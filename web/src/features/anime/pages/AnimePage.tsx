@@ -5,6 +5,7 @@ import { useAnimeDetalle } from '../../../hooks/useAnime'
 import { useAuth }         from '../../../hooks/useAuth'
 import { ResenaCard }      from '../components/ResenaCard'
 import { ResenaForm }      from '../components/ResenaForm'
+import { ResenaPersonajeModal } from '../components/ResenaPersonajeModal'
 import { BotonLista }      from '../components/BotonLista'
 import { useBiblioteca }   from '../../../hooks/useBiblioteca'
 import styles              from './AnimePage.module.css'
@@ -23,10 +24,24 @@ export const AnimePage: React.FC = () => {
   const [loadingFav, setLoadingFav] = useState(false)
   const [isFavoritoLocal, setIsFavoritoLocal] = useState(false)
   const [favError, setFavError] = useState('')
+  const [statsLocales, setStatsLocales] = useState({ viendo: 0, porVer: 0, favoritos: 0 })
+  const [tab, setTab] = useState<'info' | 'resenas'>('info')
   const [showLeftScroll, setShowLeftScroll] = useState(false)
   const [sinopsisExpandida, setSinopsisExpandida] = useState(false)
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false)
+  const [personajeSeleccionado, setPersonajeSeleccionado] = useState<any>(null)
   const [esMovil, setEsMovil] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 768)
   const scrollRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (detalle?.anime?.stats) {
+      setStatsLocales({
+        viendo: detalle.anime.stats.viendo ?? 0,
+        porVer: detalle.anime.stats.porVer ?? 0,
+        favoritos: detalle.anime.stats.favoritos ?? 0
+      })
+    }
+  }, [detalle?.anime?.stats])
 
   useEffect(() => {
     const handleResize = () => setEsMovil(window.innerWidth <= 768)
@@ -186,20 +201,31 @@ export const AnimePage: React.FC = () => {
                 </div>
                 <div className={styles.statItem} title="Viendo">
                   <Eye size={16} color="#27ae60" />
-                  <span>{anime.stats?.viendo ?? 0}</span>
+                  <span>{statsLocales.viendo}</span>
                 </div>
                 <div className={styles.statItem} title="Por Ver">
                   <Clock size={16} className={styles.statIcon} />
-                  <span>{anime.stats?.porVer ?? 0}</span>
+                  <span>{statsLocales.porVer}</span>
                 </div>
                 <div className={styles.statItem} title="Gustan">
                   <Heart size={16} color="#ff4757" />
-                  <span>{anime.stats?.favoritos ?? 0}</span>
+                  <span>{statsLocales.favoritos}</span>
                 </div>
               </div>
 
               <div className={styles.leftActions}>
-                <BotonLista animeId={anime.id} onListaChange={recargar} />
+                <BotonLista animeId={anime.id} onListaChange={(estado, agregado) => {
+                  recargar();
+                  if (estado !== undefined && agregado !== undefined) {
+                    const estadoLower = estado.toLowerCase();
+                    if (estadoLower.includes('viendo') || estadoLower.includes('watching')) {
+                      setStatsLocales(prev => ({ ...prev, viendo: Math.max(0, prev.viendo + (agregado ? 1 : -1)) }));
+                    }
+                    if (estadoLower.includes('por ver') || estadoLower.includes('plan to watch')) {
+                      setStatsLocales(prev => ({ ...prev, porVer: Math.max(0, prev.porVer + (agregado ? 1 : -1)) }));
+                    }
+                  }
+                }} />
                 <button className={styles.leftBtn} onClick={() => navigate('/comunidades')}>
                   <Users size={16} /> Ver Comunidades
                 </button>
@@ -223,6 +249,10 @@ export const AnimePage: React.FC = () => {
                       
                       // Optimistic UI Update local
                       setIsFavoritoLocal(!isFavoritoLocal)
+                      setStatsLocales(prev => ({
+                        ...prev,
+                        favoritos: Math.max(0, prev.favoritos + (!isFavoritoLocal ? 1 : -1))
+                      }))
 
                       try {
                         const nuevoEstado = await toggleFavorito(anime.id)
@@ -363,10 +393,14 @@ export const AnimePage: React.FC = () => {
                       <div className={styles.castGrid} ref={scrollRef} onScroll={handleScroll}>
                         {(personajes ?? []).map((p: any) => (
                           <div key={p.id} className={styles.castItem}>
-                            <div className={styles.castImgWrapper}>
-                              <img src={p.imagenUrl} alt={p.nombre} title={p.nombre} loading="lazy" decoding="async" />
+                            <div className={styles.castImgWrapper} onClick={() => setPersonajeSeleccionado(p)}>
+                              {p.imagenUrl ? (
+                                <img src={p.imagenUrl} alt={p.nombre} loading="lazy" />
+                              ) : (
+                                <div className={styles.noCastImg} />
+                              )}
                             </div>
-                            <span className={styles.castName}>{p.nombre.split(' ')[0]}</span>
+                            <p onClick={() => setPersonajeSeleccionado(p)}>{p.nombre}</p>
                           </div>
                         ))}
                       </div>
@@ -403,6 +437,18 @@ export const AnimePage: React.FC = () => {
 
         </div>
       </div>
+
+      {personajeSeleccionado && (
+        <ResenaPersonajeModal
+          personaje={personajeSeleccionado}
+          animeId={anime.id}
+          onClose={() => setPersonajeSeleccionado(null)}
+          onSaved={(resena) => {
+            console.log('Reseña guardada', resena)
+            setPersonajeSeleccionado(null)
+          }}
+        />
+      )}
     </Layout>
   )
 }

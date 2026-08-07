@@ -45,6 +45,7 @@ import {
   ObtenerResenasPorAnime,
   ObtenerResenasPorUsuario,
 } from '../application/usecases/resena/ResenaUseCasesPrisma'
+import { CrearResenaPersonaje } from '../application/usecases/contenido/CrearResenaPersonaje'
 import { ObtenerRanking } from '../application/usecases/ranking/ObtenerRanking'
 import { ObtenerFeed } from '../application/usecases/feed/ObtenerFeed'
 import {
@@ -137,6 +138,7 @@ export const container = {
   buscarResenas: new BuscarResenas(resenaRepo),
   obtenerResenasPorAnime: new ObtenerResenasPorAnime(resenaRepo),
   obtenerResenasPorUsuario: new ObtenerResenasPorUsuario(resenaRepo),
+  crearResenaPersonaje: new CrearResenaPersonaje(),
 
   // Ranking
   obtenerRanking: new ObtenerRanking(animeRepo),

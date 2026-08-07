@@ -83,6 +83,23 @@ export class ResenaController {
     }
   }
 
+  crearPersonaje = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+      if (!req.userId) throw new AppError('No autenticado', 401)
+      const resena = await container.crearResenaPersonaje.execute({
+        usuarioId: req.userId,
+        personajeId: req.params.personajeId,
+        animeId: req.body.animeId,
+        calificacion: req.body.calificacion,
+        contenido: req.body.contenido,
+        contieneSpoiler: req.body.contieneSpoiler ?? false,
+      })
+      res.status(201).json(resena)
+    } catch (err) {
+      next(err)
+    }
+  }
+
   eliminar = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       if (!req.userId) throw new AppError('No autenticado', 401)

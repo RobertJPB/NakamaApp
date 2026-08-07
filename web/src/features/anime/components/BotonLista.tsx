@@ -16,7 +16,7 @@ const getIconForList = (nombre: string) => {
   return <Folder size={16} color="#a4b0be" />
 }
 
-export const BotonLista: React.FC<{ animeId: string, onListaChange?: () => void }> = ({ animeId, onListaChange }) => {
+export const BotonLista: React.FC<{ animeId: string, onListaChange?: (estado?: string, agregado?: boolean) => void }> = ({ animeId, onListaChange }) => {
   const usuario                                 = useAuthStore(s => s.usuario)
   const { columnas, agregar, lista }            = useBiblioteca(usuario?.id ?? null)
   const [abierto,   setAbierto]                 = useState(false)
@@ -46,7 +46,7 @@ export const BotonLista: React.FC<{ animeId: string, onListaChange?: () => void 
     
     try {
       await agregar(animeId, estado)
-      if (onListaChange) onListaChange()
+      if (onListaChange) onListaChange(estado, nuevosEstados.includes(estado))
     } catch (error) {
       console.error("Error al actualizar la lista", error)
       setOptimisticEstados(estadosActivos)

@@ -202,6 +202,18 @@ export class UsuarioController {
               calificacion: p.resena.calificacion,
             }
           : null,
+        resenaPersonaje: p.resenaPersonaje
+          ? {
+              id: p.resenaPersonaje.id,
+              personajeNombre: p.resenaPersonaje.personaje.nombre,
+              personajeImagen: p.resenaPersonaje.personaje.imagenUrl,
+              animeTitulo: p.resenaPersonaje.anime.titulo,
+              externalId: p.resenaPersonaje.anime.externalId,
+              calificacion: p.resenaPersonaje.calificacion,
+              contenido: p.resenaPersonaje.contenido,
+              contieneSpoiler: p.resenaPersonaje.contieneSpoiler,
+            }
+          : null,
         opciones:
           p.opciones?.map((opt: any) => ({
             id: opt.id,

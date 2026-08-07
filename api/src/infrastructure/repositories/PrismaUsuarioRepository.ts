@@ -256,6 +256,12 @@ export class PrismaUsuarioRepository implements IUsuarioRepository {
             anime: { select: { id: true, titulo: true, externalId: true, imagenUrl: true } },
           },
         },
+        resenaPersonaje: {
+          include: {
+            anime: { select: { titulo: true, externalId: true } },
+            personaje: { select: { nombre: true, imagenUrl: true } }
+          }
+        },
         opciones: {
           include: { votosUsuarios: true },
         },

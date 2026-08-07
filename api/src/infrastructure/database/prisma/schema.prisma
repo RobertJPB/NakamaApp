@@ -63,6 +63,7 @@ enum TipoPublicacion {
   imagen
   encuesta
   resena
+  resena_personaje
   @@schema("comunidad")
 }
 
@@ -107,6 +108,7 @@ model Anime {
   personajes    Personaje[]
   listaUsuarios ListaUsuario[]
   resenas       Resena[]
+  resenasPersonaje ResenaPersonaje[]
   colecciones   ColeccionAnime[]
 
   @@map("animes")
@@ -169,6 +171,7 @@ model Personaje {
 
   anime              Anime  @relation(fields: [animeId], references: [id], onDelete: Cascade)
   calificaciones     CalificacionPersonaje[]
+  resenasPersonaje   ResenaPersonaje[]
 
   @@map("personajes")
   @@schema("catalogo")
@@ -201,6 +204,7 @@ model Usuario {
   lista               ListaUsuario[]
   columnasKanban      ColumnaKanban[]
   resenas             Resena[]
+  resenasPersonaje    ResenaPersonaje[]
   reaccionesResena    ReaccionResena[]
   colecciones         Coleccion[]
   comunidadesCreadas  Comunidad[]
@@ -357,6 +361,30 @@ model Resena {
   @@schema("contenido")
 }
 
+model ResenaPersonaje {
+  id              String   @id @default(uuid())
+  usuarioId       String   @map("usuario_id")
+  personajeId     String   @map("personaje_id")
+  animeId         String   @map("anime_id")
+  calificacion    Float
+  contenido       String?
+  contieneSpoiler Boolean  @default(false) @map("contiene_spoiler")
+  esPublica       Boolean  @default(true)  @map("es_publica")
+  creadoEn        DateTime @default(now()) @map("creado_en")
+
+  usuario   Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  personaje Personaje @relation(fields: [personajeId], references: [id], onDelete: Cascade)
+  anime     Anime     @relation(fields: [animeId], references: [id], onDelete: Cascade)
+  publicaciones Publicacion[]
+
+  @@unique([usuarioId, personajeId])
+  @@index([usuarioId])
+  @@index([animeId])
+  @@index([personajeId])
+  @@map("resenas_personaje")
+  @@schema("contenido")
+}
+
 model ReaccionResena {
   id        String       @id @default(uuid())
   usuarioId String       @map("usuario_id")
@@ -454,6 +482,7 @@ model Publicacion {
   comunidadId      String?         @map("comunidad_id")
   usuarioId        String          @map("usuario_id")
   resenaId         String?         @map("resena_id")
+  resenaPersonajeId String?        @map("resena_personaje_id")
   tipo             TipoPublicacion @default(texto)
   tema             String?         @db.VarChar(100)
   titulo           String?         @db.VarChar(300)
@@ -468,6 +497,7 @@ model Publicacion {
   comunidad   Comunidad?          @relation(fields: [comunidadId], references: [id], onDelete: Cascade)
   usuario     Usuario             @relation(fields: [usuarioId],   references: [id], onDelete: Cascade)
   resena      Resena?             @relation(fields: [resenaId],    references: [id], onDelete: SetNull)
+  resenaPersonaje ResenaPersonaje? @relation(fields: [resenaPersonajeId], references: [id], onDelete: SetNull)
   comentarios Comentario[]
   reacciones  ReaccionPublicacion[]
   opciones    OpcionEncuesta[]

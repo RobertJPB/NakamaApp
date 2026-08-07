@@ -189,14 +189,17 @@ export const PublicacionCard: React.FC<Props> = ({ publicacion, onComentado, onV
           </div>
         </div>
       ) : (
-        publicacion.tipo === 'resena' && publicacion.resena?.contieneSpoiler && !spoilerAceptado ? (
+        ((publicacion.tipo === 'resena' && publicacion.resena?.contieneSpoiler) || 
+         (publicacion.tipo === 'resena_personaje' && publicacion.resenaPersonaje?.contieneSpoiler)) && !spoilerAceptado ? (
           <div className={styles.spoilerWarning}>
             <AlertTriangle size={24} />
             <p style={{ margin: 0 }}>¡Alerta de Spoiler!</p>
             <button className={styles.btnVerSpoiler} onClick={() => setSpoilerAceptado(true)}>Mostrar reseña</button>
           </div>
         ) : (
-          publicacion.contenido && <p className={styles.contenido}>{publicacion.contenido}</p>
+          (publicacion.contenido || publicacion.resenaPersonaje?.contenido) && (
+            <p className={styles.contenido}>{publicacion.contenido || publicacion.resenaPersonaje?.contenido}</p>
+          )
         )
       )}
       
@@ -217,6 +220,18 @@ export const PublicacionCard: React.FC<Props> = ({ publicacion, onComentado, onV
             </div>
           )}
           <div className={styles.resenaEstrellas}>★ {publicacion.resena.calificacion} / 10</div>
+        </div>
+      )}
+
+      {publicacion.tipo === 'resena_personaje' && publicacion.resenaPersonaje && (
+        <div className={styles.resenaBox}>
+          <div className={styles.resenaAnimeInfo}>
+            {publicacion.resenaPersonaje.personajeImagen && (
+              <img src={publicacion.resenaPersonaje.personajeImagen} alt="" className={styles.resenaImg} />
+            )}
+            <h4>{publicacion.resenaPersonaje.personajeNombre}</h4>
+          </div>
+          <div className={styles.resenaEstrellas}>★ {publicacion.resenaPersonaje.calificacion} / 10</div>
         </div>
       )}
 
