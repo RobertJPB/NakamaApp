@@ -87,6 +87,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ animeIdInicial, animeI
       let res;
       if (resenaToEdit) {
         res = await api.put(`/api/resenas/${resenaToEdit.id}`, {
+          animeId: selectedAnime?.externalId || selectedAnime?.id || resenaToEdit.animeId,
           calificacion, 
           contenido, 
           contieneSpoiler,
@@ -114,7 +115,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ animeIdInicial, animeI
     if (!contenido.trim()) { setError('El contenido no puede estar vacío'); return }
     setEnviando(true); setError('')
     try {
-      const res = await api.post('/api/feed/post', { 
+      const res = await api.post('/api/feed', { 
         contenido, 
         tema, 
         soloAmigos,
@@ -132,7 +133,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ animeIdInicial, animeI
     if (opcionesFiltradas.length < 2) { setError('Agrega al menos 2 opciones'); return }
     setEnviando(true); setError('')
     try {
-      const res = await api.post('/api/feed/post', {
+      const res = await api.post('/api/feed', {
         contenido: pregunta,
         tipo: 'encuesta',
         opciones: opcionesFiltradas

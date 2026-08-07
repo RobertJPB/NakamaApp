@@ -8,7 +8,7 @@ export const registrarUsuarioSchema = z.object({
     .min(3, 'El username debe tener al menos 3 caracteres')
     .max(20, 'El username es muy largo'),
   nombreDisplay: z.string().min(1, 'El nombre display es requerido').max(50, 'Nombre muy largo'),
-  avatarUrl: z.string().url('URL inválida').optional().or(z.literal('')),
+  avatarUrl: z.string().optional().or(z.literal('')),
 })
 
 export const actualizarPerfilSchema = z.object({
@@ -40,14 +40,14 @@ export const postFeedSchema = z.object({
   soloAmigos: z.boolean().optional(),
   tipo: z.enum(['texto', 'encuesta', 'imagen']).optional(),
   opciones: z.array(z.string()).optional(),
-  imagenUrl: z.string().url().optional().or(z.literal('')),
+  imagenUrl: z.string().optional().or(z.literal('')),
 })
 
 export const crearComunidadSchema = z.object({
   nombre: z.string().min(3, 'El nombre debe tener al menos 3 caracteres').max(50),
   descripcion: z.string().optional(),
-  imagenUrl: z.string().url().optional().or(z.literal('')),
-  bannerUrl: z.string().url().optional().or(z.literal('')),
+  imagenUrl: z.string().optional().or(z.literal('')),
+  bannerUrl: z.string().optional().or(z.literal('')),
   tipo: z.string().optional(),
 })
 
