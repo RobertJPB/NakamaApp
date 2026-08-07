@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { api } from '../../../lib/axios'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../../hooks/useAuth'
-import { MoreHorizontal, Flag, Pencil, AlertTriangle } from 'lucide-react'
+import { MoreHorizontal, Flag, Pencil, AlertTriangle, Trash2 } from 'lucide-react'
 import { FeedItemInteractions } from '../../feed/components/FeedItemInteractions'
 import styles from './PublicacionCard.module.css'
 
