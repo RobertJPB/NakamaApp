@@ -41,6 +41,11 @@ export const FeedPage: React.FC = () => {
   // Load from cache immediately if available
   const [feed, setFeed]  = useState<any[]>(() => getCached('/api/feed') ?? [])
   const [cargando, setCargando] = useState(() => !getCached('/api/feed'))
+  const [hayMas, setHayMas] = useState<boolean>(() => {
+    const c = getCached('/api/feed')
+    return !c || c.length >= 20
+  })
+  const [cargandoMas, setCargandoMas] = useState(false)
   const [modalAbierto, setModalAbierto] = useState(false)
   const [menuAbiertoId, setMenuAbiertoId] = useState<string | null>(null)
   
@@ -100,6 +105,7 @@ export const FeedPage: React.FC = () => {
     const cached = getCached('/api/feed')
     if (cached) {
       setFeed(cached)
+      setHayMas(cached.length >= 20)
       setCargando(false)
     }
 
@@ -107,7 +113,11 @@ export const FeedPage: React.FC = () => {
     const timeout = setTimeout(() => setCargando(false), 6000)
 
     api.get('/api/feed')
-      .then(({ data }) => setFeed(Array.isArray(data) ? data : []))
+      .then(({ data }) => {
+        const items = Array.isArray(data) ? data : []
+        setFeed(items)
+        setHayMas(items.length >= 20)
+      })
       .catch(() => {})
       .finally(() => {
         setCargando(false)
@@ -116,6 +126,19 @@ export const FeedPage: React.FC = () => {
 
     return () => clearTimeout(timeout)
   }, [])
+
+  const cargarMas = async () => {
+    const ultimo = feed[feed.length - 1]
+    if (!ultimo?.creadoEn || cargandoMas) return
+    setCargandoMas(true)
+    try {
+      const { data } = await api.get(`/api/feed?cursor=${encodeURIComponent(ultimo.creadoEn)}&limit=20`)
+      const nuevos = Array.isArray(data) ? data : []
+      setFeed(prev => [...prev, ...nuevos])
+      setHayMas(nuevos.length >= 20)
+    } catch {}
+    finally { setCargandoMas(false) }
+  }
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -421,6 +444,12 @@ export const FeedPage: React.FC = () => {
                   </article>
                 )
               })
+            )}
+
+            {!cargando && feed.length > 0 && hayMas && (
+              <button className={styles.btnCargarMas} onClick={cargarMas} disabled={cargandoMas}>
+                {cargandoMas ? 'Cargando...' : 'Cargar más'}
+              </button>
             )}
           </div>
 

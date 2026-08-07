@@ -1,10 +1,10 @@
-import { IUseCase }          from '../../interfaces/IUseCase'
-import { IListaRepository }  from '../../../domain/repositories/IListaRepository'
-import { AppError }          from '../../../presentation/middlewares/error.middleware'
+import { IUseCase } from '../../interfaces/IUseCase'
+import { IListaRepository } from '../../../domain/repositories/IListaRepository'
+import { AppError } from '../../../presentation/middlewares/error.middleware'
 
 export interface EliminarDeListaDTO {
   usuarioId: string
-  animeId:   string
+  animeId: string
 }
 
 export class EliminarDeLista implements IUseCase<EliminarDeListaDTO, void> {

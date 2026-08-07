@@ -1,5 +1,6 @@
 import React from 'react'
 import styles from './HeroBanner.module.css'
+import { traducirGenero } from '../../lib/animeLabels'
 
 interface HeroBannerProps {
   titulo:      string
@@ -35,7 +36,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
         {generos && (
           <div className={styles.generos}>
             {generos.slice(0, 3).map(g => (
-              <span key={g} className={styles.genero}>{g}</span>
+              <span key={g} className={styles.genero}>{traducirGenero(g)}</span>
             ))}
           </div>
         )}

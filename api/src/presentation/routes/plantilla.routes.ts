@@ -4,7 +4,7 @@ import { authMiddleware } from '../../infrastructure/auth/SupabaseAuthMiddleware
 import { container } from '../../infrastructure/container'
 
 const router = Router()
-const ctrl   = new PlantillaController(container.plantillaRepo)
+const ctrl = new PlantillaController(container.plantillaRepo)
 
 router.get('/', ctrl.listar)
 router.post('/', authMiddleware, ctrl.crear)

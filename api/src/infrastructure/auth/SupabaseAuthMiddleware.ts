@@ -1,45 +1,49 @@
 import { Request, Response, NextFunction } from 'express'
+import { createHash } from 'node:crypto'
 import { createClient } from '@supabase/supabase-js'
 import { prisma } from '../database/prisma/client'
 import { env } from '../../config/env'
 
-const supabase = createClient(
-  env.SUPABASE_URL,
-  env.SUPABASE_ANON_KEY
-)
+const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY)
 
 export interface AuthRequest extends Request {
   userId?: string
 }
 
-interface CacheEntry {
-  userId: string;
-  expiresAt: number;
+// No guardamos el JWT crudo como clave del Map: solo su hash SHA-256.
+function hashToken(token: string): string {
+  return createHash('sha256').update(token).digest('hex')
 }
-const authCache = new Map<string, CacheEntry>();
-const CACHE_TTL_MS = 1000 * 60 * 5; // 5 minutos
+
+interface CacheEntry {
+  userId: string
+  expiresAt: number
+}
+const authCache = new Map<string, CacheEntry>()
+const CACHE_TTL_MS = 1000 * 60 * 5 // 5 minutos
 
 function getCachedUserId(token: string): string | null {
-  const entry = authCache.get(token);
-  if (!entry) return null;
+  const key = hashToken(token)
+  const entry = authCache.get(key)
+  if (!entry) return null
   if (Date.now() > entry.expiresAt) {
-    authCache.delete(token);
-    return null;
+    authCache.delete(key)
+    return null
   }
-  return entry.userId;
+  return entry.userId
 }
 
 function setCachedUserId(token: string, userId: string) {
-  authCache.set(token, {
+  authCache.set(hashToken(token), {
     userId,
     expiresAt: Date.now() + CACHE_TTL_MS,
-  });
+  })
   // Limpieza simple periódica (cada 1000 accesos para evitar fugas lentas)
   if (authCache.size > 5000) {
-    const now = Date.now();
+    const now = Date.now()
     for (const [key, val] of authCache.entries()) {
       if (now > val.expiresAt) {
-        authCache.delete(key);
+        authCache.delete(key)
       }
     }
   }
@@ -56,33 +60,37 @@ async function asegurarUsuarioDB(user: any) {
 
   const promise = (async () => {
     const usuarioExistente = await prisma.usuario.findUnique({
-      where: { id: user.id }
+      where: { id: user.id },
     })
 
     if (!usuarioExistente) {
       // Generar un username limpio y único
-      let baseUsername = user.user_metadata?.username || user.user_metadata?.name || user.email?.split('@')[0] || 'user'
+      let baseUsername =
+        user.user_metadata?.username ||
+        user.user_metadata?.name ||
+        user.email?.split('@')[0] ||
+        'user'
       baseUsername = baseUsername.toLowerCase().replace(/[^a-z0-9_]/g, '')
       if (baseUsername.length < 3) {
         baseUsername = 'user_' + baseUsername
       }
       baseUsername = baseUsername.substring(0, 45)
 
-      let success = false;
-      let attempt = 0;
-      
+      let success = false
+      let attempt = 0
+
       while (!success && attempt < 5) {
-        attempt++;
-        let username = baseUsername;
-        let counter = 1;
+        attempt++
+        let username = baseUsername
+        let counter = 1
         while (true) {
-          const colision = await prisma.usuario.findUnique({ where: { username } });
-          if (!colision) break;
-          username = `${baseUsername}_${counter}`;
-          counter++;
+          const colision = await prisma.usuario.findUnique({ where: { username } })
+          if (!colision) break
+          username = `${baseUsername}_${counter}`
+          counter++
         }
 
-        const nombreDisplay = user.user_metadata?.full_name || user.user_metadata?.name || username;
+        const nombreDisplay = user.user_metadata?.full_name || user.user_metadata?.name || username
 
         try {
           await prisma.usuario.create({
@@ -92,26 +100,26 @@ async function asegurarUsuarioDB(user: any) {
               username,
               nombreDisplay,
               avatarUrl: null, // No importar avatar de Google por defecto
-            }
-          });
-          success = true;
+            },
+          })
+          success = true
         } catch (e: any) {
           if (e.code === 'P2002') {
-            const target = e.meta?.target as string[] | string | undefined;
-            const targetStr = Array.isArray(target) ? target.join(',') : (target || '');
-            
+            const target = e.meta?.target as string[] | string | undefined
+            const targetStr = Array.isArray(target) ? target.join(',') : target || ''
+
             if (targetStr.includes('id')) {
-              success = true;
-              break;
+              success = true
+              break
             } else if (targetStr.includes('email')) {
               // El email ya existe (quizás borró su cuenta en Supabase pero no en Postgres).
               // Usamos un email alternativo para permitirle entrar.
-              user.email = `${user.id}@placeholder.com`;
+              user.email = `${user.id}@placeholder.com`
             } else {
               // Colisión de username. El bucle while intentará de nuevo con el contador incrementado.
             }
           } else {
-            throw e;
+            throw e
           }
         }
       }
@@ -128,19 +136,15 @@ async function asegurarUsuarioDB(user: any) {
   }
 }
 
-export const authMiddleware = async (
-  req: AuthRequest,
-  res: Response,
-  next: NextFunction
-) => {
+export const authMiddleware = async (req: AuthRequest, res: Response, next: NextFunction) => {
   const token = req.headers.authorization?.replace('Bearer ', '')
   if (!token) return res.status(401).json({ error: 'Token requerido' })
 
   try {
-    const cachedId = getCachedUserId(token);
+    const cachedId = getCachedUserId(token)
     if (cachedId) {
-      req.userId = cachedId;
-      return next();
+      req.userId = cachedId
+      return next()
     }
 
     const { data, error } = await supabase.auth.getUser(token)
@@ -148,7 +152,7 @@ export const authMiddleware = async (
 
     await asegurarUsuarioDB(data.user)
 
-    setCachedUserId(token, data.user.id);
+    setCachedUserId(token, data.user.id)
     req.userId = data.user.id
     next()
   } catch (err) {
@@ -156,30 +160,25 @@ export const authMiddleware = async (
   }
 }
 
-export const authOpcional = async (
-  req: AuthRequest,
-  _res: Response,
-  next: NextFunction
-) => {
+export const authOpcional = async (req: AuthRequest, _res: Response, next: NextFunction) => {
   const token = req.headers.authorization?.replace('Bearer ', '')
   if (token) {
     try {
-      const cachedId = getCachedUserId(token);
+      const cachedId = getCachedUserId(token)
       if (cachedId) {
-        req.userId = cachedId;
-        return next();
+        req.userId = cachedId
+        return next()
       }
 
       const { data } = await supabase.auth.getUser(token)
       if (data.user) {
         await asegurarUsuarioDB(data.user)
-        setCachedUserId(token, data.user.id);
+        setCachedUserId(token, data.user.id)
         req.userId = data.user.id
       }
-    } catch (e) {
+    } catch {
       // Ignorar errores en auth opcional
     }
   }
   next()
 }
-

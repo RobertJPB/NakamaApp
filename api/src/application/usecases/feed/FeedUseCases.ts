@@ -2,7 +2,15 @@ import { IFeedRepository } from '../../../domain/repositories/IFeedRepository'
 
 export class CrearPublicacionFeed {
   constructor(private readonly feedRepo: IFeedRepository) {}
-  async execute(dto: { usuarioId: string; contenido?: string; tema?: string; soloAmigos?: boolean; tipo?: string; opciones?: string[]; imagenUrl?: string }) {
+  async execute(dto: {
+    usuarioId: string
+    contenido?: string
+    tema?: string
+    soloAmigos?: boolean
+    tipo?: string
+    opciones?: string[]
+    imagenUrl?: string
+  }) {
     return this.feedRepo.crearPublicacion(dto)
   }
 }
@@ -37,7 +45,13 @@ export class ObtenerComentarios {
 
 export class CrearComentario {
   constructor(private readonly feedRepo: IFeedRepository) {}
-  async execute(dto: { tipo: string; id: string; usuarioId: string; contenido: string; padreId?: string }) {
+  async execute(dto: {
+    tipo: string
+    id: string
+    usuarioId: string
+    contenido: string
+    padreId?: string
+  }) {
     return this.feedRepo.crearComentario(dto)
   }
 }

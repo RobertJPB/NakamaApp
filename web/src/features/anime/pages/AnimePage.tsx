@@ -8,6 +8,7 @@ import { ResenaForm }      from '../components/ResenaForm'
 import { BotonLista }      from '../components/BotonLista'
 import { useBiblioteca }   from '../../../hooks/useBiblioteca'
 import styles              from './AnimePage.module.css'
+import { tipoAnimeLabel, traducirGenero } from '../../../lib/animeLabels'
 import { Eye, Heart, Clock, Star, Share2, Users, Edit3, ChevronLeft, ChevronRight } from 'lucide-react'
 
 export const AnimePage: React.FC = () => {
@@ -305,11 +306,7 @@ export const AnimePage: React.FC = () => {
                   <div className={styles.detailsList}>
                     {anime.tipo && (
                       <span>
-                        {anime.tipo === 'MOVIE' ? 'Película' : 
-                         anime.tipo === 'TV' ? 'Serie TV' : 
-                         anime.tipo === 'TV_SHORT' ? 'Corto TV' : 
-                         anime.tipo === 'SPECIAL' ? 'Especial' : 
-                         anime.tipo}
+                        {tipoAnimeLabel(anime.tipo)}
                       </span>
                     )}
                     {anime.episodios && anime.tipo !== 'MOVIE' && <span>{anime.episodios} episodios</span>}
@@ -330,9 +327,10 @@ export const AnimePage: React.FC = () => {
                       </>
                     ) : (
                       anime.generos?.slice(0, 8).map((g: string) => {
+                        const espanol = traducirGenero(g)
                         const reverseMap: Record<string, string> = { "Acción": "Action", "Aventura": "Adventure", "Comedia": "Comedy", "Fantasía": "Fantasy", "Terror": "Horror", "Misterio": "Mystery", "Ciencia Ficción": "Sci-Fi", "Recuentos de la vida": "Slice of Life", "Deportes": "Sports", "Sobrenatural": "Supernatural", "Suspenso": "Thriller", "Psicológico": "Psychological", "Música": "Music", "Chicas Mágicas": "Mahou Shoujo" }
-                        const queryG = reverseMap[g] || g
-                        return <Link key={g} to={`/descubrir?genero=${queryG}`} className={styles.genreBadge}>{g}</Link>
+                        const queryG = reverseMap[espanol] || g
+                        return <Link key={g} to={`/descubrir?genero=${queryG}`} className={styles.genreBadge}>{espanol}</Link>
                       })
                     )}
                   </div>

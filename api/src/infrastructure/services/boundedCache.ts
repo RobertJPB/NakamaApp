@@ -3,11 +3,17 @@ interface CacheEntrada<V> {
   ts: number
 }
 
+export interface ICache<K, V> {
+  get(key: K): V | undefined
+  set(key: K, data: V): void
+  delete(key: K): void
+}
+
 /**
  * Caché en memoria con límite de entradas y TTL.
  * Evita que los Maps de resultados crezcan sin control en un servidor de larga duración.
  */
-export function crearCacheAcotada<K, V>(maxEntradas: number, ttlMs: number) {
+export function crearCacheEnMemoria<K, V>(maxEntradas: number, ttlMs: number): ICache<K, V> {
   const mapa = new Map<K, CacheEntrada<V>>()
 
   return {
@@ -33,4 +39,9 @@ export function crearCacheAcotada<K, V>(maxEntradas: number, ttlMs: number) {
       mapa.delete(key)
     },
   }
+}
+
+/** Alias de compatibilidad: caché en memoria sin respaldo Redis. */
+export function crearCacheAcotada<K, V>(maxEntradas: number, ttlMs: number): ICache<K, V> {
+  return crearCacheEnMemoria<K, V>(maxEntradas, ttlMs)
 }

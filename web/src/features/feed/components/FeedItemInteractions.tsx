@@ -140,7 +140,7 @@ export const FeedItemInteractions: React.FC<FeedItemInteractionsProps> = ({
     }
 
     try {
-      const res = await api.post(`/api/feed/${tipo}/${itemId}/comentarios`, { contenido: backupText, padreId })
+      const res = await api.post(`/api/feed/${tipo}/${itemId}/comentarios`, padreId ? { contenido: backupText, padreId } : { contenido: backupText })
       // Reemplazamos el comentario temporal con el real que tiene el ID de BD
       setComments(prev => prev.map(c => c.id === tempId ? res.data : c))
     } catch (err) {

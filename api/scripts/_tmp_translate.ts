@@ -1,4 +1,4 @@
-import { translateText } from './src/infrastructure/external/kitsu/KitsuService'
+import { translateText } from '../src/infrastructure/external/kitsu/KitsuService'
 
 async function main() {
   const res = await fetch('https://kitsu.io/api/edge/anime/12', { headers: { Accept: 'application/vnd.api+json' } })

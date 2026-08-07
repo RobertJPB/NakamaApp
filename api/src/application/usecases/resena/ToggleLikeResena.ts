@@ -1,10 +1,10 @@
-import { IUseCase }          from '../../interfaces/IUseCase'
+import { IUseCase } from '../../interfaces/IUseCase'
 import { IResenaRepository } from '../../../domain/repositories/IResenaRepository'
-import { AppError }          from '../../../presentation/middlewares/error.middleware'
+import { AppError } from '../../../presentation/middlewares/error.middleware'
 
 export interface ToggleLikeInput {
   usuarioId: string
-  resenaId:  string
+  resenaId: string
 }
 
 export class ToggleLikeResena implements IUseCase<ToggleLikeInput, any> {

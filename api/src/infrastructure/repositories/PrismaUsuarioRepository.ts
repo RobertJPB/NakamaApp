@@ -1,26 +1,25 @@
-import { prisma }            from '../database/prisma/client'
+import { prisma } from '../database/prisma/client'
 import { IUsuarioRepository } from '../../domain/repositories/IUsuarioRepository'
-import { Usuario }           from '../../domain/entities/Usuario'
+import { Usuario } from '../../domain/entities/Usuario'
 
 export class PrismaUsuarioRepository implements IUsuarioRepository {
-
   private mapear(raw: any): Usuario {
     return {
-      id:              raw.id,
-      email:           raw.email,
-      username:        raw.username,
-      nombreDisplay:   raw.nombreDisplay,
-      avatarUrl:       raw.avatarUrl    ?? undefined,
-      bannerUrl:       raw.bannerUrl    ?? undefined,
-      marcoUrl:        raw.marcoUrl     ?? undefined,
-      bio:             raw.bio          ?? undefined,
-      sitioWeb:        raw.sitioWeb     ?? undefined,
-      perfilPrivado:   raw.perfilPrivado,
+      id: raw.id,
+      email: raw.email,
+      username: raw.username,
+      nombreDisplay: raw.nombreDisplay,
+      avatarUrl: raw.avatarUrl ?? undefined,
+      bannerUrl: raw.bannerUrl ?? undefined,
+      marcoUrl: raw.marcoUrl ?? undefined,
+      bio: raw.bio ?? undefined,
+      sitioWeb: raw.sitioWeb ?? undefined,
+      perfilPrivado: raw.perfilPrivado,
       resenasPublicas: raw.resenasPublicas,
-      listasPublicas:  raw.listasPublicas,
-      creadoEn:        raw.creadoEn,
-      actualizadoEn:   raw.actualizadoEn,
-      ultimoAcceso:    raw.ultimoAcceso ?? undefined,
+      listasPublicas: raw.listasPublicas,
+      creadoEn: raw.creadoEn,
+      actualizadoEn: raw.actualizadoEn,
+      ultimoAcceso: raw.ultimoAcceso ?? undefined,
     }
   }
 
@@ -37,9 +36,9 @@ export class PrismaUsuarioRepository implements IUsuarioRepository {
   async create(data: Partial<Usuario>): Promise<Usuario> {
     const raw = await prisma.usuario.create({
       data: {
-        id:            data.id!,
-        email:         data.email!,
-        username:      data.username!,
+        id: data.id!,
+        email: data.email!,
+        username: data.username!,
         nombreDisplay: data.nombreDisplay!,
       },
     })
@@ -50,16 +49,16 @@ export class PrismaUsuarioRepository implements IUsuarioRepository {
     const raw = await prisma.usuario.update({
       where: { id },
       data: {
-        username:        data.username,
-        nombreDisplay:   data.nombreDisplay,
-        bio:             data.bio,
-        sitioWeb:        data.sitioWeb,
-        avatarUrl:       data.avatarUrl,
-        bannerUrl:       data.bannerUrl,
-        marcoUrl:        data.marcoUrl,
-        perfilPrivado:   data.perfilPrivado,
+        username: data.username,
+        nombreDisplay: data.nombreDisplay,
+        bio: data.bio,
+        sitioWeb: data.sitioWeb,
+        avatarUrl: data.avatarUrl,
+        bannerUrl: data.bannerUrl,
+        marcoUrl: data.marcoUrl,
+        perfilPrivado: data.perfilPrivado,
         resenasPublicas: data.resenasPublicas,
-        listasPublicas:  data.listasPublicas,
+        listasPublicas: data.listasPublicas,
       },
     })
     return this.mapear(raw)
@@ -71,7 +70,7 @@ export class PrismaUsuarioRepository implements IUsuarioRepository {
 
   async getSeguidores(usuarioId: string): Promise<Usuario[]> {
     const rows = await prisma.seguidor.findMany({
-      where:   { seguidoId: usuarioId, estado: 'aceptado' },
+      where: { seguidoId: usuarioId, estado: 'aceptado' },
       include: { seguidor: true },
     })
     return rows.map((r: any) => this.mapear(r.seguidor))
@@ -79,7 +78,7 @@ export class PrismaUsuarioRepository implements IUsuarioRepository {
 
   async getSiguiendo(usuarioId: string): Promise<Usuario[]> {
     const rows = await prisma.seguidor.findMany({
-      where:   { seguidorId: usuarioId, estado: 'aceptado' },
+      where: { seguidorId: usuarioId, estado: 'aceptado' },
       include: { seguido: true },
     })
     return rows.map((r: any) => this.mapear(r.seguido))
@@ -98,7 +97,7 @@ export class PrismaUsuarioRepository implements IUsuarioRepository {
     }
 
     const objetivo = await prisma.usuario.findUnique({ where: { id: seguidoId } })
-    const estado   = objetivo?.perfilPrivado ? 'pendiente' : 'aceptado'
+    const estado = objetivo?.perfilPrivado ? 'pendiente' : 'aceptado'
 
     await prisma.seguidor.create({
       data: { seguidorId, seguidoId, estado },
@@ -110,12 +109,12 @@ export class PrismaUsuarioRepository implements IUsuarioRepository {
           usuarioId: seguidoId,
           tipo: 'nuevo_seguidor',
           actorId: seguidorId,
-          mensaje: 'Ha comenzado a seguirte'
-        }
+          mensaje: 'Ha comenzado a seguirte',
+        },
       })
     }
 
-    return { accion: estado === 'pendiente' ? 'pendiente' as const : 'seguido' as const }
+    return { accion: estado === 'pendiente' ? ('pendiente' as const) : ('seguido' as const) }
   }
 
   async findByIdRaw(id: string): Promise<any | null> {
@@ -129,23 +128,26 @@ export class PrismaUsuarioRepository implements IUsuarioRepository {
         _count: {
           select: {
             seguidores: true,
-            siguiendo:  true,
-            lista:      true,
-            resenas:    true,
-          }
-        }
-      }
+            siguiendo: true,
+            lista: true,
+            resenas: true,
+          },
+        },
+      },
     })
   }
 
-  async obtenerEstadoSeguimiento(seguidorId: string, seguidoId: string): Promise<string | undefined> {
+  async obtenerEstadoSeguimiento(
+    seguidorId: string,
+    seguidoId: string
+  ): Promise<string | undefined> {
     const relacion = await prisma.seguidor.findUnique({
       where: {
         seguidorId_seguidoId: {
           seguidorId,
-          seguidoId
-        }
-      }
+          seguidoId,
+        },
+      },
     })
     return relacion?.estado
   }
@@ -154,45 +156,49 @@ export class PrismaUsuarioRepository implements IUsuarioRepository {
     return prisma.seguidor.findMany({
       where: { seguidoId: id },
       include: {
-        seguidor: { select: { id: true, username: true, nombreDisplay: true, avatarUrl: true, bio: true } }
-      }
-    });
+        seguidor: {
+          select: { id: true, username: true, nombreDisplay: true, avatarUrl: true, bio: true },
+        },
+      },
+    })
   }
 
   async findSiguiendo(id: string): Promise<any[]> {
     return prisma.seguidor.findMany({
       where: { seguidorId: id },
       include: {
-        seguido: { select: { id: true, username: true, nombreDisplay: true, avatarUrl: true, bio: true } }
-      }
-    });
+        seguido: {
+          select: { id: true, username: true, nombreDisplay: true, avatarUrl: true, bio: true },
+        },
+      },
+    })
   }
 
   async buscarUsuarios(q: string): Promise<any[]> {
     return prisma.usuario.findMany({
       where: {
         OR: [
-          { username:      { contains: q, mode: 'insensitive' } },
+          { username: { contains: q, mode: 'insensitive' } },
           { nombreDisplay: { contains: q, mode: 'insensitive' } },
-        ]
+        ],
       },
       take: 5,
       select: {
-        id:           true,
-        username:     true,
+        id: true,
+        username: true,
         nombreDisplay: true,
-        avatarUrl:    true,
-        marcoUrl:     true,
-        _count: { select: { seguidores: true } }
+        avatarUrl: true,
+        marcoUrl: true,
+        _count: { select: { seguidores: true } },
       },
-      orderBy: { creadoEn: 'desc' }
+      orderBy: { creadoEn: 'desc' },
     })
   }
 
   async findSeguidoIds(seguidorId: string): Promise<string[]> {
     const siguiendo = await prisma.seguidor.findMany({
       where: { seguidorId },
-      select: { seguidoId: true }
+      select: { seguidoId: true },
     })
     return siguiendo.map((s: any) => s.seguidoId)
   }
@@ -210,62 +216,101 @@ export class PrismaUsuarioRepository implements IUsuarioRepository {
         bio: true,
       },
       orderBy: {
-        creadoEn: 'desc'
-      }
+        creadoEn: 'desc',
+      },
     })
   }
 
-  async findActividad(usuarioId: string, viewerId: string | undefined, page: number, limit: number): Promise<{ publicaciones: any[]; resenas: any[] }> {
+  async findActividad(
+    usuarioId: string,
+    viewerId: string | undefined,
+    cursor: string | null,
+    limit: number
+  ): Promise<{ publicaciones: any[]; resenas: any[] }> {
+    const cursorWhere: any = {}
+    if (cursor) {
+      const fecha = new Date(cursor)
+      if (!isNaN(fecha.getTime())) cursorWhere.creadoEn = { lt: fecha }
+    }
+
     const publicaciones = await prisma.publicacion.findMany({
       where: {
-        OR: [
-          { usuarioId },
-          { reacciones: { some: { usuarioId } } }
-        ]
+        OR: [{ usuarioId }, { reacciones: { some: { usuarioId } } }],
+        ...cursorWhere,
       },
       take: limit,
-      skip: (page - 1) * limit,
       orderBy: { creadoEn: 'desc' },
       include: {
-        usuario: { select: { id: true, username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true } },
+        usuario: {
+          select: {
+            id: true,
+            username: true,
+            nombreDisplay: true,
+            avatarUrl: true,
+            marcoUrl: true,
+          },
+        },
         comunidad: { select: { nombre: true, imagenUrl: true } },
         resena: {
-          include: { anime: { select: { id: true, titulo: true, externalId: true, imagenUrl: true } } }
+          include: {
+            anime: { select: { id: true, titulo: true, externalId: true, imagenUrl: true } },
+          },
         },
         opciones: {
-          include: { votosUsuarios: true }
+          include: { votosUsuarios: true },
         },
         reacciones: viewerId ? { where: { usuarioId: viewerId } } : false,
         comentarios: {
           include: {
-            usuario: { select: { id: true, username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true } }
+            usuario: {
+              select: {
+                id: true,
+                username: true,
+                nombreDisplay: true,
+                avatarUrl: true,
+                marcoUrl: true,
+              },
+            },
           },
-          orderBy: { creadoEn: 'asc' }
-        }
-      }
+          orderBy: { creadoEn: 'asc' },
+        },
+      },
     })
 
     const resenas = await prisma.resena.findMany({
       where: {
-        OR: [
-          { usuarioId },
-          { reacciones: { some: { usuarioId } } }
-        ]
+        OR: [{ usuarioId }, { reacciones: { some: { usuarioId } } }],
+        ...cursorWhere,
       },
       take: limit,
-      skip: (page - 1) * limit,
       orderBy: { creadoEn: 'desc' },
       include: {
-        usuario: { select: { id: true, username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true } },
+        usuario: {
+          select: {
+            id: true,
+            username: true,
+            nombreDisplay: true,
+            avatarUrl: true,
+            marcoUrl: true,
+          },
+        },
         anime: { select: { titulo: true, externalId: true, imagenUrl: true } },
         reacciones: viewerId ? { where: { usuarioId: viewerId } } : false,
         comentarios: {
           include: {
-            usuario: { select: { id: true, username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true } }
+            usuario: {
+              select: {
+                id: true,
+                username: true,
+                nombreDisplay: true,
+                avatarUrl: true,
+                marcoUrl: true,
+              },
+            },
           },
-          orderBy: { creadoEn: 'asc' }
-        }
-      }
+          orderBy: { creadoEn: 'asc' },
+        },
+      },
     })
 
     return { publicaciones, resenas }

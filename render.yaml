@@ -14,6 +14,12 @@ services:
         sync: false   # Lo pegas manualmente en el dashboard de Render
       - key: FRONTEND_URL
         sync: false   # La URL de Vercel, ej: https://nakama.vercel.app
+      - key: CORS_ORIGINS
+        sync: false   # Orígenes extra permitidos separados por coma (opcional)
+      - key: REDIS_URL
+        sync: false   # Opcional: activa caché compartida entre instancias
+      - key: RUN_CRON
+        value: "false"   # El cron de noticias corre en un worker aparte
       - key: LOG_LEVEL
         value: info
     healthCheckPath: /health

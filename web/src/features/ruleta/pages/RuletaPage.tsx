@@ -4,6 +4,7 @@ import { Layout } from '../../../components/shared/Layout'
 import { useAuth } from '../../../hooks/useAuth'
 import { useBiblioteca } from '../../../hooks/useBiblioteca'
 import { api } from '../../../lib/axios'
+import { tipoAnimeLabel } from '../../../lib/animeLabels'
 import styles from './RuletaPage.module.css'
 
 type ModoFiltro = 'todos' | 'lista' | 'genero'
@@ -217,7 +218,7 @@ export const RuletaPage: React.FC = () => {
                       <img src={entrada.anime?.imagenUrl} alt="Portada" className={styles.itemImage} />
                       <div className={styles.itemInfo}>
                         <span className={styles.itemTitle}>{entrada.anime?.titulo}</span>
-                        <span className={styles.itemType}>{entrada.anime?.tipo || 'TV'} • {entrada.anime?.anio}</span>
+                        <span className={styles.itemType}>{entrada.anime?.tipo ? tipoAnimeLabel(entrada.anime.tipo) : 'Anime'} • {entrada.anime?.anio}</span>
                       </div>
                     </div>
                   ))

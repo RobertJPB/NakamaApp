@@ -1,8 +1,7 @@
-import { prisma }               from '../database/prisma/client'
-import { INoticiaRepository }   from '../../domain/repositories/INoticiaRepository'
+import { prisma } from '../database/prisma/client'
+import { INoticiaRepository } from '../../domain/repositories/INoticiaRepository'
 
 export class PrismaNoticiaRepository implements INoticiaRepository {
-
   async getRecientes(limit: number): Promise<any[]> {
     return prisma.noticia.findMany({
       take: limit,

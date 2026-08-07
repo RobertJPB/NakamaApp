@@ -1,8 +1,7 @@
-import { prisma }               from '../database/prisma/client'
+import { prisma } from '../database/prisma/client'
 import { IPlantillaRepository } from '../../domain/repositories/IPlantillaRepository'
 
 export class PrismaPlantillaRepository implements IPlantillaRepository {
-
   async listar(): Promise<any[]> {
     return prisma.plantillaTierList.findMany({
       orderBy: { creadoEn: 'desc' },
@@ -11,11 +10,11 @@ export class PrismaPlantillaRepository implements IPlantillaRepository {
           select: {
             username: true,
             nombreDisplay: true,
-            avatarUrl: true
-          }
-        }
+            avatarUrl: true,
+          },
+        },
       },
-      take: 50
+      take: 50,
     })
   }
 
@@ -24,17 +23,17 @@ export class PrismaPlantillaRepository implements IPlantillaRepository {
       data: {
         nombre: dto.nombre,
         datos: dto.datos as any,
-        usuarioId: dto.usuarioId
+        usuarioId: dto.usuarioId,
       },
       include: {
         usuario: {
           select: {
             username: true,
             nombreDisplay: true,
-            avatarUrl: true
-          }
-        }
-      }
+            avatarUrl: true,
+          },
+        },
+      },
     })
   }
 }

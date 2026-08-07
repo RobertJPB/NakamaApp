@@ -1,14 +1,14 @@
 export interface EntradaLista {
-  id:              string
-  usuarioId:       string
-  animeId:         string
-  estados:         string[]
+  id: string
+  usuarioId: string
+  animeId: string
+  estados: string[]
   episodiosVistos: number
-  esFavorito:      boolean
-  esPrivada:       boolean
-  notasPrivadas?:  string
-  actualizadoEn:   Date
-  anime?:          any
+  esFavorito: boolean
+  esPrivada: boolean
+  notasPrivadas?: string
+  actualizadoEn: Date
+  anime?: any
 }
 
 export interface IListaRepository {

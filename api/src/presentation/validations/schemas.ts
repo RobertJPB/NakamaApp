@@ -3,7 +3,10 @@ import { z } from 'zod'
 export const registrarUsuarioSchema = z.object({
   id: z.string().min(1, 'El ID de Supabase es requerido'),
   email: z.string().email('Email inválido'),
-  username: z.string().min(3, 'El username debe tener al menos 3 caracteres').max(20, 'El username es muy largo'),
+  username: z
+    .string()
+    .min(3, 'El username debe tener al menos 3 caracteres')
+    .max(20, 'El username es muy largo'),
   nombreDisplay: z.string().min(1, 'El nombre display es requerido').max(50, 'Nombre muy largo'),
   avatarUrl: z.string().url('URL inválida').optional().or(z.literal('')),
 })
@@ -50,5 +53,5 @@ export const crearComunidadSchema = z.object({
 
 export const comentarioSchema = z.object({
   contenido: z.string().min(1, 'El comentario no puede estar vacío').max(500),
-  padreId: z.string().optional()
+  padreId: z.string().nullish(),
 })

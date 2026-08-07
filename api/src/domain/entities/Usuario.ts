@@ -1,17 +1,17 @@
 export interface Usuario {
-  id:              string
-  email:           string
-  username:        string
-  nombreDisplay:   string
-  avatarUrl?:      string
-  bannerUrl?:      string
-  marcoUrl?:       string
-  bio?:            string
-  sitioWeb?:       string
-  perfilPrivado:   boolean
+  id: string
+  email: string
+  username: string
+  nombreDisplay: string
+  avatarUrl?: string
+  bannerUrl?: string
+  marcoUrl?: string
+  bio?: string
+  sitioWeb?: string
+  perfilPrivado: boolean
   resenasPublicas: boolean
-  listasPublicas:  boolean
-  creadoEn:        Date
-  actualizadoEn:   Date
-  ultimoAcceso?:   Date
+  listasPublicas: boolean
+  creadoEn: Date
+  actualizadoEn: Date
+  ultimoAcceso?: Date
 }

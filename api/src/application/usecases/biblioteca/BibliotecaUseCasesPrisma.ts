@@ -44,7 +44,10 @@ export class AceptarInviteColumna {
 
 export class CrearColumnaBiblioteca {
   constructor(private readonly bibliotecaRepo: IBibliotecaRepository) {}
-  async execute(usuarioId: string, dto: { nombre: string, descripcion?: string, imagenUrl?: string }) {
+  async execute(
+    usuarioId: string,
+    dto: { nombre: string; descripcion?: string; imagenUrl?: string }
+  ) {
     return this.bibliotecaRepo.crearColumna(usuarioId, dto)
   }
 }

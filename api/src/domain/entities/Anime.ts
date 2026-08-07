@@ -1,24 +1,24 @@
 export interface Anime {
-  id:                  string
-  externalId:          string
-  titulo:              string
-  tituloJapones?:      string
-  tituloRomaji?:       string
-  imagenUrl?:          string
-  bannerUrl?:          string
-  sinopsis?:           string
-  estadoEmision?:      string
-  episodios?:          number
-  duracionMin?:        number
-  temporada?:          string
-  anio?:               number
-  tipo?:               string
-  estudio?:            string
+  id: string
+  externalId: string
+  titulo: string
+  tituloJapones?: string
+  tituloRomaji?: string
+  imagenUrl?: string
+  bannerUrl?: string
+  sinopsis?: string
+  estadoEmision?: string
+  episodios?: number
+  duracionMin?: number
+  temporada?: string
+  anio?: number
+  tipo?: string
+  estudio?: string
   calificacionPromedio: number
-  totalResenas:        number
-  totalEnListas:       number
-  autor?:              string
-  demografia?:         string
-  creadoEn:            Date
-  actualizadoEn:       Date
+  totalResenas: number
+  totalEnListas: number
+  autor?: string
+  demografia?: string
+  creadoEn: Date
+  actualizadoEn: Date
 }

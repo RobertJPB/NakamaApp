@@ -1,6 +1,4 @@
-import { Request, Response, NextFunction } from 'express'
-import { AuthRequest } from '../../infrastructure/auth/SupabaseAuthMiddleware'
-import { AppError } from '../middlewares/error.middleware'
+import { Request, Response } from 'express'
 
 export class ReporteController {
   crearReporte = async (req: Request, res: Response): Promise<void> => {
@@ -15,7 +13,9 @@ export class ReporteController {
 
       // En un entorno de producción, aquí guardaríamos el reporte en la base de datos
       // y notificaríamos a los moderadores. Por ahora, solo lo registraremos en consola.
-      console.log(`NUEVO REPORTE [${tipo}]: ID Referencia = ${referenciaId}, Reportado por = ${usuarioId}`)
+      console.log(
+        `NUEVO REPORTE [${tipo}]: ID Referencia = ${referenciaId}, Reportado por = ${usuarioId}`
+      )
 
       res.status(201).json({ mensaje: 'Reporte recibido exitosamente' })
     } catch (error) {

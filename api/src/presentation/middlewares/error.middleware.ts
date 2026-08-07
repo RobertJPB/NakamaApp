@@ -11,17 +11,12 @@ export class AppError extends Error {
   }
 }
 
-export const errorMiddleware = (
-  err: Error,
-  _req: Request,
-  res: Response,
-  _next: NextFunction
-) => {
+export const errorMiddleware = (err: Error, _req: Request, res: Response, _next: NextFunction) => {
   if (err instanceof AppError) {
     logger.warn({ err }, err.message)
     return res.status(err.statusCode).json({ error: err.message })
   }
-  
+
   logger.error({ err }, 'Error interno del servidor')
   res.status(500).json({ error: 'Error interno del servidor' })
 }

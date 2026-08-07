@@ -1,16 +1,16 @@
-import { IUseCase }          from '../../interfaces/IUseCase'
+import { IUseCase } from '../../interfaces/IUseCase'
 import { IResenaRepository } from '../../../domain/repositories/IResenaRepository'
-import { Calificacion }      from '../../../domain/value-objects/Calificacion'
-import { AppError }          from '../../../presentation/middlewares/error.middleware'
+import { Calificacion } from '../../../domain/value-objects/Calificacion'
+import { AppError } from '../../../presentation/middlewares/error.middleware'
 
 export interface EditarResenaInput {
-  resenaId:         string
-  usuarioId:        string
-  calificacion?:    number
-  contenido?:       string
+  resenaId: string
+  usuarioId: string
+  calificacion?: number
+  contenido?: string
   contieneSpoiler?: boolean
-  esPublica?:       boolean
-  etiquetas?:       string[]
+  esPublica?: boolean
+  etiquetas?: string[]
 }
 
 export class EditarResena implements IUseCase<EditarResenaInput, any> {
@@ -18,7 +18,7 @@ export class EditarResena implements IUseCase<EditarResenaInput, any> {
 
   async execute(input: EditarResenaInput) {
     const resena = await this.resenaRepo.findById(input.resenaId)
-    if (!resena)                        throw new AppError('Reseña no encontrada', 404)
+    if (!resena) throw new AppError('Reseña no encontrada', 404)
     if (resena.usuarioId !== input.usuarioId) throw new AppError('No autorizado', 403)
 
     const calificacion = input.calificacion
@@ -28,10 +28,10 @@ export class EditarResena implements IUseCase<EditarResenaInput, any> {
     return this.resenaRepo.upsert({
       ...resena,
       calificacion,
-      contenido:       input.contenido       ?? resena.contenido,
+      contenido: input.contenido ?? resena.contenido,
       contieneSpoiler: input.contieneSpoiler ?? resena.contieneSpoiler,
-      esPublica:       input.esPublica       ?? resena.esPublica,
-      etiquetas:       input.etiquetas       ?? resena.etiquetas,
+      esPublica: input.esPublica ?? resena.esPublica,
+      etiquetas: input.etiquetas ?? resena.etiquetas,
     })
   }
 }

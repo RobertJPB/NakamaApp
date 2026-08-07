@@ -3,10 +3,10 @@ import { Username } from '../../../domain/value-objects/Username'
 import { AppError } from '../../../presentation/middlewares/error.middleware'
 
 export interface RegistrarUsuarioDTO {
-  id:       string
-  email:    string
+  id: string
+  email: string
   username: string
-  nombre:   string
+  nombre: string
 }
 
 export class RegistrarUsuario {
@@ -19,9 +19,9 @@ export class RegistrarUsuario {
     if (existente) throw new AppError('El username ya está en uso', 409)
 
     return this.usuarioRepo.create({
-      id:            dto.id,
-      email:         dto.email,
-      username:      username.value,
+      id: dto.id,
+      email: dto.email,
+      username: username.value,
       nombreDisplay: dto.nombre,
     })
   }

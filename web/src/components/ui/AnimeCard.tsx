@@ -1,5 +1,6 @@
 import React from 'react'
 import styles from './AnimeCard.module.css'
+import { tipoAnimeLabel } from '../../lib/animeLabels'
 
 interface AnimeCardProps {
   externalId: string
@@ -30,7 +31,7 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({
       <h3 className={styles.titulo}>{titulo}</h3>
       {(tipo || anio) && (
         <p className={styles.meta}>
-          {[tipo, anio].filter(Boolean).join(' · ')}
+          {[tipoAnimeLabel(tipo), anio].filter(Boolean).join(' · ')}
         </p>
       )}
     </div>

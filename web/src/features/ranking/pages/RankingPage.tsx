@@ -3,6 +3,7 @@ import { Layout }    from '../../../components/shared/Layout'
 import { useNavigate } from 'react-router-dom'
 import { api, getCached } from '../../../lib/axios'
 import { Star, Eye, Heart } from 'lucide-react'
+import { tipoAnimeLabel } from '../../../lib/animeLabels'
 import styles        from './RankingPage.module.css'
 
 type Tab = 'puntuados' | 'vistos' | 'gustados'
@@ -167,7 +168,7 @@ export const RankingPage: React.FC = () => {
                 {/* Info */}
                 <div className={styles.filaDatos}>
                   <p className={styles.filaTitulo}>{anime.titulo}</p>
-                  <p className={styles.filaMeta}>{[anime.tipo, anime.anio].filter(Boolean).join(' · ')}</p>
+                  <p className={styles.filaMeta}>{[tipoAnimeLabel(anime.tipo), anime.anio].filter(Boolean).join(' · ')}</p>
 
                   <div className={styles.filaRating}>
                     {renderEstrellas(anime.calificacion)}

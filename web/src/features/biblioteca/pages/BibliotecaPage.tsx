@@ -4,6 +4,7 @@ import { useNavigate }     from 'react-router-dom'
 import { useBiblioteca }   from '../../../hooks/useBiblioteca'
 import { useAuthStore }    from '../../../store/authStore'
 import { api }             from '../../../lib/axios'
+import { tipoAnimeLabel }  from '../../../lib/animeLabels'
 import styles              from './BibliotecaPage.module.css'
 import { AnimeCard }       from '../../../components/ui/AnimeCard'
 import { ReviewModal }     from '../../anime/components/ReviewModal'
@@ -416,12 +417,7 @@ export const BibliotecaPage: React.FC = () => {
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', color: 'var(--color-texto-muted)', fontSize: '0.9rem' }}>
                         {entrada.anime?.tipo && (
                           <span>
-                            <strong>Formato:</strong> {
-                              entrada.anime.tipo === 'TV' ? 'Serie' :
-                              entrada.anime.tipo === 'MOVIE' ? 'Película' :
-                              entrada.anime.tipo === 'SPECIAL' ? 'Especial' :
-                              entrada.anime.tipo
-                            }
+                            <strong>Formato:</strong> {tipoAnimeLabel(entrada.anime.tipo)}
                           </span>
                         )}
                         {entrada.anime?.estadoEmision && (

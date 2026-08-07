@@ -1,4 +1,4 @@
-import { KitsuService } from './src/infrastructure/external/kitsu/KitsuService'
+import { KitsuService } from '../src/infrastructure/external/kitsu/KitsuService'
 
 ;(async () => {
   const svc = new KitsuService()

@@ -1,19 +1,19 @@
-import { IUseCase }            from '../../interfaces/IUseCase'
-import { IUsuarioRepository }  from '../../../domain/repositories/IUsuarioRepository'
-import { AppError }            from '../../../presentation/middlewares/error.middleware'
+import { IUseCase } from '../../interfaces/IUseCase'
+import { IUsuarioRepository } from '../../../domain/repositories/IUsuarioRepository'
+import { AppError } from '../../../presentation/middlewares/error.middleware'
 
 export interface ActualizarPerfilDTO {
-  usuarioId:      string
-  username?:      string
+  usuarioId: string
+  username?: string
   nombreDisplay?: string
-  bio?:           string
-  sitioWeb?:      string
-  avatarUrl?:     string
-  bannerUrl?:     string
-  marcoUrl?:      string
+  bio?: string
+  sitioWeb?: string
+  avatarUrl?: string
+  bannerUrl?: string
+  marcoUrl?: string
   perfilPrivado?: boolean
   resenasPublicas?: boolean
-  listasPublicas?:  boolean
+  listasPublicas?: boolean
 }
 
 export class ActualizarPerfil implements IUseCase<ActualizarPerfilDTO, any> {
@@ -24,9 +24,9 @@ export class ActualizarPerfil implements IUseCase<ActualizarPerfilDTO, any> {
     if (!usuario) throw new AppError('Usuario no encontrado', 404)
 
     if (input.username && input.username !== usuario.username) {
-      const existing = await this.usuarioRepo.findByUsername(input.username);
+      const existing = await this.usuarioRepo.findByUsername(input.username)
       if (existing) {
-        throw new AppError('El username ya está en uso', 400);
+        throw new AppError('El username ya está en uso', 400)
       }
     }
 

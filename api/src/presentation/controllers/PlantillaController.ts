@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from 'express'
 import { IPlantillaRepository } from '../../domain/repositories/IPlantillaRepository'
 
 export class PlantillaController {
-
   constructor(private readonly plantillaRepo: IPlantillaRepository) {}
 
   listar = async (_req: Request, res: Response, next: NextFunction) => {

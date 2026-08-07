@@ -1,48 +1,48 @@
-import Parser from 'rss-parser';
-import { prisma } from '../database/prisma/client';
-import { env } from '../../config/env';
+import Parser from 'rss-parser'
+import { prisma } from '../database/prisma/client'
+import { env } from '../../config/env'
 
-const parser = new Parser();
+const parser = new Parser()
 
 export class NewsScraperService {
   async fetchAndStoreNews() {
     try {
-      console.log('Iniciando recolección de noticias desde RamenParaDos...');
-      const feed = await parser.parseURL(env.NEWS_RSS_URL);
-      
-      let agregadas = 0;
+      console.log('Iniciando recolección de noticias desde RamenParaDos...')
+      const feed = await parser.parseURL(env.NEWS_RSS_URL)
+
+      let agregadas = 0
 
       for (const item of feed.items) {
         // RamenParaDos RSS format checking
-        if (!item.title || !item.link) continue;
+        if (!item.title || !item.link) continue
 
-        const urlOrigen = item.link;
+        const urlOrigen = item.link
         const existing = await prisma.noticia.findFirst({
-          where: { urlOrigen }
-        });
+          where: { urlOrigen },
+        })
 
-        if (existing) continue; // Already processed this news
+        if (existing) continue // Already processed this news
 
-        const titulo = item.title;
-        let resumen = item.contentSnippet || item.content || '';
-        
+        const titulo = item.title
+        let resumen = item.contentSnippet || item.content || ''
+
         // Clean up summary
-        resumen = resumen.replace(/<[^>]+>/g, '').substring(0, 500);
+        resumen = resumen.replace(/<[^>]+>/g, '').substring(0, 500)
 
         // Fetch OG Image from article HTML
-        let imagenUrl = null;
+        let imagenUrl = null
         try {
-          const htmlRes = await fetch(urlOrigen);
-          const html = await htmlRes.text();
-          const match = html.match(/<meta property="og:image" content="([^"]+)"/);
+          const htmlRes = await fetch(urlOrigen)
+          const html = await htmlRes.text()
+          const match = html.match(/<meta property="og:image" content="([^"]+)"/)
           if (match && match[1]) {
-            imagenUrl = match[1];
+            imagenUrl = match[1]
           }
-        } catch (e) {
-          console.error('No se pudo obtener imagen para', urlOrigen);
+        } catch {
+          console.error('No se pudo obtener imagen para', urlOrigen)
         }
 
-        const fechaPublicacion = item.isoDate ? new Date(item.isoDate) : new Date();
+        const fechaPublicacion = item.isoDate ? new Date(item.isoDate) : new Date()
 
         await prisma.noticia.create({
           data: {
@@ -52,15 +52,15 @@ export class NewsScraperService {
             imagenUrl,
             fuente: 'RamenParaDos',
             fechaPublicacion,
-          }
-        });
-        
-        agregadas++;
+          },
+        })
+
+        agregadas++
       }
-      
-      console.log(`Recolección terminada. Noticias nuevas agregadas: ${agregadas}`);
+
+      console.log(`Recolección terminada. Noticias nuevas agregadas: ${agregadas}`)
     } catch (error) {
-      console.error('Error recolectando noticias:', error);
+      console.error('Error recolectando noticias:', error)
     }
   }
 }

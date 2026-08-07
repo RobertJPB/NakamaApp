@@ -1,33 +1,36 @@
-import { prisma }             from '../database/prisma/client'
-import { IAnimeRepository, AnimeFilters, RankingItem } from '../../domain/repositories/IAnimeRepository'
-import { Anime }              from '../../domain/entities/Anime'
+import { prisma } from '../database/prisma/client'
+import {
+  IAnimeRepository,
+  AnimeFilters,
+  RankingItem,
+} from '../../domain/repositories/IAnimeRepository'
+import { Anime } from '../../domain/entities/Anime'
 
 export class PrismaAnimeRepository implements IAnimeRepository {
-
   private mapear(raw: any): Anime {
     return {
-      id:                   raw.id,
-      externalId:           raw.externalId,
-      titulo:               raw.titulo,
-      tituloJapones:        raw.tituloJapones  ?? undefined,
-      tituloRomaji:         raw.tituloRomaji   ?? undefined,
-      imagenUrl:            raw.imagenUrl      ?? undefined,
-      bannerUrl:            raw.bannerUrl      ?? undefined,
-      sinopsis:             raw.sinopsis       ?? undefined,
-      estadoEmision:        raw.estadoEmision  ?? undefined,
-      episodios:            raw.episodios      ?? undefined,
-      duracionMin:          raw.duracionMin    ?? undefined,
-      temporada:            raw.temporada      ?? undefined,
-      anio:                 raw.anio           ?? undefined,
-      tipo:                 raw.tipo           ?? undefined,
-      estudio:              raw.estudio        ?? undefined,
+      id: raw.id,
+      externalId: raw.externalId,
+      titulo: raw.titulo,
+      tituloJapones: raw.tituloJapones ?? undefined,
+      tituloRomaji: raw.tituloRomaji ?? undefined,
+      imagenUrl: raw.imagenUrl ?? undefined,
+      bannerUrl: raw.bannerUrl ?? undefined,
+      sinopsis: raw.sinopsis ?? undefined,
+      estadoEmision: raw.estadoEmision ?? undefined,
+      episodios: raw.episodios ?? undefined,
+      duracionMin: raw.duracionMin ?? undefined,
+      temporada: raw.temporada ?? undefined,
+      anio: raw.anio ?? undefined,
+      tipo: raw.tipo ?? undefined,
+      estudio: raw.estudio ?? undefined,
       calificacionPromedio: Number(raw.calificacionPromedio),
-      totalResenas:         raw.totalResenas,
-      totalEnListas:        raw.totalEnListas,
-      autor:                raw.autor          ?? undefined,
-      demografia:           raw.demografia     ?? undefined,
-      creadoEn:             raw.creadoEn,
-      actualizadoEn:        raw.actualizadoEn,
+      totalResenas: raw.totalResenas,
+      totalEnListas: raw.totalEnListas,
+      autor: raw.autor ?? undefined,
+      demografia: raw.demografia ?? undefined,
+      creadoEn: raw.creadoEn,
+      actualizadoEn: raw.actualizadoEn,
     }
   }
 
@@ -47,28 +50,28 @@ export class PrismaAnimeRepository implements IAnimeRepository {
 
     if (filters.busqueda) {
       where.OR = [
-        { titulo:       { contains: filters.busqueda, mode: 'insensitive' } },
+        { titulo: { contains: filters.busqueda, mode: 'insensitive' } },
         { tituloRomaji: { contains: filters.busqueda, mode: 'insensitive' } },
       ]
     }
     if (filters.temporada) where.temporada = filters.temporada
-    if (filters.anio)      where.anio      = filters.anio
-    if (filters.tipo)      where.tipo      = filters.tipo
+    if (filters.anio) where.anio = filters.anio
+    if (filters.tipo) where.tipo = filters.tipo
     if (filters.genero) {
       where.generos = {
-        some: { genero: { nombre: { contains: filters.genero, mode: 'insensitive' } } }
+        some: { genero: { nombre: { contains: filters.genero, mode: 'insensitive' } } },
       }
     }
     if (filters.demografia) {
       where.demografias = {
-        some: { demografia: { nombre: { contains: filters.demografia, mode: 'insensitive' } } }
+        some: { demografia: { nombre: { contains: filters.demografia, mode: 'insensitive' } } },
       }
     }
 
     const rows = await prisma.anime.findMany({
       where,
       skip,
-      take:    limit,
+      take: limit,
       orderBy: { calificacionPromedio: 'desc' },
     })
     return rows.map(this.mapear)
@@ -76,31 +79,38 @@ export class PrismaAnimeRepository implements IAnimeRepository {
 
   async upsert(data: Partial<Anime>): Promise<Anime> {
     // Verificar si ya existe con score guardado
-    const existing = await prisma.anime.findUnique({ where: { externalId: data.externalId! }, select: { calificacionPromedio: true } })
+    const existing = await prisma.anime.findUnique({
+      where: { externalId: data.externalId! },
+      select: { calificacionPromedio: true },
+    })
     const hasExistingScore = existing && Number(existing.calificacionPromedio) > 0
 
     const payload = {
-      titulo:               data.titulo!,
-      tituloJapones:        data.tituloJapones,
-      tituloRomaji:         data.tituloRomaji,
-      imagenUrl:            data.imagenUrl,
-      bannerUrl:            data.bannerUrl,
-      sinopsis:             data.sinopsis,
-      estadoEmision:        data.estadoEmision,
-      episodios:            data.episodios,
-      duracionMin:          data.duracionMin,
-      temporada:            data.temporada,
-      anio:                 data.anio,
-      tipo:                 data.tipo,
-      estudio:              data.estudio,
-      autor:                data.autor,
-      demografia:           data.demografia,
+      titulo: data.titulo!,
+      tituloJapones: data.tituloJapones,
+      tituloRomaji: data.tituloRomaji,
+      imagenUrl: data.imagenUrl,
+      bannerUrl: data.bannerUrl,
+      sinopsis: data.sinopsis,
+      estadoEmision: data.estadoEmision,
+      episodios: data.episodios,
+      duracionMin: data.duracionMin,
+      temporada: data.temporada,
+      anio: data.anio,
+      tipo: data.tipo,
+      estudio: data.estudio,
+      autor: data.autor,
+      demografia: data.demografia,
       // Solo actualizar la calificacion si NO hay una existente ya guardada (para no pisarla con datos de Kitsu)
       ...(hasExistingScore ? {} : { calificacionPromedio: data.calificacionPromedio }),
     }
     const raw = await prisma.anime.upsert({
-      where:  { externalId: data.externalId! },
-      create: { externalId: data.externalId!, ...payload, calificacionPromedio: data.calificacionPromedio },
+      where: { externalId: data.externalId! },
+      create: {
+        externalId: data.externalId!,
+        ...payload,
+        calificacionPromedio: data.calificacionPromedio,
+      },
       update: payload,
     })
     return this.mapear(raw)
@@ -108,10 +118,7 @@ export class PrismaAnimeRepository implements IAnimeRepository {
 
   async getRanking(limit: number): Promise<Anime[]> {
     const rows = await prisma.anime.findMany({
-      orderBy: [
-        { calificacionPromedio: 'desc' },
-        { totalResenas:         'desc' },
-      ],
+      orderBy: [{ calificacionPromedio: 'desc' }, { totalResenas: 'desc' }],
       take: limit,
     })
     return rows.map(this.mapear)
@@ -119,9 +126,9 @@ export class PrismaAnimeRepository implements IAnimeRepository {
 
   async getRankingTemporada(): Promise<Anime[]> {
     const rows = await prisma.anime.findMany({
-      where:   { estadoEmision: 'RELEASING' },
+      where: { estadoEmision: 'RELEASING' },
       orderBy: { calificacionPromedio: 'desc' },
-      take:    50,
+      take: 50,
     })
     return rows.map(this.mapear)
   }
@@ -138,7 +145,10 @@ export class PrismaAnimeRepository implements IAnimeRepository {
     const animes = await prisma.anime.findMany({ where: { id: { in: animeIds } } })
     const animeMap = new Map<string, any>(animes.map((a: any) => [a.id, a]))
     return rows
-      .map((r: ListaGroupRow) => ({ anime: this.mapear(animeMap.get(r.animeId)!), count: r._count.animeId }))
+      .map((r: ListaGroupRow) => ({
+        anime: this.mapear(animeMap.get(r.animeId)!),
+        count: r._count.animeId,
+      }))
       .filter((r: any) => r.anime)
   }
 
@@ -155,18 +165,21 @@ export class PrismaAnimeRepository implements IAnimeRepository {
     const animes = await prisma.anime.findMany({ where: { id: { in: animeIds } } })
     const animeMap = new Map<string, any>(animes.map((a: any) => [a.id, a]))
     return rows
-      .map((r: ListaGroupRow) => ({ anime: this.mapear(animeMap.get(r.animeId)!), count: r._count.animeId }))
+      .map((r: ListaGroupRow) => ({
+        anime: this.mapear(animeMap.get(r.animeId)!),
+        count: r._count.animeId,
+      }))
       .filter((r: any) => r.anime)
   }
 
   async enriquecerConCalificaciones(items: Array<{ externalId: string }>): Promise<void> {
     if (!items || items.length === 0) return
-    const ids = items.map(a => a.externalId)
+    const ids = items.map((a) => a.externalId)
     const dbAnimes = await prisma.anime.findMany({ where: { externalId: { in: ids as string[] } } })
     const dbMap = new Map(dbAnimes.map((a: any) => [a.externalId, a.calificacionPromedio]))
-    items.forEach(a => {
+    items.forEach((a) => {
       if (dbMap.has(a.externalId)) {
-        (a as any).calificacionPromedio = Number(dbMap.get(a.externalId))
+        ;(a as any).calificacionPromedio = Number(dbMap.get(a.externalId))
       }
     })
   }

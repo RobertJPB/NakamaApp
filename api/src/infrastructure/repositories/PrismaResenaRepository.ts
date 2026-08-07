@@ -1,25 +1,24 @@
-import { prisma }            from '../database/prisma/client'
+import { prisma } from '../database/prisma/client'
 import { IResenaRepository } from '../../domain/repositories/IResenaRepository'
-import { Resena }            from '../../domain/entities/Resena'
+import { Resena } from '../../domain/entities/Resena'
 
 export class PrismaResenaRepository implements IResenaRepository {
-
   private mapear(raw: any): Resena {
     return {
-      id:              raw.id,
-      usuarioId:       raw.usuarioId,
-      animeId:         raw.animeId,
-      calificacion:    raw.calificacion,
-      contenido:       raw.contenido    ?? undefined,
+      id: raw.id,
+      usuarioId: raw.usuarioId,
+      animeId: raw.animeId,
+      calificacion: raw.calificacion,
+      contenido: raw.contenido ?? undefined,
       contieneSpoiler: raw.contieneSpoiler,
-      esPublica:       raw.esPublica,
-      totalLikes:      raw.totalLikes,
-      fechaVisto:      raw.fechaVisto ?? undefined,
-      etiquetas:       raw.etiquetas ?? [],
-      creadoEn:        raw.creadoEn,
-      editadoEn:       raw.editadoEn   ?? undefined,
-      usuario:         raw.usuario,
-      anime:           raw.anime,
+      esPublica: raw.esPublica,
+      totalLikes: raw.totalLikes,
+      fechaVisto: raw.fechaVisto ?? undefined,
+      etiquetas: raw.etiquetas ?? [],
+      creadoEn: raw.creadoEn,
+      editadoEn: raw.editadoEn ?? undefined,
+      usuario: raw.usuario,
+      anime: raw.anime,
     }
   }
 
@@ -37,9 +36,9 @@ export class PrismaResenaRepository implements IResenaRepository {
 
   async findByAnime(animeId: string, page: number, limit: number): Promise<Resena[]> {
     const rows = await prisma.resena.findMany({
-      where:   { animeId, esPublica: true },
-      skip:    (page - 1) * limit,
-      take:    limit,
+      where: { animeId, esPublica: true },
+      skip: (page - 1) * limit,
+      take: limit,
       orderBy: { creadoEn: 'desc' },
       include: { usuario: { select: { username: true, nombreDisplay: true, avatarUrl: true } } },
     })
@@ -48,9 +47,9 @@ export class PrismaResenaRepository implements IResenaRepository {
 
   async findByUsuario(usuarioId: string, page: number, limit: number): Promise<Resena[]> {
     const rows = await prisma.resena.findMany({
-      where:   { usuarioId },
-      skip:    (page - 1) * limit,
-      take:    limit,
+      where: { usuarioId },
+      skip: (page - 1) * limit,
+      take: limit,
       orderBy: { creadoEn: 'desc' },
     })
     return rows.map(this.mapear)
@@ -58,16 +57,16 @@ export class PrismaResenaRepository implements IResenaRepository {
 
   async upsert(data: Partial<Resena>): Promise<Resena> {
     const payload = {
-      calificacion:    data.calificacion!,
-      contenido:       data.contenido,
+      calificacion: data.calificacion!,
+      contenido: data.contenido,
       contieneSpoiler: data.contieneSpoiler ?? false,
-      esPublica:       data.esPublica       ?? true,
-      fechaVisto:      data.fechaVisto,
-      etiquetas:       data.etiquetas ?? [],
-      editadoEn:       data.editadoEn ? new Date() : undefined,
+      esPublica: data.esPublica ?? true,
+      fechaVisto: data.fechaVisto,
+      etiquetas: data.etiquetas ?? [],
+      editadoEn: data.editadoEn ? new Date() : undefined,
     }
     const raw = await prisma.resena.upsert({
-      where:  { usuarioId_animeId: { usuarioId: data.usuarioId!, animeId: data.animeId! } },
+      where: { usuarioId_animeId: { usuarioId: data.usuarioId!, animeId: data.animeId! } },
       create: { usuarioId: data.usuarioId!, animeId: data.animeId!, ...payload },
       update: payload,
     })
@@ -87,13 +86,19 @@ export class PrismaResenaRepository implements IResenaRepository {
       await prisma.reaccionResena.delete({
         where: { usuarioId_resenaId: { usuarioId, resenaId } },
       })
-      await prisma.resena.update({ where: { id: resenaId }, data: { totalLikes: { decrement: 1 } } })
+      await prisma.resena.update({
+        where: { id: resenaId },
+        data: { totalLikes: { decrement: 1 } },
+      })
       return { accion: 'unliked' as const }
     }
 
     await prisma.reaccionResena.create({ data: { usuarioId, resenaId } })
-    const resena = await prisma.resena.update({ where: { id: resenaId }, data: { totalLikes: { increment: 1 } } })
-    
+    const resena = await prisma.resena.update({
+      where: { id: resenaId },
+      data: { totalLikes: { increment: 1 } },
+    })
+
     if (resena.usuarioId !== usuarioId) {
       await prisma.notificacion.create({
         data: {
@@ -101,8 +106,8 @@ export class PrismaResenaRepository implements IResenaRepository {
           tipo: 'like_resena',
           actorId: usuarioId,
           referenciaId: resena.id,
-          mensaje: 'Le dio me gusta a tu reseña.'
-        }
+          mensaje: 'Le dio me gusta a tu reseña.',
+        },
       })
     }
 
@@ -110,55 +115,73 @@ export class PrismaResenaRepository implements IResenaRepository {
   }
 
   // Cache en memoria para evitar fan-out en cada lectura
-  private feedNetworkCache = new Map<string, { ids: string[], comunidadIds: string[], expiresAt: number }>();
+  private feedNetworkCache = new Map<
+    string,
+    { ids: string[]; comunidadIds: string[]; expiresAt: number }
+  >()
 
-  private async getFeedNetwork(usuarioId: string): Promise<{ ids: string[], comunidadIds: string[] }> {
-    const cached = this.feedNetworkCache.get(usuarioId);
-    if (cached && Date.now() < cached.expiresAt) return { ids: cached.ids, comunidadIds: cached.comunidadIds };
+  private async getFeedNetwork(
+    usuarioId: string
+  ): Promise<{ ids: string[]; comunidadIds: string[] }> {
+    const cached = this.feedNetworkCache.get(usuarioId)
+    if (cached && Date.now() < cached.expiresAt)
+      return { ids: cached.ids, comunidadIds: cached.comunidadIds }
 
     const [seguidos, misMembresias] = await Promise.all([
       prisma.seguidor.findMany({ where: { seguidorId: usuarioId }, select: { seguidoId: true } }),
-      prisma.miembro.findMany({ where: { usuarioId }, select: { comunidadId: true } })
-    ]);
-    
-    const comunidadIds = misMembresias.map((m: { comunidadId: string }) => m.comunidadId);
-    
-    let miembrosComunidad: { usuarioId: string }[] = [];
+      prisma.miembro.findMany({ where: { usuarioId }, select: { comunidadId: true } }),
+    ])
+
+    const comunidadIds = misMembresias.map((m: { comunidadId: string }) => m.comunidadId)
+
+    let miembrosComunidad: { usuarioId: string }[] = []
     if (comunidadIds.length > 0) {
       miembrosComunidad = await prisma.miembro.findMany({
         where: { comunidadId: { in: comunidadIds } },
-        select: { usuarioId: true }
-      });
+        select: { usuarioId: true },
+      })
     }
 
     const usuariosIds = [
       usuarioId,
       ...seguidos.map((s: { seguidoId: string }) => s.seguidoId),
-      ...miembrosComunidad.map((m: { usuarioId: string }) => m.usuarioId)
-    ];
+      ...miembrosComunidad.map((m: { usuarioId: string }) => m.usuarioId),
+    ]
 
-    const uniqueIds = Array.from(new Set(usuariosIds));
-    this.feedNetworkCache.set(usuarioId, { ids: uniqueIds, comunidadIds, expiresAt: Date.now() + 1000 * 60 * 5 }); // 5 min cache
-    return { ids: uniqueIds, comunidadIds };
+    const uniqueIds = Array.from(new Set(usuariosIds))
+    this.feedNetworkCache.set(usuarioId, {
+      ids: uniqueIds,
+      comunidadIds,
+      expiresAt: Date.now() + 1000 * 60 * 5,
+    }) // 5 min cache
+    return { ids: uniqueIds, comunidadIds }
   }
 
-  async findFeedByUsuario(usuarioId: string, page: number, limit: number): Promise<any[]> {
-    const { ids: uniqueIds, comunidadIds } = await this.getFeedNetwork(usuarioId);
+  async findFeedByUsuario(usuarioId: string, cursor: string | null, limit: number): Promise<any[]> {
+    const { ids: uniqueIds, comunidadIds } = await this.getFeedNetwork(usuarioId)
+
+    const cursorWhere: any = {}
+    if (cursor) {
+      const fecha = new Date(cursor)
+      if (!isNaN(fecha.getTime())) cursorWhere.creadoEn = { lt: fecha }
+    }
 
     const resenas = await prisma.resena.findMany({
       where: {
         usuarioId: { in: uniqueIds },
-        esPublica: true
+        esPublica: true,
+        ...cursorWhere,
       },
-      skip: (page - 1) * limit,
       take: limit,
       orderBy: { creadoEn: 'desc' },
       include: {
-        usuario: { select: { username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true } },
+        usuario: {
+          select: { username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true },
+        },
         anime: { select: { titulo: true, externalId: true, imagenUrl: true } },
-        reacciones: { where: { usuarioId } }
-      }
-    });
+        reacciones: { where: { usuarioId } },
+      },
+    })
 
     const publicaciones = await prisma.publicacion.findMany({
       where: {
@@ -166,20 +189,24 @@ export class PrismaResenaRepository implements IResenaRepository {
           // Posts personales (sin comunidad) de usuarios seguidos o del propio usuario
           { comunidadId: null, usuarioId: { in: uniqueIds }, soloAmigos: false },
           // Posts de comunidades a las que el usuario está unido
-          ...(comunidadIds.length > 0 ? [{ comunidadId: { in: comunidadIds } }] : [])
-        ]
+          ...(comunidadIds.length > 0 ? [{ comunidadId: { in: comunidadIds } }] : []),
+        ],
+        ...cursorWhere,
       },
-      skip: (page - 1) * limit,
       take: limit,
       orderBy: { creadoEn: 'desc' },
       include: {
-        usuario: { select: { username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true } },
+        usuario: {
+          select: { username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true },
+        },
         comunidad: { select: { id: true, nombre: true, imagenUrl: true } },
         opciones: { include: { votosUsuarios: { where: { usuarioId } } } },
         reacciones: { where: { usuarioId } },
-        resena: { include: { anime: { select: { titulo: true, externalId: true, imagenUrl: true } } } }
-      }
-    });
+        resena: {
+          include: { anime: { select: { titulo: true, externalId: true, imagenUrl: true } } },
+        },
+      },
+    })
 
     const mappedResenas = resenas.map((r: any) => ({
       id: r.id,
@@ -199,8 +226,8 @@ export class PrismaResenaRepository implements IResenaRepository {
       timestamp: r.creadoEn.getTime(),
       totalLikes: r.totalLikes,
       totalComentarios: r.totalComentarios,
-      hasLiked: r.reacciones.length > 0
-    }));
+      hasLiked: r.reacciones.length > 0,
+    }))
 
     const mappedPublicaciones = publicaciones.map((p: any) => ({
       id: p.id,
@@ -215,32 +242,35 @@ export class PrismaResenaRepository implements IResenaRepository {
       titulo: p.titulo,
       contenido: p.contenido,
       imagenUrl: p.imagenUrl,
-      resena: p.resena ? {
-        id: p.resena.id,
-        animeTitulo: p.resena.anime.titulo,
-        externalId: p.resena.anime.externalId,
-        animeImagen: p.resena.anime.imagenUrl,
-        calificacion: p.resena.calificacion
-      } : null,
-      opciones: p.opciones?.map((opt: any) => ({
-        id: opt.id,
-        texto: opt.texto,
-        votos: opt.votos,
-        hasVoted: opt.votosUsuarios.length > 0
-      })) || [],
+      resena: p.resena
+        ? {
+            id: p.resena.id,
+            animeTitulo: p.resena.anime.titulo,
+            externalId: p.resena.anime.externalId,
+            animeImagen: p.resena.anime.imagenUrl,
+            calificacion: p.resena.calificacion,
+          }
+        : null,
+      opciones:
+        p.opciones?.map((opt: any) => ({
+          id: opt.id,
+          texto: opt.texto,
+          votos: opt.votos,
+          hasVoted: opt.votosUsuarios.length > 0,
+        })) || [],
       creadoEn: p.creadoEn.toISOString(),
       timestamp: p.creadoEn.getTime(),
       totalLikes: p.totalLikes,
       totalComentarios: p.totalComentarios,
-      hasLiked: p.reacciones.length > 0
-    }));
+      hasLiked: p.reacciones.length > 0,
+    }))
 
     const feed = [...mappedResenas, ...mappedPublicaciones]
       .sort((a, b) => b.timestamp - a.timestamp)
-      .slice((page - 1) * limit, page * limit)
-      .map(({ timestamp, ...rest }) => rest);
+      .slice(0, limit)
+      .map(({ timestamp: _timestamp, ...rest }) => rest)
 
-    return feed;
+    return feed
   }
 
   async findRecientes(limit: number): Promise<any[]> {
@@ -250,8 +280,10 @@ export class PrismaResenaRepository implements IResenaRepository {
       take: limit,
       include: {
         anime: { select: { titulo: true, externalId: true, imagenUrl: true } },
-        usuario: { select: { username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true } }
-      }
+        usuario: {
+          select: { username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true },
+        },
+      },
     })
   }
 
@@ -262,19 +294,25 @@ export class PrismaResenaRepository implements IResenaRepository {
         esPublica: true,
         OR: [
           { contenido: { contains: q, mode: 'insensitive' } },
-          { anime: { titulo: { contains: q, mode: 'insensitive' } } }
-        ]
+          { anime: { titulo: { contains: q, mode: 'insensitive' } } },
+        ],
       },
       orderBy: { creadoEn: 'desc' },
       take: 50,
       include: {
         anime: { select: { titulo: true, externalId: true, imagenUrl: true } },
-        usuario: { select: { username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true } }
-      }
+        usuario: {
+          select: { username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true },
+        },
+      },
     })
   }
 
-  async findByAnimePaginado(animeId: string, page: number, limit: number): Promise<{ animeId: string; page: number; limit: number; resenas: any[] }> {
+  async findByAnimePaginado(
+    animeId: string,
+    page: number,
+    limit: number
+  ): Promise<{ animeId: string; page: number; limit: number; resenas: any[] }> {
     const resenas = await prisma.resena.findMany({
       where: { animeId, esPublica: true },
       orderBy: { creadoEn: 'desc' },
@@ -282,8 +320,10 @@ export class PrismaResenaRepository implements IResenaRepository {
       take: limit,
       include: {
         anime: { select: { titulo: true, externalId: true, imagenUrl: true } },
-        usuario: { select: { username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true } }
-      }
+        usuario: {
+          select: { username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true },
+        },
+      },
     })
     return { animeId, page, limit, resenas }
   }
@@ -294,10 +334,11 @@ export class PrismaResenaRepository implements IResenaRepository {
       orderBy: { creadoEn: 'desc' },
       include: {
         anime: { select: { titulo: true, externalId: true, imagenUrl: true } },
-        usuario: { select: { username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true } }
-      }
+        usuario: {
+          select: { username: true, nombreDisplay: true, avatarUrl: true, marcoUrl: true },
+        },
+      },
     })
     return { usuarioId, resenas }
   }
 }
-

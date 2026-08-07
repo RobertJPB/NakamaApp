@@ -5,7 +5,7 @@ import { validate } from '../middlewares/validate.middleware'
 import { postFeedSchema, comentarioSchema } from '../validations/schemas'
 
 const router = Router()
-const ctrl   = new FeedController()
+const ctrl = new FeedController()
 
 router.get('/', authMiddleware, ctrl.getFeed)
 router.post('/', authMiddleware, validate(postFeedSchema), ctrl.postFeed)

@@ -11,7 +11,12 @@ export interface IComunidadRepository {
   esMiembro(usuarioId: string, comunidadId: string): Promise<boolean>
 
   buscar(q: string): Promise<any[]>
-  listarPublicaciones(comunidadId: string, seccion?: string, page?: number, limit?: number): Promise<any[]>
+  listarPublicaciones(
+    comunidadId: string,
+    seccion?: string,
+    page?: number,
+    limit?: number
+  ): Promise<any[]>
   crearPublicacion(dto: any): Promise<any>
   eliminarPublicacion(pubId: string, usuarioId: string): Promise<void>
   editarPublicacion(pubId: string, usuarioId: string, contenido: string): Promise<any>

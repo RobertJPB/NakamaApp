@@ -15,7 +15,7 @@ const GENEROS = [
   { value: 'Thriller', label: 'Suspenso' }, { value: 'Mecha', label: 'Mecha' }
 ]
 const TIPOS   = [
-  { valor: 'TV', label: 'Serie' },
+  { valor: 'TV', label: 'Anime' },
   { valor: 'MOVIE', label: 'Película' },
   { valor: 'OVA', label: 'OVA' },
   { valor: 'ONA', label: 'ONA' },

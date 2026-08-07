@@ -9,7 +9,10 @@ const envSchema = z.object({
   SUPABASE_URL: z.string().url(),
   SUPABASE_ANON_KEY: z.string().min(1),
   FRONTEND_URL: z.string().url().default('http://localhost:5173'),
+  CORS_ORIGINS: z.string().optional(),
   NEWS_RSS_URL: z.string().url().default('https://ramenparados.com/feed/'),
+  REDIS_URL: z.string().optional(),
+  RUN_CRON: z.string().optional(),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
 })
 

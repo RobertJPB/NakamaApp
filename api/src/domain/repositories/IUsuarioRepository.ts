@@ -8,7 +8,10 @@ export interface IUsuarioRepository {
   delete(id: string): Promise<void>
   getSeguidores(usuarioId: string): Promise<Usuario[]>
   getSiguiendo(usuarioId: string): Promise<Usuario[]>
-  toggleSeguir(seguidorId: string, seguidoId: string): Promise<{ accion: 'seguido' | 'dejado' | 'pendiente' }>
+  toggleSeguir(
+    seguidorId: string,
+    seguidoId: string
+  ): Promise<{ accion: 'seguido' | 'dejado' | 'pendiente' }>
 
   findByIdRaw(id: string): Promise<any | null>
   findPerfilPorUsername(username: string): Promise<any | null>
@@ -18,5 +21,10 @@ export interface IUsuarioRepository {
   buscarUsuarios(q: string): Promise<any[]>
   findSeguidoIds(seguidorId: string): Promise<string[]>
   findSugeridos(excludedIds: string[], take: number): Promise<any[]>
-  findActividad(usuarioId: string, viewerId: string | undefined, page: number, limit: number): Promise<{ publicaciones: any[]; resenas: any[] }>
+  findActividad(
+    usuarioId: string,
+    viewerId: string | undefined,
+    cursor: string | null,
+    limit: number
+  ): Promise<{ publicaciones: any[]; resenas: any[] }>
 }

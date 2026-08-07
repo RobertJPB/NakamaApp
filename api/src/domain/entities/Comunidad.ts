@@ -1,16 +1,16 @@
 export type TipoComunidad = 'anime' | 'genero' | 'temporada'
-export type RolMiembro   = 'admin' | 'moderador' | 'miembro'
+export type RolMiembro = 'admin' | 'moderador' | 'miembro'
 
 export interface Comunidad {
-  id:            string
-  nombre:        string
-  descripcion?:  string
-  imagenUrl?:    string
-  bannerUrl?:    string
-  tipo:          TipoComunidad
+  id: string
+  nombre: string
+  descripcion?: string
+  imagenUrl?: string
+  bannerUrl?: string
+  tipo: TipoComunidad
   referenciaId?: string
-  esOficial:     boolean
+  esOficial: boolean
   totalMiembros: number
-  creadoPor?:    string
-  creadoEn:      Date
+  creadoPor?: string
+  creadoEn: Date
 }

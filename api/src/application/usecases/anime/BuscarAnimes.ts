@@ -1,10 +1,10 @@
 import { IAnimeRepository, AnimeFilters } from '../../../domain/repositories/IAnimeRepository'
-import { IAnimeExternalService }           from '../../interfaces/IAnimeExternalService'
+import { IAnimeExternalService } from '../../interfaces/IAnimeExternalService'
 
 export class BuscarAnimes {
   constructor(
-    private readonly animeRepo:    IAnimeRepository,
-    private readonly animeService: IAnimeExternalService,
+    private readonly animeRepo: IAnimeRepository,
+    private readonly animeService: IAnimeExternalService
   ) {}
 
   async execute(filters: AnimeFilters, page = 1, limit = 20) {

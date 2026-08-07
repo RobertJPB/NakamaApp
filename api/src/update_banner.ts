@@ -8,14 +8,14 @@ async function main() {
 
   const result = await prisma.comunidad.updateMany({
     where: { nombre: name },
-    data: { imagenUrl: imageUrl }
+    data: { imagenUrl: imageUrl },
   })
 
   console.log(`Updated ${result.count} communities.`)
 }
 
 main()
-  .catch(e => {
+  .catch((e) => {
     console.error(e)
     process.exit(1)
   })

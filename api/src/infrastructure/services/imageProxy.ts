@@ -21,9 +21,7 @@ const USER_AGENT =
 
 function hostPermitido(hostname: string): boolean {
   const host = hostname.toLowerCase().replace(/\.$/, '')
-  return DOMINIOS_PERMITIDOS.some(
-    (dominio) => host === dominio || host.endsWith(`.${dominio}`)
-  )
+  return DOMINIOS_PERMITIDOS.some((dominio) => host === dominio || host.endsWith(`.${dominio}`))
 }
 
 function esIpPrivada(ip: string): boolean {

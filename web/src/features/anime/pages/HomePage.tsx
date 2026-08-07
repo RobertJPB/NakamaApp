@@ -8,6 +8,7 @@ import { useAnimes } from '../../../hooks/useAnimes'
 import { prefetchAnimeDetalle, usePrefetchAnimeDetalleOnView } from '../../../hooks/useAnime'
 import { useNavigate, Link } from 'react-router-dom'
 import { api } from '../../../lib/axios'
+import { tipoAnimeLabel } from '../../../lib/animeLabels'
 
 const getTimeAgo = (dateStr: string) => {
   const diff = Date.now() - new Date(dateStr).getTime()
@@ -167,7 +168,7 @@ export const HomePage: React.FC = () => {
                   <span className={`${styles.rankNumber} ${index < 3 ? styles.rankTop3 : ''}`}>{String(index + 1).padStart(2, '0')}</span>
                   <div className={styles.rankDetails}>
                     <p className={styles.rankName}>{anime.titulo}</p>
-                    <p className={styles.rankGenre}>{[anime.tipo, anime.anio].filter(Boolean).join(' · ')}</p>
+                    <p className={styles.rankGenre}>{[tipoAnimeLabel(anime.tipo), anime.anio].filter(Boolean).join(' · ')}</p>
                   </div>
                   <span className={styles.rankScore}>
                     <Star className={styles.starYellow} size={11} fill="currentColor" /> {Number(anime.calificacionPromedio).toFixed(1)}

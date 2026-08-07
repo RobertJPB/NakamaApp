@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { X, Play } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { tipoAnimeLabel } from '../../../lib/animeLabels'
 import styles from './RuletaModal.module.css'
 
 interface RuletaModalProps {
@@ -121,7 +122,7 @@ export const RuletaModal: React.FC<RuletaModalProps> = ({ lista, columnas, onClo
                     <img src={entrada.anime?.imagenUrl} alt="Portada" className={styles.itemImage} />
                     <div className={styles.itemInfo}>
                       <span className={styles.itemTitle}>{entrada.anime?.titulo}</span>
-                      <span className={styles.itemType}>{entrada.anime?.tipo || 'TV'} • {entrada.anime?.anio}</span>
+                      <span className={styles.itemType}>{entrada.anime?.tipo ? tipoAnimeLabel(entrada.anime.tipo) : 'Anime'} • {entrada.anime?.anio}</span>
                       {entrada.estados?.length > 0 && (
                         <span className={styles.itemEstado}>{entrada.estados[0]}</span>
                       )}

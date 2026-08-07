@@ -8,7 +8,12 @@ import { logger } from './config/logger'
 
 const PORT = env.PORT || 4000
 
-initCronJobs()
+// Las tareas programadas (recolección de noticias) corren fuera del proceso API
+// por defecto. Para habilitarlas aquí, definir RUN_CRON=true en el entorno.
+// Alternativa recomendada: desplegar `node dist/worker.js` como proceso separado.
+if (env.RUN_CRON === 'true') {
+  initCronJobs()
+}
 
 app.listen(PORT, () => {
   logger.info(`🚀 Nakama API corriendo en http://localhost:${PORT}`)

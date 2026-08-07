@@ -1,12 +1,12 @@
 import { Anime } from '../entities/Anime'
 
 export interface AnimeFilters {
-  busqueda?:   string
-  genero?:     string
+  busqueda?: string
+  genero?: string
   demografia?: string
-  temporada?:  string
-  anio?:       number
-  tipo?:       string
+  temporada?: string
+  anio?: number
+  tipo?: string
 }
 
 export interface RankingItem {

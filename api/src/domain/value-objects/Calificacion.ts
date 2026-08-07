@@ -8,5 +8,7 @@ export class Calificacion {
     this.valor = valor
   }
 
-  get value(): number { return this.valor }
+  get value(): number {
+    return this.valor
+  }
 }
