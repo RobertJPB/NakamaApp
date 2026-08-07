@@ -9,11 +9,19 @@ export class FeedController {
       if (!req.userId) throw new AppError('No autenticado', 401)
       const limit = Number(req.query.limit) || 20
       const cursor = typeof req.query.cursor === 'string' ? req.query.cursor : null
-      const resultado = await container.obtenerFeed.execute({
+      let resultado = await container.obtenerFeed.execute({
         usuarioId: req.userId,
         cursor,
         limit,
       })
+      
+      // Filtrar contenido de usuarios vetados
+      resultado = resultado.filter((item: any) => {
+        const username = item.actorUsername?.toLowerCase() || ''
+        const nombre = item.actorNombre?.toLowerCase() || ''
+        return !username.includes('maria teresa') && !nombre.includes('maria teresa')
+      })
+
       res.json(resultado)
     } catch (err) {
       next(err)

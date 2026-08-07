@@ -332,7 +332,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ animeIdInicial, animeI
                 
                 <textarea
                   className={styles.textarea}
-                  placeholder="¿Qué estás pensando? (Puedes pegar una imagen con Ctrl+V)"
+                  placeholder="¿Qué estás pensando?"
                   value={contenido}
                   onChange={e => setContenido(e.target.value)}
                   onPaste={handlePaste}

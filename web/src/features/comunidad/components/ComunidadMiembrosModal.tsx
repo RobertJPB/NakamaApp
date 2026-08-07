@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { X, Shield, ShieldAlert, UserMinus } from 'lucide-react'
+import { X, Crown, ShieldAlert, UserMinus } from 'lucide-react'
 import { useAuth } from '../../../hooks/useAuth'
 import styles from './ComunidadMiembrosModal.module.css'
 
@@ -69,7 +69,7 @@ export const ComunidadMiembrosModal: React.FC<Props> = ({
                       onClick={() => onCambiarRol(u.id, 'moderador')}
                       title="Nombrar Moderador"
                     >
-                      <Shield size={16} />
+                      <Crown size={16} />
                     </button>
                   )}
                   {canMod && m.rol === 'moderador' && (

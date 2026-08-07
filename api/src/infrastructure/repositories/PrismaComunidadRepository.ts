@@ -26,8 +26,19 @@ export class PrismaComunidadRepository implements IComunidadRepository {
   }
 
   async findMany(tipo?: string, page = 1, limit = 20): Promise<Comunidad[]> {
+    const baseWhere: any = tipo ? { tipo: tipo as import('@prisma/client').TipoComunidad } : {}
     const rows = await prisma.comunidad.findMany({
-      where: tipo ? { tipo: tipo as import('@prisma/client').TipoComunidad } : {},
+      where: {
+        ...baseWhere,
+        creador: {
+          isNot: {
+            OR: [
+              { username: { contains: 'maria teresa', mode: 'insensitive' } },
+              { nombreDisplay: { contains: 'maria teresa', mode: 'insensitive' } }
+            ]
+          }
+        }
+      },
       skip: (page - 1) * limit,
       take: limit,
       orderBy: { totalMiembros: 'desc' },
@@ -116,6 +127,14 @@ export class PrismaComunidadRepository implements IComunidadRepository {
           { nombre: { contains: q, mode: 'insensitive' } },
           { descripcion: { contains: q, mode: 'insensitive' } },
         ],
+        creador: {
+          isNot: {
+            OR: [
+              { username: { contains: 'maria teresa', mode: 'insensitive' } },
+              { nombreDisplay: { contains: 'maria teresa', mode: 'insensitive' } }
+            ]
+          }
+        }
       },
       take: 50,
       include: {
