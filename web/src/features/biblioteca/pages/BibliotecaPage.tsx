@@ -329,7 +329,6 @@ export const BibliotecaPage: React.FC = () => {
               {listaSeleccionada.descripcion && (
                 <p style={{ margin: '4px 0 0', color: 'var(--color-texto-muted)', fontSize: '0.9rem' }}>{listaSeleccionada.descripcion}</p>
               )}
-            </div>
             <div className={styles.listHeaderActions}>
                   {!listaSeleccionada.esGuardada && !listaSeleccionada.esColaborativa && (
                     <>

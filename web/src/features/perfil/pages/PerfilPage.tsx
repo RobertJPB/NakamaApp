@@ -60,13 +60,13 @@ export const PerfilPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const [_listaSeleccionada, _setListaSeleccionada] = useState<any>(null)
 
-  // Lista única generada dinámicamente de estados
-  const listaPublica = lista.filter((l: any) => !l.esPrivado)
-  const esMiPerfil = yo?.id === perfil?.id
-  const estadosUnicos = Array.from(new Set(listaPublica.flatMap((e: any) => e.estados || [])))
-  
-  // Combina las columnas de la BD con las dinámicas generadas por estado para que se pueda abrir cualquier lista por URL
-  const columnasVisibles = [...columnas, ...estadosUnicos.filter((e: any) => !columnas.some(c => c.nombre === e)).map((e: any) => ({ nombre: e, esPrivada: false }))]
+  // Variables derivadas (deben estar antes del useEffect que las usa)
+  const esMiPerfil = yo && perfil && yo.id === perfil.id
+  const columnasVisibles = esMiPerfil ? columnas : columnas.filter(c => !c.esPrivada)
+  const listaPublica = esMiPerfil ? lista : lista.filter(e => {
+    if (!e.estados || e.estados.length === 0) return true;
+    return e.estados.some((est: string) => columnasVisibles.some(c => c.nombre === est))
+  })
 
   useEffect(() => {
     const listQuery = searchParams.get('list')
@@ -180,14 +180,7 @@ export const PerfilPage: React.FC = () => {
     }
   }
 
-  const esMiPerfil = yo && perfil && yo.id === perfil.id
-  const columnasVisibles = esMiPerfil ? columnas : columnas.filter(c => !c.esPrivada)
   const filtrosListas = ['todos', ...columnasVisibles.map(c => c.nombre)]
-  
-  const listaPublica = esMiPerfil ? lista : lista.filter(e => {
-    if (!e.estados || e.estados.length === 0) return true;
-    return e.estados.some((est: string) => columnasVisibles.some(c => c.nombre === est))
-  })
   
   const listaFiltrada = filtro === 'todos' ? listaPublica : listaPublica.filter((e: any) => e.estados?.includes(filtro))
 
@@ -522,12 +515,11 @@ export const PerfilPage: React.FC = () => {
                 {showCrearModal && (
                   <CrearListaModal 
                     onClose={() => setShowCrearModal(false)}
-                    onCrear={async (n, d, p, i) => {
+                    onCrear={async (datos: { nombre: string; descripcion?: string; imagenUrl?: string }) => {
                       const formData = new FormData()
-                      formData.append('nombre', n)
-                      if (d) formData.append('descripcion', d)
-                      formData.append('esPrivada', String(p))
-                      if (i) formData.append('imagen', i)
+                      formData.append('nombre', datos.nombre)
+                      if (datos.descripcion) formData.append('descripcion', datos.descripcion)
+                      if (datos.imagenUrl) formData.append('imagenUrl', datos.imagenUrl)
                       
                       await api.post('/api/biblioteca/columnas', formData)
                       const { data } = await api.get(`/api/biblioteca/${perfil.id}/columnas`)
@@ -812,7 +804,7 @@ export const PerfilPage: React.FC = () => {
             })
             
             // Actualizar estado local
-            setListaSeleccionada(prev => ({ ...prev, ...datos }))
+            setListaSeleccionada((prev: any) => ({ ...prev, ...datos }))
             
             // Refrescar columnas
             const { data } = await api.get(`/api/biblioteca/${perfil.id}/columnas`)
