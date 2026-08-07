@@ -13,8 +13,8 @@ interface Input {
 
 export class CrearResenaPersonaje {
   async execute(input: Input) {
-    if (input.calificacion < 1 || input.calificacion > 5) {
-      throw new AppError('La calificación debe estar entre 1 y 5', 400)
+    if (input.calificacion < 1 || input.calificacion > 10) {
+      throw new AppError('La calificación debe estar entre 1 y 10', 400)
     }
 
     const { usuarioId, personajeId, animeId, calificacion, contenido, contieneSpoiler } = input

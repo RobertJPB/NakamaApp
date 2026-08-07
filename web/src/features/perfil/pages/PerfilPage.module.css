@@ -114,7 +114,7 @@
   text-align: center;
   line-height: 1.2;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
   transition: color 0.2s;
@@ -277,6 +277,9 @@
   }
   .favoritosList::-webkit-scrollbar {
     display: none;
+  }
+  .favItemWrap {
+    width: 60px;
   }
   .favItem {
     flex-shrink: 0;
