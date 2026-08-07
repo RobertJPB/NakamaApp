@@ -259,7 +259,7 @@
 
   /* El nombre no debe quedar sobre el banner */
   .detalleInfo {
-    margin-top: 60px;
+    margin-top: 25px;
     padding-top: 0;
     min-width: 0;
   }

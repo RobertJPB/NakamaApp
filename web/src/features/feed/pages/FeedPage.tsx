@@ -239,8 +239,10 @@ export const FeedPage: React.FC = () => {
               ))
             ) : feed.length === 0 ? (
               <div className={styles.vacio}>
-                <p className={styles.vacioTexto}>Tu feed está vacío.</p>
-                <p className={styles.vacioSub}>Sigue a otros usuarios o comunidades para ver su actividad aquí.</p>
+                <h3 className={styles.vacioTexto} style={{ fontSize: '1.5rem', marginBottom: '8px' }}>Tu Feed está vacío</h3>
+                <p className={styles.vacioSub} style={{ fontSize: '1.1rem', maxWidth: '400px', lineHeight: '1.5' }}>
+                  ¡Sigue a tus amigos, únete a comunidades y haz tus reseñas para llenarlo de contenido!
+                </p>
               </div>
             ) : (
               feed.map((entrada: any) => {
