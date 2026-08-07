@@ -185,7 +185,7 @@ export const FeedPage: React.FC = () => {
     setItemToDelete(null)
     
     try {
-      await api.delete(`/api/feed/${tipo}/${id}`)
+      await api.delete(`/api/feed/${tipo === 'resena' ? 'resena' : 'publicacion'}/${id}`)
       setFeed(prev => prev.filter(e => e.id !== id))
     } catch (err) {
       alert('Error al eliminar')
@@ -240,7 +240,8 @@ export const FeedPage: React.FC = () => {
                           referencia: {
                             tema: resultado.tema,
                             contenido: resultado.contenido,
-                            opciones: resultado.opciones
+                            opciones: resultado.opciones,
+                            imagenUrl: resultado.imagenUrl
                           }
                         }, ...prev])
                       }

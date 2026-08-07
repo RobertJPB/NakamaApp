@@ -35,7 +35,7 @@ export const crearResenaSchema = z.object({
 })
 
 export const postFeedSchema = z.object({
-  contenido: z.string().min(1, 'El contenido no puede estar vacío'),
+  contenido: z.string().optional(),
   tema: z.string().optional(),
   soloAmigos: z.boolean().optional(),
   tipo: z.enum(['texto', 'encuesta', 'imagen']).optional(),

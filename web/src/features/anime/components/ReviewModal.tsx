@@ -112,7 +112,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ animeIdInicial, animeI
   }
 
   const enviarComentario = async () => {
-    if (!contenido.trim()) { setError('El contenido no puede estar vacío'); return }
+    if (!contenido.trim() && !imagenUrl) { setError('El contenido o la imagen no pueden estar vacíos'); return }
     setEnviando(true); setError('')
     try {
       const res = await api.post('/api/feed', { 
