@@ -62,7 +62,8 @@ app.use(
 // bloquea una petición, la respuesta de error siga teniendo los headers CORS y el navegador no lance fallo de red.
 app.use(limiterGeneral)
 
-app.use(express.json({ limit: '5mb' }))
+app.use(express.json({ limit: '50mb' }))
+app.use(express.urlencoded({ limit: '50mb', extended: true }))
 
 app.get('/health', (_req, res) => res.json({ status: 'ok', app: 'Nakama API' }))
 
