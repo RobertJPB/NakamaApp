@@ -337,8 +337,17 @@ export const PerfilPage: React.FC = () => {
                   {esMiPerfil && (
                     <button 
                       onClick={() => setShowCrearModal(true)}
-                      className={styles.btnAction} 
-                      style={{ border: 'none', padding: '8px 16px', background: 'var(--color-acento)', color: '#000', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+                      style={{ 
+                        border: 'none', 
+                        padding: '6px 12px', 
+                        background: 'var(--color-acento)', 
+                        color: '#000', 
+                        borderRadius: '6px', 
+                        cursor: 'pointer', 
+                        fontWeight: 'bold',
+                        fontSize: '0.9rem',
+                        whiteSpace: 'nowrap'
+                      }}
                     >
                       Añadir Lista
                     </button>
