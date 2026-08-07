@@ -305,4 +305,8 @@
   .entradaRatingBox {
     align-items: center;
   }
+  .menuWrapAbsolute {
+    top: 0px;
+    right: 0px;
+  }
 }
