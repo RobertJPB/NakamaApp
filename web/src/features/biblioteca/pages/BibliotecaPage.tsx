@@ -223,12 +223,13 @@ export const BibliotecaPage: React.FC = () => {
             <div style={{ position: 'absolute', bottom: '20px', left: '24px', right: '24px' }}>
               <div className={styles.listHeaderContent}>
                 <div>
-                  <button className={styles.btnVolver} onClick={() => setListaSeleccionada(null)} style={{ marginBottom: '8px', opacity: 0.85 }}>
-                    <ChevronLeft size={18} />
-                    Volver a mis listas
-                  </button>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <h1 className={styles.listHeaderTitle}>
+                    <h1 
+                      className={styles.listHeaderTitle}
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => setListaSeleccionada(null)}
+                      title="Volver a mis listas"
+                    >
                       {getIconForList(listaSeleccionada.nombre)} {listaSeleccionada.nombre}
                     </h1>
                     {!listaSeleccionada.esGuardada && !listaSeleccionada.esColaborativa && (
@@ -305,13 +306,13 @@ export const BibliotecaPage: React.FC = () => {
         {/* Header sin imagen */}
         {!listaSeleccionada?.imagenUrl && (
           <div className={styles.listHeaderContent}>
-            <div>
-              <button className={styles.btnVolver} onClick={() => setListaSeleccionada(null)} style={{ marginBottom: '8px' }}>
-                <ChevronLeft size={18} />
-                Volver a mis listas
-              </button>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <h1 className={styles.listHeaderTitle} style={{ textShadow: 'none' }}>
+                <h1 
+                  className={styles.listHeaderTitle} 
+                  style={{ textShadow: 'none', cursor: 'pointer' }}
+                  onClick={() => setListaSeleccionada(null)}
+                  title="Volver a mis listas"
+                >
                   {getIconForList(listaSeleccionada.nombre)} {listaSeleccionada.nombre}
                 </h1>
                 {!listaSeleccionada.esGuardada && !listaSeleccionada.esColaborativa && (
@@ -412,7 +413,9 @@ export const BibliotecaPage: React.FC = () => {
                           className={styles.btnEliminarItem}
                           onClick={(e) => {
                             e.stopPropagation()
-                            eliminar(entrada.animeId, listaSeleccionada?.propietario?.id, listaSeleccionada?.nombre)
+                            if (window.confirm('¿Estás seguro de que quieres eliminar este anime de la lista?')) {
+                              eliminar(entrada.animeId, listaSeleccionada?.propietario?.id, listaSeleccionada?.nombre)
+                            }
                           }}
                           title="Eliminar de la lista"
                         >

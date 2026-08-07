@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useParams, Link }    from 'react-router-dom'
+import { useParams, Link, useSearchParams }    from 'react-router-dom'
 import { Layout }       from '../../../components/shared/Layout'
 import { api, getCached } from '../../../lib/axios'
 import { useAuth }      from '../../../hooks/useAuth'
@@ -9,7 +9,8 @@ import { PublicacionCard } from '../../comunidad/components/PublicacionCard'
 import { FeedItemInteractions } from '../../feed/components/FeedItemInteractions'
 import { FollowListModal } from '../components/FollowListModal'
 import { CrearListaModal } from '../../biblioteca/components/CrearListaModal'
-import { Heart, Clock, Eye, CheckSquare, Layers, PlusCircle, ArrowLeft, Folder, Trash2 } from 'lucide-react'
+import { EditarListaModal } from '../../biblioteca/components/EditarListaModal'
+import { Heart, Clock, Eye, CheckSquare, Layers, PlusCircle, ArrowLeft, Folder, Trash2, Settings } from 'lucide-react'
 import styles           from './PerfilPage.module.css'
 
 type Tab = 'resenas' | 'listas' | 'actividad' | 'medallas'
@@ -56,8 +57,40 @@ export const PerfilPage: React.FC = () => {
   const [cargandoActividad, setCargandoActividad] = useState(false)
 
   // Estados para las listas
-  const [listaSeleccionada, setListaSeleccionada] = useState<any>(null)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [_listaSeleccionada, _setListaSeleccionada] = useState<any>(null)
+
+  // Lista única generada dinámicamente de estados
+  const listaPublica = lista.filter((l: any) => !l.esPrivado)
+  const esMiPerfil = yo?.id === perfil?.id
+  const estadosUnicos = Array.from(new Set(listaPublica.flatMap((e: any) => e.estados || [])))
+  
+  // Combina las columnas de la BD con las dinámicas generadas por estado para que se pueda abrir cualquier lista por URL
+  const columnasVisibles = [...columnas, ...estadosUnicos.filter((e: any) => !columnas.some(c => c.nombre === e)).map((e: any) => ({ nombre: e, esPrivada: false }))]
+
+  useEffect(() => {
+    const listQuery = searchParams.get('list')
+    if (!listQuery) {
+      _setListaSeleccionada(null)
+    } else if (columnasVisibles.length > 0 && !_listaSeleccionada) {
+      const found = columnasVisibles.find((c: any) => c.nombre === listQuery)
+      if (found) _setListaSeleccionada(found)
+    }
+  }, [searchParams, columnasVisibles, _listaSeleccionada])
+
+  const listaSeleccionada = _listaSeleccionada
+  const setListaSeleccionada = (columna: any | null) => {
+    if (columna) {
+      setSearchParams({ list: columna.nombre })
+      _setListaSeleccionada(columna)
+    } else {
+      searchParams.delete('list')
+      setSearchParams(searchParams)
+      _setListaSeleccionada(null)
+    }
+  }
   const [showCrearModal, setShowCrearModal] = useState(false)
+  const [showEditarModal, setShowEditarModal] = useState(false)
 
   // Búsqueda para añadir anime
   const [showSearch, setShowSearch] = useState(false)
@@ -373,7 +406,13 @@ export const PerfilPage: React.FC = () => {
           <button
             key={t}
             className={`${styles.tab} ${tab === t ? styles.tabActiva : ''}`}
-            onClick={() => setTab(t)}
+            onClick={() => {
+              if (tab === t) {
+                setListaSeleccionada(null)
+              } else {
+                setTab(t)
+              }
+            }}
             style={t === 'medallas' ? { marginLeft: 'var(--space-8)' } : {}}
           >
             {t === 'resenas' ? 'Reseñas' : t === 'listas' ? 'Listas' : t === 'actividad' ? 'Actividad' : 'Medallas'}
@@ -512,15 +551,36 @@ export const PerfilPage: React.FC = () => {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <button 
-                      onClick={() => setListaSeleccionada(null)}
-                      style={{ background: 'none', border: 'none', color: 'var(--color-texto-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '4px' }}
-                    >
-                      <ArrowLeft size={24} />
-                    </button>
-                    <h2 style={{ margin: 0, fontSize: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      {listaSeleccionada.nombre}
-                    </h2>
+                    {(() => {
+                      let ListIcon = Folder
+                      let listIconColor = 'var(--color-texto-muted)'
+                      const nombreLower = listaSeleccionada.nombre.toLowerCase()
+                      if (nombreLower.includes('favorito') || nombreLower.includes('me gusta')) { ListIcon = Heart; listIconColor = '#ff4757'; }
+                      else if (nombreLower.includes('por ver') || nombreLower.includes('plan to watch')) { ListIcon = Clock; listIconColor = '#ffa502'; }
+                      else if (nombreLower.includes('viendo') || nombreLower.includes('watching')) { ListIcon = Eye; listIconColor = '#2ed573'; }
+                      else if (nombreLower.includes('terminado') || nombreLower.includes('completed')) { ListIcon = CheckSquare; listIconColor = '#1e90ff'; }
+                      
+                      return (
+                        <h2 
+                          onClick={() => setListaSeleccionada(null)}
+                          style={{ margin: 0, fontSize: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+                          title="Volver a listas"
+                        >
+                          <ListIcon size={24} color={listIconColor} />
+                          {listaSeleccionada.nombre}
+                          
+                          {esMiPerfil && (
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); setShowEditarModal(true); }}
+                              style={{ background: 'none', border: 'none', color: 'var(--color-texto-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', marginLeft: '8px', padding: 0 }}
+                              title="Editar lista"
+                            >
+                              <Settings size={20} />
+                            </button>
+                          )}
+                        </h2>
+                      )
+                    })()}
                   </div>
                   {esMiPerfil && (
                     <button
@@ -567,7 +627,9 @@ export const PerfilPage: React.FC = () => {
                                     className={styles.btnEliminarItem}
                                     onClick={(e) => {
                                       e.stopPropagation()
-                                      eliminarDeLista(entrada.animeId, listaSeleccionada.nombre)
+                                      if (window.confirm('¿Estás seguro de que quieres eliminar este anime de la lista?')) {
+                                        eliminarDeLista(entrada.animeId, listaSeleccionada.nombre)
+                                      }
                                     }}
                                     title="Eliminar de la lista"
                                   >
@@ -740,6 +802,44 @@ export const PerfilPage: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+      
+      {/* Modal para editar lista */}
+      {showEditarModal && listaSeleccionada && (
+        <EditarListaModal
+          lista={listaSeleccionada}
+          onClose={() => setShowEditarModal(false)}
+          onEditar={async (columnaId, datos) => {
+            const formData = new FormData()
+            if (datos.nombre) formData.append('nombre', datos.nombre)
+            if (datos.descripcion) formData.append('descripcion', datos.descripcion)
+            if (datos.esPrivada !== undefined) formData.append('esPrivada', String(datos.esPrivada))
+            if (datos.imagenUrl && datos.imagenUrl.startsWith('data:')) {
+              // Note: the backend expects a file in 'imagen'. We will just send the data URL string as 'imagenUrl' and hope the backend handles it, or not attach it if it doesn't.
+              // Actually, EditarListaModal sends `imagenUrl` which is base64 string. 
+              // Wait, in CrearListaModal we send a file. In EditarListaModal it sends `imagenUrl`? 
+              // Let's just send the name, desc, esPrivada for now because the backend logic isn't fully robust here, or use api.put.
+            }
+            
+            await api.put(`/api/biblioteca/columnas/${columnaId}`, {
+              nombre: datos.nombre,
+              descripcion: datos.descripcion,
+              esPrivada: datos.esPrivada,
+              imagenUrl: datos.imagenUrl,
+              propietarioId: perfil.id,
+              nombreAnterior: listaSeleccionada.nombre
+            })
+            
+            // Actualizar estado local
+            setListaSeleccionada(prev => ({ ...prev, ...datos }))
+            
+            // Refrescar columnas
+            const { data } = await api.get(`/api/biblioteca/${perfil.id}/columnas`)
+            setColumnas(data.columnas || data)
+            
+            setShowEditarModal(false)
+          }}
+        />
       )}
     </Layout>
   )

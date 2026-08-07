@@ -69,16 +69,16 @@
 .info { 
   padding: 0 var(--space-1); 
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 .titulo {
   font-size:    var(--text-sm);
   font-weight:  600;
   line-height:  1.3;
-  display:      -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow:     hidden;
   color:        var(--color-texto);
+  text-align:   center;
 }
 .meta {
   font-size:  var(--text-xs);
