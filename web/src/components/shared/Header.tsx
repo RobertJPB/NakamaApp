@@ -265,21 +265,21 @@ export const Header: React.FC = () => {
                         }}
                       >
                         <Search size={16} style={{ opacity: 0.5, marginRight: '12px', flexShrink: 0 }} />
-                        <div className={styles.searchResultInfo} style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '8px' }}>
+                        <div className={styles.searchResultInfo} style={{ flex: 1 }}>
                           <div className={styles.searchResultTitle}>{q}</div>
-                          <button 
-                            onClick={(e) => { 
-                              e.stopPropagation(); 
-                              const nuevas = busquedasRecientes.filter(b => b !== q);
-                              setBusquedasRecientes(nuevas);
-                              localStorage.setItem('busquedasRecientes', JSON.stringify(nuevas));
-                            }} 
-                            style={{ background: 'transparent', border: 'none', color: 'var(--color-texto-muted)', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center' }} 
-                            title="Eliminar búsqueda"
-                          >
-                            <X size={14} />
-                          </button>
                         </div>
+                        <button 
+                          onClick={(e) => { 
+                            e.stopPropagation(); 
+                            const nuevas = busquedasRecientes.filter(b => b !== q);
+                            setBusquedasRecientes(nuevas);
+                            localStorage.setItem('busquedasRecientes', JSON.stringify(nuevas));
+                          }} 
+                          style={{ background: 'transparent', border: 'none', color: 'var(--color-texto-muted)', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center' }} 
+                          title="Eliminar búsqueda"
+                        >
+                          <X size={14} />
+                        </button>
                       </div>
                     ))}
                   </div>
