@@ -127,26 +127,28 @@ export const HomePage: React.FC = () => {
             </div>
 
             {/* Paginación */}
-            <div className={styles.pagination}>
-              <button
-                className={styles.pageBtn}
-                onClick={() => setPagina(Math.max(1, pagina - 1))}
-                disabled={pagina === 1 || cargando}
-              >‹</button>
-              {Array.from({ length: totalPaginas }, (_, i) => i + 1).map(num => (
+            {animesMostrados.length > 0 && (
+              <div className={styles.pagination}>
                 <button
-                  key={num}
-                  className={`${styles.pageBtn} ${pagina === num ? styles.pageBtnActive : ''}`}
-                  onClick={() => setPagina(num)}
+                  className={styles.pageBtn}
+                  onClick={() => setPagina(Math.max(1, pagina - 1))}
+                  disabled={pagina === 1 || cargando}
+                >‹</button>
+                {Array.from({ length: totalPaginas }, (_, i) => i + 1).map(num => (
+                  <button
+                    key={num}
+                    className={`${styles.pageBtn} ${pagina === num ? styles.pageBtnActive : ''}`}
+                    onClick={() => setPagina(num)}
+                    disabled={cargando}
+                  >{num}</button>
+                ))}
+                <button
+                  className={styles.pageBtn}
+                  onClick={() => setPagina(pagina + 1)}
                   disabled={cargando}
-                >{num}</button>
-              ))}
-              <button
-                className={styles.pageBtn}
-                onClick={() => setPagina(pagina + 1)}
-                disabled={cargando}
-              >›</button>
-            </div>
+                >›</button>
+              </div>
+            )}
 
           </div>
 
@@ -158,6 +160,8 @@ export const HomePage: React.FC = () => {
             <div className={styles.rankingList}>
               {cargandoRanking ? (
                 <p style={{ color: 'var(--color-texto-muted)', fontSize: 'var(--text-sm)', padding: '16px 0', textAlign: 'center' }}>Cargando ranking...</p>
+              ) : topRanking.length === 0 ? (
+                <p style={{ color: 'var(--color-texto-muted)', fontSize: 'var(--text-sm)', padding: '16px 0', textAlign: 'center' }}>No se pudo cargar el ranking.</p>
               ) : topRanking.map((anime, index) => (
                 <div 
                   key={anime.externalId} 
