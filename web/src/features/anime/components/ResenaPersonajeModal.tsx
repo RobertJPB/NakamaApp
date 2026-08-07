@@ -97,9 +97,7 @@ export const ResenaPersonajeModal: React.FC<ResenaPersonajeModalProps> = ({
               />
 
               <div className={styles.metaRow}>
-                <div className={styles.tagsBlock}>
-                  {/* Para mantener coherencia con el CSS de anime, dejamos el espacio aunque no usemos etiquetas de personaje aquí */}
-                </div>
+                <div className={styles.tagsBlock} style={{ display: 'none' }}></div>
                 
                 <div className={styles.ratingBlock}>
                   <label>Calificación <span>{calificacion || 0} de 10</span></label>
@@ -139,19 +137,18 @@ export const ResenaPersonajeModal: React.FC<ResenaPersonajeModalProps> = ({
                   </div>
                 </div>
               </div>
-
-              <div className={styles.submitRow}>
-                <button 
-                  className={styles.submitBtn} 
-                  onClick={handleSave}
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? 'Publicando...' : 'Publicar Reseña'}
-                </button>
-              </div>
-
             </div>
           </div>
+        </div>
+
+        <div className={styles.footer}>
+          <button 
+            className={styles.saveBtn} 
+            onClick={handleSave}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Publicando...' : 'Publicar Reseña'}
+          </button>
         </div>
       </div>
     </div>
