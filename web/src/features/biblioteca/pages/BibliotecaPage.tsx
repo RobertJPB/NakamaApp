@@ -83,32 +83,33 @@ export const BibliotecaPage: React.FC = () => {
     return () => clearTimeout(timer)
   }, [searchQuery])
 
-  const handleAgregarAnime = async (anime: any) => {
+  const handleAgregarAnime = (anime: any) => {
     if (!listaSeleccionada) return
     const propietarioId = listaSeleccionada.propietario?.id
     
-    // Cierra el modal y limpia la búsqueda INMEDIATAMENTE
-    setShowSearch(false)
-    setSearchQuery('')
-    setSearchResults([])
+    // Feedback inmediato
+    alert(`Tu anime se añadió a la lista "${listaSeleccionada.nombre}"`)
 
-    let localAnimeId = anime.id;
-    if (!localAnimeId) {
-      // Si viene de Kitsu, hacer fetch del detalle para que se guarde en la BD local
-      try {
-        const { data } = await api.get(`/api/animes/${anime.externalId}`)
-        localAnimeId = data.anime?.id
-      } catch (e) {
-        console.error("Error obteniendo detalles del anime para agregarlo a la lista", e);
-        return;
+    // Proceso en segundo plano sin bloquear la UI
+    const procesarAgregar = async () => {
+      let localAnimeId = anime.id;
+      if (!localAnimeId) {
+        try {
+          const { data } = await api.get(`/api/animes/${anime.externalId}`)
+          localAnimeId = data.anime?.id
+        } catch (e) {
+          console.error("Error obteniendo detalles del anime", e);
+          return;
+        }
       }
+
+      if (!localAnimeId) return;
+
+      const animeCompleto = { ...anime, id: localAnimeId };
+      agregar(localAnimeId, listaSeleccionada.nombre, propietarioId, animeCompleto)
     }
 
-    if (!localAnimeId) return;
-
-    // Pasamos el anime completo al hook para la actualización optimista inmediata
-    const animeCompleto = { ...anime, id: localAnimeId };
-    agregar(localAnimeId, listaSeleccionada.nombre, propietarioId, animeCompleto)
+    procesarAgregar();
   }
 
   const handleInvitar = async () => {
@@ -183,16 +184,6 @@ export const BibliotecaPage: React.FC = () => {
                     {col.descripcion && (
                       <div style={{ marginTop: '8px', fontSize: 'var(--text-sm)', color: 'var(--color-texto-muted)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                         {col.descripcion}
-                      </div>
-                    )}
-
-                    {animesEnColumna.length > 0 && (
-                      <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '4px', width: '100%', borderTop: '1px solid var(--color-borde-suave)', paddingTop: '12px' }}>
-                        {animesEnColumna.map((entrada: any) => (
-                          <span key={entrada.animeId} style={{ fontSize: '0.8rem', color: 'rgba(255, 255, 255, 0.7)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                            {entrada.anime?.titulo}
-                          </span>
-                        ))}
                       </div>
                     )}
                   </div>
@@ -433,7 +424,7 @@ export const BibliotecaPage: React.FC = () => {
                         </button>
                       </div>
                       
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', color: 'var(--color-texto-muted)', fontSize: '0.9rem' }}>
+                      <div className={styles.listRowMetadata} style={{ display: 'flex', flexDirection: 'column', gap: '8px', color: 'var(--color-texto-muted)', fontSize: '0.9rem' }}>
                         {entrada.anime?.tipo && (
                           <span>
                             <strong>Formato:</strong> {tipoAnimeLabel(entrada.anime.tipo)}
