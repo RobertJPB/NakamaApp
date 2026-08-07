@@ -315,6 +315,11 @@ export const FeedPage: React.FC = () => {
                           {entrada.referencia?.tema && (
                             <strong className={styles.entradaTema}>{entrada.referencia.tema}</strong>
                           )}
+                          {(entrada.titulo || entrada.referencia?.titulo) && (
+                            <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 800 }}>
+                              {entrada.titulo || entrada.referencia?.titulo}
+                            </h3>
+                          )}
                           {editandoId === entrada.id ? (
                             <div className={styles.inlineEditWrap}>
                               <textarea

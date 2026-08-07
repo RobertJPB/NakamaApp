@@ -99,7 +99,7 @@ export const AnimePage: React.FC = () => {
   }
 
   React.useEffect(() => {
-    const entrada = lista.find(x => x.animeId === Number(id))
+    const entrada = lista.find(x => String(x.animeId) === String(id))
     if (entrada) setIsFavoritoLocal(!!entrada.esFavorito)
   }, [lista, id])
 
@@ -212,8 +212,8 @@ export const AnimePage: React.FC = () => {
                       }
                       
                       const totalFavs = lista.filter((l: any) => l.esFavorito).length
-                      if (!isFavoritoLocal && totalFavs >= 5) {
-                        setFavError('Límite de 5 favoritos alcanzado.')
+                      if (!isFavoritoLocal && totalFavs >= 4) {
+                        setFavError('Límite de 4 favoritos alcanzado.')
                         setTimeout(() => setFavError(''), 3000)
                         return
                       }

@@ -169,8 +169,8 @@ export class PrismaBibliotecaRepository implements IBibliotecaRepository {
     })
     if (!entrada) {
       const favsCount = await prisma.listaUsuario.count({ where: { usuarioId, esFavorito: true } })
-      if (favsCount >= 5)
-        throw new AppError('Límite de 5 favoritos alcanzado. Elimina uno primero.', 400)
+      if (favsCount >= 4)
+        throw new AppError('Límite de 4 favoritos alcanzado. Elimina uno primero.', 400)
       entrada = await prisma.listaUsuario.create({
         data: { usuarioId, animeId, estados: ['Por ver'], esFavorito: true },
       })
@@ -178,8 +178,8 @@ export class PrismaBibliotecaRepository implements IBibliotecaRepository {
     }
     if (!entrada.esFavorito) {
       const favsCount = await prisma.listaUsuario.count({ where: { usuarioId, esFavorito: true } })
-      if (favsCount >= 5)
-        throw new AppError('Límite de 5 favoritos alcanzado. Elimina uno primero.', 400)
+      if (favsCount >= 4)
+        throw new AppError('Límite de 4 favoritos alcanzado. Elimina uno primero.', 400)
     }
     const nuevoEstado = !entrada.esFavorito
     await prisma.listaUsuario.update({
