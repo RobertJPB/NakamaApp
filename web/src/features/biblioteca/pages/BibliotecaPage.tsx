@@ -75,7 +75,7 @@ export const BibliotecaPage: React.FC = () => {
       setIsSearching(true)
       try {
         const { data } = await api.get(`/api/animes?busqueda=${encodeURIComponent(searchQuery)}`)
-        setSearchResults(data.animes ? data.animes.slice(0, 5) : []) // Solo los primeros 5 resultados rápidos
+        setSearchResults(data.animes ? data.animes.slice(0, 20) : [])
       } catch (e) {
         console.error(e)
       } finally {
@@ -497,7 +497,7 @@ export const BibliotecaPage: React.FC = () => {
           <div style={{
             position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
             background: 'rgba(0,0,0,0.8)', zIndex: 9999,
-            display: 'flex', alignItems: 'center', justifyContent: 'center'
+            display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: '10vh'
           }} onClick={() => setShowSearch(false)}>
             <div style={{
               background: '#121212', padding: '24px', borderRadius: '8px',
@@ -548,6 +548,8 @@ export const BibliotecaPage: React.FC = () => {
                         <span style={{ color: '#b0b3b8', fontSize: '0.8rem' }}>Añadiendo...</span>
                       ) : addingStates[anime.id || anime.externalId || anime.titulo] === 'added' ? (
                         <span style={{ color: '#27ae60', fontSize: '0.8rem', fontWeight: 'bold' }}>✓ Añadido</span>
+                      ) : addingStates[anime.id || anime.externalId || anime.titulo] === 'error' ? (
+                        <span style={{ color: '#e74c3c', fontSize: '0.8rem', fontWeight: 'bold' }}>Error / Ya está</span>
                       ) : (
                         <span style={{ color: 'var(--color-acento)', fontSize: '0.8rem', fontWeight: 'bold' }}>+ Añadir</span>
                       )}

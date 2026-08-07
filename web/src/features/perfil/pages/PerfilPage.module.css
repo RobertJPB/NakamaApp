@@ -226,7 +226,7 @@
 .folderCard {
   background: #1f2124;
   border-radius: var(--radius-lg);
-  padding: var(--space-4);
+  padding: var(--space-4) var(--space-3);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -243,7 +243,7 @@
 
 .folderName {
   font-weight: 700;
-  font-size: var(--text-md);
+  font-size: 0.9rem;
   color: var(--color-texto);
   display: flex;
   align-items: center;
@@ -437,7 +437,7 @@
     padding: var(--space-3);
   }
   .folderName {
-    font-size: var(--text-sm);
+    font-size: 0.8rem;
   }
   
   .btnPrimarioPequeño {

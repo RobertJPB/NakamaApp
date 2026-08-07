@@ -218,7 +218,7 @@ export const PerfilPage: React.FC = () => {
     if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
     searchTimeoutRef.current = setTimeout(async () => {
       try {
-        const { data } = await api.get(`https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(searchQuery)}&page[limit]=5`)
+        const { data } = await api.get(`https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(searchQuery)}&page[limit]=20`)
         setSearchResults(data.data.map((item: any) => ({
           externalId: item.id,
           titulo: item.attributes.canonicalTitle,
@@ -721,7 +721,7 @@ export const PerfilPage: React.FC = () => {
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.8)', zIndex: 9999,
-          display: 'flex', alignItems: 'center', justifyContent: 'center'
+          display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: '10vh'
         }} onClick={() => setShowSearch(false)}>
           <div style={{
             background: '#121212', padding: '24px', borderRadius: '8px',
@@ -772,6 +772,8 @@ export const PerfilPage: React.FC = () => {
                       <span style={{ color: '#b0b3b8', fontSize: '0.8rem' }}>Añadiendo...</span>
                     ) : addingStates[anime.id || anime.externalId || anime.titulo] === 'added' ? (
                       <span style={{ color: '#27ae60', fontSize: '0.8rem', fontWeight: 'bold' }}>✓ Añadido</span>
+                    ) : addingStates[anime.id || anime.externalId || anime.titulo] === 'error' ? (
+                      <span style={{ color: '#e74c3c', fontSize: '0.8rem', fontWeight: 'bold' }}>Error / Ya está</span>
                     ) : (
                       <span style={{ color: 'var(--color-acento)', fontSize: '0.8rem', fontWeight: 'bold' }}>+ Añadir</span>
                     )}
