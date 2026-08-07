@@ -9,7 +9,7 @@ import { PublicacionCard } from '../../comunidad/components/PublicacionCard'
 import { FeedItemInteractions } from '../../feed/components/FeedItemInteractions'
 import { FollowListModal } from '../components/FollowListModal'
 import { CrearListaModal } from '../../biblioteca/components/CrearListaModal'
-import { Heart, Clock, Eye, CheckSquare, Layers, PlusCircle, ArrowLeft } from 'lucide-react'
+import { Heart, Clock, Eye, CheckSquare, Layers, PlusCircle, ArrowLeft, Folder } from 'lucide-react'
 import styles           from './PerfilPage.module.css'
 
 type Tab = 'resenas' | 'listas' | 'actividad' | 'medallas'
@@ -363,7 +363,7 @@ export const PerfilPage: React.FC = () => {
                     columnasVisibles.map((col: any) => {
                       const animesEnColumna = listaPublica.filter((e: any) => e.estados?.includes(col.nombre))
                       
-                      let Icon = Layers
+                      let Icon = Folder
                       let iconColor = 'var(--color-texto-muted)'
                       const nombreLower = col.nombre.toLowerCase()
                       if (nombreLower.includes('favorito') || nombreLower.includes('me gusta')) { Icon = Heart; iconColor = '#ff4757'; }
