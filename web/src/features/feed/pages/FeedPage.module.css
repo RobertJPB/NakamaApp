@@ -254,6 +254,12 @@
     width: 36px;
     height: 36px;
   }
+  .marcoOverlay {
+    width: 20px;
+    height: 20px;
+    top: -4px;
+    right: -4px;
+  }
   .entradaContenido {
     display: contents;
   }
