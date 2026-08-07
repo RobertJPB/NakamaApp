@@ -207,7 +207,7 @@ export const RuletaPage: React.FC = () => {
             ) : (
               <div
                 className={`${styles.itemsContainer} ${girando ? styles.spinning : ''}`}
-                style={{ transform: `translateY(${offset}px)` }}
+                style={{ transform: `translate3d(0, ${offset}px, 0)` }}
               >
                 {itemsCarrusel.length > 0 ? (
                   itemsCarrusel.map((entrada, idx) => (
