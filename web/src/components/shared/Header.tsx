@@ -251,9 +251,8 @@ export const Header: React.FC = () => {
                   </>
                 ) : (
                   <div>
-                    <div className={styles.searchSectionLabel} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div className={styles.searchSectionLabel}>
                       Búsquedas recientes
-                      <button onClick={(e) => { e.stopPropagation(); setBusquedasRecientes([]); localStorage.removeItem('busquedasRecientes'); }} style={{ background: 'transparent', border: 'none', color: 'var(--color-texto-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px' }} title="Borrar historial"><X size={14} /></button>
                     </div>
                     {busquedasRecientes.map(q => (
                       <div
@@ -266,8 +265,20 @@ export const Header: React.FC = () => {
                         }}
                       >
                         <Search size={16} style={{ opacity: 0.5, marginRight: '12px', flexShrink: 0 }} />
-                        <div className={styles.searchResultInfo}>
+                        <div className={styles.searchResultInfo} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
                           <div className={styles.searchResultTitle}>{q}</div>
+                          <button 
+                            onClick={(e) => { 
+                              e.stopPropagation(); 
+                              const nuevas = busquedasRecientes.filter(b => b !== q);
+                              setBusquedasRecientes(nuevas);
+                              localStorage.setItem('busquedasRecientes', JSON.stringify(nuevas));
+                            }} 
+                            style={{ background: 'transparent', border: 'none', color: 'var(--color-texto-muted)', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center' }} 
+                            title="Eliminar búsqueda"
+                          >
+                            <X size={14} />
+                          </button>
                         </div>
                       </div>
                     ))}
