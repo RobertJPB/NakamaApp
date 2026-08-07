@@ -146,15 +146,33 @@ export const RuletaPage: React.FC = () => {
     }
 
     setResultado(null)
-    setGirando(false)
+    setGirando(true) // Usamos esto temporalmente para deshabilitar el botón
 
-    setTimeout(() => {
-      setItemsCarrusel(carrusel)
-      setOffset(0)
+    // 1. Asignar el carrusel al DOM para que empiece a montarse
+    setItemsCarrusel(carrusel)
+    setOffset(0)
 
+    // 2. Precargar las imágenes en segundo plano antes de animar
+    const urlsUnicas = Array.from(new Set(carrusel.map(item => item.anime?.imagenUrl))).filter(Boolean) as string[]
+    
+    const precargarImagenes = Promise.all(
+      urlsUnicas.map(url => {
+        return new Promise((resolve) => {
+          const img = new Image()
+          img.src = url
+          img.onload = resolve
+          img.onerror = resolve // Resolvemos igual si falla para no bloquear
+        })
+      })
+    )
+
+    // Damos un tiempo máximo de 1.5s para no hacer esperar demasiado al usuario en conexiones lentas
+    const timeoutPromise = new Promise(resolve => setTimeout(resolve, 1500))
+
+    Promise.race([precargarImagenes, timeoutPromise]).then(() => {
+      // 3. Iniciar la animación
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          setGirando(true)
           setTimeout(() => {
             const distancia = -(posGanador * 136)
             setOffset(distancia)
@@ -162,10 +180,10 @@ export const RuletaPage: React.FC = () => {
               setGirando(false)
               setResultado(ganador)
             }, 3200)
-          }, 20)
+          }, 50)
         })
       })
-    }, 50)
+    })
   }
 
   return (
