@@ -398,7 +398,7 @@ export const PerfilPage: React.FC = () => {
               <div style={{
                 marginTop: '32px',
                 padding: '24px',
-                background: 'var(--color-surface-2)',
+                background: 'rgba(0, 0, 0, 0.4)',
                 borderRadius: '12px',
                 display: 'flex',
                 flexDirection: 'column',
@@ -408,7 +408,7 @@ export const PerfilPage: React.FC = () => {
                 border: '1px dashed var(--color-borde)',
                 textAlign: 'center'
               }}>
-                <p style={{ color: 'var(--color-texto-muted)', margin: 0 }}>
+                <p style={{ color: 'var(--color-acento)', fontWeight: 600, fontSize: '1.1rem', margin: 0 }}>
                   ¿Quieres editar o crear tus propias listas?
                 </p>
                 <Link to="/mi-lista" className={styles.btnAction} style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
