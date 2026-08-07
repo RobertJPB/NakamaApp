@@ -8,7 +8,8 @@ import { ResenaCard }   from '../../anime/components/ResenaCard'
 import { PublicacionCard } from '../../comunidad/components/PublicacionCard'
 import { FeedItemInteractions } from '../../feed/components/FeedItemInteractions'
 import { FollowListModal } from '../components/FollowListModal'
-import { Heart, Clock, Eye, CheckSquare, Layers, PlusCircle } from 'lucide-react'
+import { CrearListaModal } from '../../biblioteca/components/CrearListaModal'
+import { Heart, Clock, Eye, CheckSquare, Layers, PlusCircle, ArrowLeft } from 'lucide-react'
 import styles           from './PerfilPage.module.css'
 
 type Tab = 'resenas' | 'listas' | 'actividad' | 'medallas'
@@ -46,6 +47,10 @@ export const PerfilPage: React.FC = () => {
   
   const [actividadFeed, setActividadFeed] = useState<any[]>([])
   const [cargandoActividad, setCargandoActividad] = useState(false)
+
+  // Estados para las listas
+  const [listaSeleccionada, setListaSeleccionada] = useState<any>(null)
+  const [showCrearModal, setShowCrearModal] = useState(false)
 
   // Modal followers state
   const [modalAbierto, setModalAbierto] = useState(false)
@@ -323,97 +328,119 @@ export const PerfilPage: React.FC = () => {
         {/* Listas */}
         {tab === 'listas' && (
           <div className={styles.listaWrap}>
-            <div className={styles.filtros}>
-              {filtrosListas.map(e => {
-                const nombreLower = e.toLowerCase()
-                let Icon = null
-                let color = 'currentColor'
-                if (nombreLower === 'todos') { Icon = Layers; }
-                else if (nombreLower.includes('favorito') || nombreLower.includes('me gusta')) { Icon = Heart; color = '#ff4757'; }
-                else if (nombreLower.includes('por ver') || nombreLower.includes('plan to watch')) { Icon = Clock; color = '#ffa502'; }
-                else if (nombreLower.includes('viendo') || nombreLower.includes('watching')) { Icon = Eye; color = '#2ed573'; }
-                else if (nombreLower.includes('terminado') || nombreLower.includes('completed')) { Icon = CheckSquare; color = '#1e90ff'; }
-
-                return (
-                  <button
-                    key={e}
-                    className={`${styles.filtro} ${filtro === e ? styles.filtroActivo : ''}`}
-                    onClick={() => setFiltro(e)}
-                  >
-                    {Icon && <Icon size={14} color={color} />}
-                    {e === 'todos' ? 'Todos' : e}
-                  </button>
-                )
-              })}
-              
-              {!esMiPerfil && filtro !== 'todos' && yo && (
-                <button
-                  onClick={async () => {
-                    const col = columnasVisibles.find(c => c.nombre === filtro)
-                    if (col) {
-                      try {
-                        await api.post(`/api/biblioteca/columnas/${col.id}/guardar`)
-                        alert('Lista guardada en tu biblioteca.')
-                      } catch (e: any) {
-                        alert(e.response?.data?.mensaje || 'Error al guardar lista')
-                      }
-                    }
-                  }}
-                  style={{
-                    marginLeft: 'auto', background: 'rgba(255, 255, 255, 0.1)', color: 'var(--color-texto)',
-                    fontWeight: 600, fontSize: 'var(--text-sm)', padding: '6px 12px',
-                    border: 'none', borderRadius: '6px', cursor: 'pointer'
-                  }}
-                >
-                  Guardar Lista
-                </button>
-              )}
-            </div>
-            {listaFiltrada.length === 0 ? (
-              <div className={styles.vacioWrap}>
-                <p className={styles.vacio}>No hay animes en esta sección.</p>
-                {esMiPerfil && (
-                  <Link to="/descubrir" className={`${styles.btnAction} ${styles.btnActionOutlined}`} style={{ textDecoration: 'none' }}>
-                    Crear una lista
-                  </Link>
-                )}
-              </div>
-            ) : (
-                <div className={styles.grid}>
-                  {listaFiltrada.map((entrada: any) => (
-                    <AnimeCard
-                      key={entrada.animeId}
-                      externalId={entrada.anime?.externalId}
-                      titulo={entrada.anime?.titulo}
-                      imagenUrl={entrada.anime?.imagenUrl}
-                      estado={entrada.estado}
-                      calificacion={entrada.calificacion}
-                    />
-                  ))}
+            {/* Si no hay lista seleccionada, mostramos las carpetas */}
+            {!listaSeleccionada ? (
+              <>
+                {/* Header de Listas */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                  <h2 style={{ fontSize: '1.25rem', margin: 0 }}>Tus Listas</h2>
+                  {esMiPerfil && (
+                    <button 
+                      onClick={() => setShowCrearModal(true)}
+                      className={styles.btnAction} 
+                      style={{ border: 'none', padding: '8px 16px', background: 'var(--color-acento)', color: '#000', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+                    >
+                      Añadir Lista
+                    </button>
+                  )}
                 </div>
-              )
-            }
-            
-            {esMiPerfil && (
-              <div style={{
-                marginTop: '32px',
-                padding: '24px',
-                background: 'rgba(0, 0, 0, 0.2)',
-                borderRadius: '12px',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '12px',
-                border: '1px solid var(--color-borde-suave)',
-                textAlign: 'center'
-              }}>
-                <p style={{ color: 'var(--color-acento)', fontWeight: 600, fontSize: '1.1rem', margin: 0 }}>
-                  ¿Quieres editar o crear tus propias listas?
-                </p>
-                <Link to="/mi-lista" className={styles.btnAction} style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-                  <Layers size={18} /> Ve a Mis Listas
-                </Link>
+
+                <div className={styles.folderGrid}>
+                  {columnasVisibles.length === 0 ? (
+                    <div className={styles.vacioWrap} style={{ gridColumn: '1 / -1' }}>
+                      <p className={styles.vacio}>Aún no hay listas creadas.</p>
+                    </div>
+                  ) : (
+                    columnasVisibles.map((col: any) => {
+                      const animesEnColumna = listaPublica.filter((e: any) => e.estados?.includes(col.nombre))
+                      
+                      let Icon = Layers
+                      const nombreLower = col.nombre.toLowerCase()
+                      if (nombreLower.includes('favorito') || nombreLower.includes('me gusta')) Icon = Heart
+                      else if (nombreLower.includes('por ver') || nombreLower.includes('plan to watch')) Icon = Clock
+                      else if (nombreLower.includes('viendo') || nombreLower.includes('watching')) Icon = Eye
+                      else if (nombreLower.includes('terminado') || nombreLower.includes('completed')) Icon = CheckSquare
+                      
+                      return (
+                        <div 
+                          key={col.id} 
+                          className={styles.folderCard}
+                          onClick={() => setListaSeleccionada(col)}
+                        >
+                          <div style={{ display: 'flex', flexDirection: 'column', width: '100%', alignItems: 'flex-start' }}>
+                            {col.imagenUrl && (
+                              <div style={{ width: '100%', height: '120px', marginBottom: '12px', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
+                                <img src={col.imagenUrl} alt={col.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              </div>
+                            )}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                              <span className={styles.folderName}><Icon size={18} color="var(--color-acento)" /> {col.nombre}</span>
+                              <span className={styles.folderCount}>{animesEnColumna.length}</span>
+                            </div>
+                            {col.descripcion && (
+                              <div style={{ marginTop: '8px', fontSize: 'var(--text-sm)', color: 'var(--color-texto-muted)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                                {col.descripcion}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })
+                  )}
+                </div>
+
+                {/* Modal para crear lista */}
+                {showCrearModal && (
+                  <CrearListaModal 
+                    onClose={() => setShowCrearModal(false)}
+                    onCrear={async (n, d, p, i) => {
+                      const formData = new FormData()
+                      formData.append('nombre', n)
+                      if (d) formData.append('descripcion', d)
+                      formData.append('esPrivada', String(p))
+                      if (i) formData.append('imagen', i)
+                      
+                      await api.post('/api/biblioteca/columnas', formData)
+                      const { data } = await api.get(`/api/biblioteca/${perfil.id}/columnas`)
+                      setColumnas(data.columnas)
+                      setShowCrearModal(false)
+                    }}
+                  />
+                )}
+              </>
+            ) : (
+              // Vista interna de una lista seleccionada
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <button 
+                    onClick={() => setListaSeleccionada(null)}
+                    style={{ background: 'none', border: 'none', color: 'var(--color-texto-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                  >
+                    <ArrowLeft size={18} /> Volver a Listas
+                  </button>
+                  <h2 style={{ margin: 0, fontSize: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {listaSeleccionada.nombre}
+                  </h2>
+                </div>
+
+                <div className={styles.grid}>
+                  {listaPublica.filter((e: any) => e.estados?.includes(listaSeleccionada.nombre)).length === 0 ? (
+                    <div className={styles.vacioWrap} style={{ gridColumn: '1 / -1' }}>
+                      <p className={styles.vacio}>No hay animes en esta lista.</p>
+                    </div>
+                  ) : (
+                    listaPublica.filter((e: any) => e.estados?.includes(listaSeleccionada.nombre)).map((entrada: any) => (
+                      <AnimeCard
+                        key={entrada.animeId}
+                        externalId={entrada.anime?.externalId}
+                        titulo={entrada.anime?.titulo}
+                        imagenUrl={entrada.anime?.imagenUrl}
+                        estado={entrada.estado}
+                        calificacion={entrada.calificacion}
+                      />
+                    ))
+                  )}
+                </div>
               </div>
             )}
           </div>
