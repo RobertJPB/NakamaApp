@@ -637,8 +637,23 @@
 
   /* Dropdown notificaciones: posición ajustada para móvil */
   .notifDropdown {
-    right: -8px;
-    width: min(320px, 90vw);
+    right: -10px;
+    width: min(280px, 85vw);
+  }
+  .notifAvatar {
+    width: 30px;
+    height: 30px;
+  }
+  .notifContent {
+    font-size: 12px;
+  }
+  .notifItem {
+    padding: var(--space-2) var(--space-3);
+    gap: var(--space-2);
+  }
+  .notifHeader {
+    font-size: 13px;
+    padding: var(--space-2) var(--space-3);
   }
 
   .mobileMenuBtn {
