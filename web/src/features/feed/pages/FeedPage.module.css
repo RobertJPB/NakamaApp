@@ -338,3 +338,9 @@
   font-weight: 600; transition: background var(--transition-fast);
 }
 .modalBtnDelete:hover { background: #e84118; }
+
+.dropdownSeparator {
+  height: 1px;
+  background-color: var(--color-borde-suave);
+  margin: 4px 0;
+}

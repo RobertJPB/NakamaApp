@@ -469,6 +469,7 @@ export const FeedPage: React.FC = () => {
                                 }}>
                                   <Trash2 size={14} /> Eliminar
                                 </button>
+                                <div className={styles.dropdownSeparator} />
                               </>
                             )}
                             <button className={`${styles.dropdownItem} ${styles.dropdownDanger}`} onClick={() => { setMenuAbiertoId(null); reportar(entrada.id) }}>

@@ -154,9 +154,12 @@ export const PublicacionCard: React.FC<Props> = ({ publicacion, onComentado, onV
                   </button>
                 )}
                 {(publicacion.usuario?.id === usuario?.id || miRol === 'admin' || miRol === 'moderador') && (
-                  <button className={`${styles.dropdownItem} ${styles.dropdownDanger}`} onClick={() => { setMenuAbierto(false); setConfirmDelete(true) }}>
-                    <Trash2 size={14} /> Eliminar
-                  </button>
+                  <>
+                    <button className={`${styles.dropdownItem} ${styles.dropdownDanger}`} onClick={() => { setMenuAbierto(false); setConfirmDelete(true) }}>
+                      <Trash2 size={14} /> Eliminar
+                    </button>
+                    <div className={styles.dropdownSeparator} />
+                  </>
                 )}
                 {publicacion.usuario?.id !== usuario?.id && (
                   <button className={`${styles.dropdownItem} ${styles.dropdownDanger}`} onClick={() => { setMenuAbierto(false); reportar('publicacion', publicacion.id) }}>
