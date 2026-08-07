@@ -258,6 +258,53 @@
   border-radius: var(--radius-full);
 }
 
+.listRow {
+  display: flex;
+  gap: var(--space-6);
+  background: var(--color-fondo);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-borde);
+  position: relative;
+}
+.listRowLeft {
+  width: 150px;
+  flex-shrink: 0;
+}
+.listRowRight {
+  flex: 1;
+  display: flex;
+  gap: var(--space-6);
+}
+.listRowDetails {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-right: var(--space-5);
+}
+.listRowReview {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.btnEliminarItem {
+  background: transparent;
+  color: var(--color-texto-muted);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+.btnEliminarItem:hover {
+  color: #ff4757;
+  background: rgba(255, 71, 87, 0.1);
+}
+
 /* ══════════════════════════════════════════
    MÓVIL ≤ 768px
    ══════════════════════════════════════════ */
@@ -375,6 +422,34 @@
   }
   .folderName {
     font-size: var(--text-sm);
+  }
+  
+  .listRow {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+  .listRowLeft {
+    width: 80px;
+    flex-shrink: 0;
+    margin: 0;
+  }
+  .listRowRight {
+    flex: 1;
+    min-width: 0;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  .listRowDetails {
+    padding-right: 0;
+  }
+  .listRowMetadata {
+    display: none !important;
+  }
+  .listRowReview {
+    display: none !important;
   }
 }
 

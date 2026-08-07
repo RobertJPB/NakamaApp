@@ -9,10 +9,17 @@ import { PublicacionCard } from '../../comunidad/components/PublicacionCard'
 import { FeedItemInteractions } from '../../feed/components/FeedItemInteractions'
 import { FollowListModal } from '../components/FollowListModal'
 import { CrearListaModal } from '../../biblioteca/components/CrearListaModal'
-import { Heart, Clock, Eye, CheckSquare, Layers, PlusCircle, ArrowLeft, Folder } from 'lucide-react'
+import { Heart, Clock, Eye, CheckSquare, Layers, PlusCircle, ArrowLeft, Folder, Trash2 } from 'lucide-react'
 import styles           from './PerfilPage.module.css'
 
 type Tab = 'resenas' | 'listas' | 'actividad' | 'medallas'
+
+const tipoAnimeLabel = (tipo: string) => {
+  const map: Record<string, string> = {
+    'TV': 'TV', 'MOVIE': 'Película', 'OVA': 'OVA', 'ONA': 'ONA', 'SPECIAL': 'Especial', 'MUSIC': 'Música'
+  }
+  return map[tipo] || tipo
+}
 
 export const PerfilPage: React.FC = () => {
   const { username }              = useParams<{ username: string }>()
@@ -51,6 +58,13 @@ export const PerfilPage: React.FC = () => {
   // Estados para las listas
   const [listaSeleccionada, setListaSeleccionada] = useState<any>(null)
   const [showCrearModal, setShowCrearModal] = useState(false)
+
+  // Búsqueda para añadir anime
+  const [showSearch, setShowSearch] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<any[]>([])
+  const [isSearching, setIsSearching] = useState(false)
+  const searchTimeoutRef = React.useRef<any>(null)
 
   // Modal followers state
   const [modalAbierto, setModalAbierto] = useState(false)
@@ -163,6 +177,81 @@ export const PerfilPage: React.FC = () => {
         ...p,
         totalSeguidores: p.totalSeguidores + (prevSiguiendo ? 1 : -1)
       }))
+    }
+  }
+
+  React.useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchResults([])
+      setIsSearching(false)
+      return
+    }
+    setIsSearching(true)
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
+    searchTimeoutRef.current = setTimeout(async () => {
+      try {
+        const { data } = await api.get(`https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(searchQuery)}&page[limit]=5`)
+        setSearchResults(data.data.map((item: any) => ({
+          externalId: item.id,
+          titulo: item.attributes.canonicalTitle,
+          imagenUrl: item.attributes.posterImage?.small || item.attributes.posterImage?.original,
+          coverImage: item.attributes.posterImage,
+          title: { romaji: item.attributes.canonicalTitle },
+        })))
+      } catch (e) {
+        console.error(e)
+      } finally {
+        setIsSearching(false)
+      }
+    }, 500)
+    return () => clearTimeout(searchTimeoutRef.current)
+  }, [searchQuery])
+
+  const handleAgregarAnime = async (anime: any) => {
+    if (!listaSeleccionada) return
+    
+    setShowSearch(false)
+    setSearchQuery('')
+    setSearchResults([])
+
+    // Update optimista
+    setLista(prev => {
+      const existe = prev.find(e => e.animeId === anime.externalId || e.anime?.externalId === anime.externalId)
+      if (existe) {
+        if (!existe.estados?.includes(listaSeleccionada.nombre)) {
+          return prev.map(e => e.animeId === existe.animeId || e.anime?.externalId === anime.externalId
+            ? { ...e, estados: [...(e.estados||[]), listaSeleccionada.nombre] } : e)
+        }
+        return prev
+      }
+      return [...prev, {
+        animeId: anime.externalId,
+        estado: listaSeleccionada.nombre,
+        estados: [listaSeleccionada.nombre],
+        anime: { ...anime, id: anime.externalId },
+        episodiosVistos: 0,
+        calificacion: 0
+      }]
+    })
+
+    try {
+      await api.post('/api/biblioteca', { animeId: anime.externalId, estado: listaSeleccionada.nombre, propietarioId: perfil.id, animeInfo: anime })
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  const eliminarDeLista = async (animeId: string, listaNombre: string) => {
+    setLista(prev => prev.map(e => {
+      if (e.animeId === animeId || e.anime?.externalId === animeId) {
+        return { ...e, estados: e.estados?.filter((s: string) => s !== listaNombre) }
+      }
+      return e
+    }))
+    try {
+      await api.post(`/api/biblioteca/${animeId}/eliminar`, { propietarioId: perfil.id, listaNombre })
+    } catch (e) {
+      console.error(e)
     }
   }
 
@@ -421,34 +510,114 @@ export const PerfilPage: React.FC = () => {
             ) : (
               // Vista interna de una lista seleccionada
               <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                  <button 
-                    onClick={() => setListaSeleccionada(null)}
-                    style={{ background: 'none', border: 'none', color: 'var(--color-texto-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
-                  >
-                    <ArrowLeft size={18} /> Volver a Listas
-                  </button>
-                  <h2 style={{ margin: 0, fontSize: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    {listaSeleccionada.nombre}
-                  </h2>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <button 
+                      onClick={() => setListaSeleccionada(null)}
+                      style={{ background: 'none', border: 'none', color: 'var(--color-texto-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                    >
+                      <ArrowLeft size={18} /> Volver a Listas
+                    </button>
+                    <h2 style={{ margin: 0, fontSize: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      {listaSeleccionada.nombre}
+                    </h2>
+                  </div>
+                  {esMiPerfil && (
+                    <button
+                      onClick={() => setShowSearch(true)}
+                      style={{
+                        background: 'var(--color-acento)', color: '#1f2124',
+                        fontWeight: 700, fontSize: 'var(--text-sm)',
+                        padding: '6px 12px', border: 'none', borderRadius: '6px',
+                        cursor: 'pointer', transition: 'background var(--transition-fast)'
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'var(--color-acento-hover)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'var(--color-acento)'}
+                    >
+                      Añadir Anime
+                    </button>
+                  )}
                 </div>
 
-                <div className={styles.grid}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                   {listaPublica.filter((e: any) => e.estados?.includes(listaSeleccionada.nombre)).length === 0 ? (
-                    <div className={styles.vacioWrap} style={{ gridColumn: '1 / -1' }}>
+                    <div className={styles.vacioWrap}>
                       <p className={styles.vacio}>No hay animes en esta lista.</p>
                     </div>
                   ) : (
-                    listaPublica.filter((e: any) => e.estados?.includes(listaSeleccionada.nombre)).map((entrada: any) => (
-                      <AnimeCard
-                        key={entrada.animeId}
-                        externalId={entrada.anime?.externalId}
-                        titulo={entrada.anime?.titulo}
-                        imagenUrl={entrada.anime?.imagenUrl}
-                        estado={entrada.estado}
-                        calificacion={entrada.calificacion}
-                      />
-                    ))
+                    listaPublica.filter((e: any) => e.estados?.includes(listaSeleccionada.nombre)).map((entrada: any) => {
+                      const resena = resenas.find(r => r.anime?.externalId === entrada.anime?.externalId || r.animeId === entrada.animeId)
+                      return (
+                        <div key={entrada.animeId} className={styles.listRow}>
+                          <div className={styles.listRowLeft}>
+                            <AnimeCard
+                              externalId={entrada.anime?.externalId}
+                              titulo={entrada.anime?.titulo}
+                              imagenUrl={entrada.anime?.imagenUrl}
+                              estado={""}
+                              calificacion={entrada.calificacion}
+                            />
+                          </div>
+                          <div className={styles.listRowRight}>
+                            <div className={styles.listRowDetails}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
+                                <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: 0 }}>
+                                  {entrada.anime?.titulo}
+                                </h2>
+                                {esMiPerfil && (
+                                  <button
+                                    className={styles.btnEliminarItem}
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      eliminarDeLista(entrada.animeId, listaSeleccionada.nombre)
+                                    }}
+                                    title="Eliminar de la lista"
+                                  >
+                                    <Trash2 size={18} />
+                                  </button>
+                                )}
+                              </div>
+                              <div className={styles.listRowMetadata} style={{ display: 'flex', flexDirection: 'column', gap: '8px', color: 'var(--color-texto-muted)', fontSize: '0.9rem' }}>
+                                {entrada.anime?.tipo && (
+                                  <span><strong>Formato:</strong> {tipoAnimeLabel(entrada.anime.tipo)}</span>
+                                )}
+                                {entrada.anime?.estadoEmision && (
+                                  <span><strong>Estado:</strong> {
+                                    entrada.anime.estadoEmision === 'RELEASING' ? 'En Emisión' :
+                                    entrada.anime.estadoEmision === 'FINISHED' ? 'Finalizado' :
+                                    entrada.anime.estadoEmision === 'NOT_YET_RELEASED' ? 'Próximamente' :
+                                    entrada.anime.estadoEmision === 'CANCELLED' ? 'Cancelado' :
+                                    entrada.anime.estadoEmision
+                                  }</span>
+                                )}
+                                <span><strong>Episodios:</strong> {entrada.anime?.episodios || '?'}</span>
+                                {entrada.anime?.demografia && <span><strong>Demografía:</strong> {entrada.anime.demografia}</span>}
+                                <span><strong>Nota General:</strong> ★ {Number(entrada.anime?.calificacionPromedio) > 0 ? Number(entrada.anime.calificacionPromedio).toFixed(1) + '/10' : '?'}</span>
+                                {entrada.episodiosVistos > 0 && <span><strong>Vistos:</strong> {entrada.episodiosVistos}</span>}
+                              </div>
+                            </div>
+                            <div className={styles.listRowReview}>
+                              <h3 style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--color-texto)', marginBottom: '12px' }}>Mi Reseña</h3>
+                              {resena ? (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+                                    <span style={{ color: '#f1c40f', fontWeight: '900', fontSize: '2rem', lineHeight: 1 }}>★ {resena.calificacion}<span style={{ fontSize: '1rem', color: 'var(--color-texto-muted)' }}>/10</span></span>
+                                    <span style={{ color: 'var(--color-texto-muted)', fontSize: '0.85rem', marginLeft: '8px' }}>{new Date(resena.creadoEn).toLocaleDateString()}</span>
+                                  </div>
+                                  {resena.contenido ? (
+                                    <p style={{ margin: 0, color: 'var(--color-texto-suave)', fontSize: '1rem', lineHeight: 1.6, maxWidth: '600px' }}>{resena.contenido}</p>
+                                  ) : (
+                                    <p style={{ margin: 0, color: 'var(--color-texto-muted)', fontSize: '0.9rem' }}>Solo calificación</p>
+                                  )}
+                                </div>
+                              ) : (
+                                <p style={{ color: 'var(--color-texto-muted)', fontSize: '0.9rem', margin: 0 }}>No has escrito ninguna reseña.</p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })
                   )}
                 </div>
               </div>
@@ -512,6 +681,68 @@ export const PerfilPage: React.FC = () => {
         tipo={modalTipo}
         titulo={modalTitulo}
       />
+      {/* Modal de Búsqueda Flotante */}
+      {showSearch && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.8)', zIndex: 9999,
+          display: 'flex', alignItems: 'center', justifyContent: 'center'
+        }} onClick={() => setShowSearch(false)}>
+          <div style={{
+            background: '#121212', padding: '24px', borderRadius: '8px',
+            width: '90%', maxWidth: '500px', border: '1px solid var(--color-borde)',
+            display: 'flex', flexDirection: 'column', gap: '16px'
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>Buscar Anime</h3>
+              <button onClick={() => setShowSearch(false)} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer' }}>✕</button>
+            </div>
+            <input
+              autoFocus
+              placeholder="Escribe el nombre del anime..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              style={{
+                width: '100%', padding: '12px', borderRadius: '4px',
+                background: 'rgba(0,0,0,0.4)', border: '1px solid var(--color-borde-suave)',
+                color: '#fff', fontSize: '1rem'
+              }}
+            />
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '300px', overflowY: 'auto' }}>
+              {isSearching ? (
+                <p style={{ color: 'var(--color-texto-muted)', textAlign: 'center' }}>Buscando...</p>
+              ) : searchResults.length > 0 ? (
+                searchResults.map(anime => (
+                  <div 
+                    key={anime.id || anime.externalId || anime.titulo}
+                    style={{
+                      display: 'flex', gap: '12px', padding: '8px', borderRadius: '4px',
+                      background: 'rgba(0,0,0,0.4)', cursor: 'pointer', alignItems: 'center'
+                    }}
+                    onClick={() => handleAgregarAnime(anime)}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(0,0,0,0.6)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'rgba(0,0,0,0.4)')}
+                  >
+                    <img 
+                      src={anime.imagenUrl || anime.coverImage?.large || 'https://placehold.co/40x56/1e2023/5c6066?text=?'} 
+                      alt={anime.titulo || anime.title?.romaji || 'Anime'} 
+                      style={{ width: '40px', height: '56px', objectFit: 'cover', borderRadius: '4px' }} 
+                      onError={(e) => { e.currentTarget.src = 'https://placehold.co/40x56/1e2023/5c6066?text=?' }}
+                    />
+                    <div style={{ flex: 1 }}>
+                      <h4 style={{ fontSize: '0.9rem', margin: 0 }}>{anime.titulo || anime.title?.romaji}</h4>
+                    </div>
+                    <span style={{ color: 'var(--color-acento)', fontSize: '0.8rem', fontWeight: 'bold' }}>+ Añadir</span>
+                  </div>
+                ))
+              ) : searchQuery ? (
+                <p style={{ color: 'var(--color-texto-muted)', textAlign: 'center' }}>No se encontraron resultados</p>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      )}
     </Layout>
   )
 }

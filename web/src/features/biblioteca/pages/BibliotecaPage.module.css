@@ -437,7 +437,17 @@
     display: none !important;
   }
   .listRowReview {
-    width: 100%;
-    margin-top: var(--space-2);
+    display: none !important;
+  }
+  
+  .folderGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+  }
+  .folderCard {
+    padding: var(--space-3);
+  }
+  .folderName {
+    font-size: var(--text-sm);
   }
 }
