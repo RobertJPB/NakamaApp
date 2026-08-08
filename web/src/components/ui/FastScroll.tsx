@@ -4,11 +4,11 @@ import styles from './FastScroll.module.css';
 
 export const FastScroll = () => {
   const [isActive, setIsActive] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
+  const indicatorRef = useRef<HTMLDivElement>(null);
   const activeRef = useRef(false);
+  const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
-    // Only apply on touch devices
     if (!('ontouchstart' in window)) return;
 
     let startY = 0;
@@ -18,7 +18,6 @@ export const FastScroll = () => {
 
     const handleTouchStart = (e: TouchEvent) => {
       const touch = e.touches[0];
-      // Check if touch is near the right edge (within 40px)
       if (window.innerWidth - touch.clientX < 40) {
         isMonitoring = true;
         startY = touch.clientY;
@@ -28,17 +27,17 @@ export const FastScroll = () => {
           if (isMonitoring) {
             activeRef.current = true;
             setIsActive(true);
-            updateScroll(startY);
+            triggerScroll(startY);
             if (navigator.vibrate) navigator.vibrate(50);
           }
-        }, 300); // 300ms long press
+        }, 200); // reduced to 200ms to feel more responsive
       }
     };
 
     const handleTouchMove = (e: TouchEvent) => {
       if (activeRef.current) {
-        e.preventDefault(); 
-        updateScroll(e.touches[0].clientY);
+        if (e.cancelable) e.preventDefault();
+        triggerScroll(e.touches[0].clientY);
       } else if (isMonitoring) {
         const touch = e.touches[0];
         const dy = Math.abs(touch.clientY - startY);
@@ -60,21 +59,32 @@ export const FastScroll = () => {
       }
     };
 
-    const updateScroll = (y: number) => {
-      const margin = 50; 
-      const usableHeight = window.innerHeight - margin * 2;
-      const clampedY = Math.max(0, Math.min(y - margin, usableHeight));
-      const percentage = clampedY / usableHeight;
-      setScrollProgress(percentage);
+    const triggerScroll = (y: number) => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
       
-      const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
-      window.scrollTo({
-        top: percentage * scrollHeight,
-        behavior: 'auto'
+      rafRef.current = requestAnimationFrame(() => {
+        const margin = 40; 
+        const usableHeight = window.innerHeight - margin * 2;
+        const clampedY = Math.max(0, Math.min(y - margin, usableHeight));
+        const percentage = clampedY / usableHeight;
+        
+        // Update DOM directly for max performance (no React render)
+        if (indicatorRef.current) {
+          const pixelY = margin + (percentage * usableHeight);
+          // center the thumb vertically by subtracting 22px (half of 44px)
+          indicatorRef.current.style.transform = `translateY(${pixelY - 22}px)`;
+        }
+        
+        const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+        window.scrollTo({
+          top: percentage * scrollHeight,
+          behavior: 'auto'
+        });
       });
     };
 
     document.addEventListener('touchstart', handleTouchStart, { passive: true });
+    // Use { passive: false } to allow preventDefault which stops native scrolling
     document.addEventListener('touchmove', handleTouchMove, { passive: false });
     document.addEventListener('touchend', handleTouchEnd);
     document.addEventListener('touchcancel', handleTouchEnd);
@@ -84,13 +94,14 @@ export const FastScroll = () => {
       document.removeEventListener('touchmove', handleTouchMove);
       document.removeEventListener('touchend', handleTouchEnd);
       document.removeEventListener('touchcancel', handleTouchEnd);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
   }, []);
 
   if (!isActive) return null;
 
   return (
-    <div className={styles.indicator} style={{ top: `calc(50px + ${scrollProgress * (window.innerHeight - 100)}px)` }}>
+    <div ref={indicatorRef} className={styles.indicator}>
       <div className={styles.thumb}>
         <ChevronsUpDown size={20} color="#ffffff" />
       </div>
