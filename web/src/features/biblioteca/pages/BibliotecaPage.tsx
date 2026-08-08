@@ -175,8 +175,8 @@ export const BibliotecaPage: React.FC = () => {
                     key={col.id} 
                     className={styles.folderCard}
                     onClick={() => setListaSeleccionada(col)}
-                    style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: 'var(--space-4)', cursor: 'pointer', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-borde-suave)' }}
                   >
+                    <div style={{ display: 'flex', flexDirection: 'column', width: '100%', alignItems: 'flex-start' }}>
                     {col.imagenUrl && (
                       <div style={{ width: '100%', height: '120px', marginBottom: '12px', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
                         <img src={col.imagenUrl} alt={col.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -194,6 +194,7 @@ export const BibliotecaPage: React.FC = () => {
                         {col.descripcion}
                       </div>
                     )}
+                    </div>
                   </div>
                 )
               })
@@ -226,7 +227,7 @@ export const BibliotecaPage: React.FC = () => {
             />
             <div style={{
               position: 'absolute', inset: 0,
-              background: 'linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.85) 100%)'
+              background: 'linear-gradient(to bottom, transparent 10%, rgba(0,0,0,0.95) 100%)'
             }} />
             <div style={{ position: 'absolute', bottom: '20px', left: '24px', right: '24px' }}>
               <div className={styles.listHeaderContent}>
@@ -260,13 +261,13 @@ export const BibliotecaPage: React.FC = () => {
                       <button
                         onClick={handleInvitar}
                         style={{
-                          background: 'transparent', color: 'var(--color-texto)',
+                          background: 'rgba(0,0,0,0.6)', color: 'var(--color-texto)', backdropFilter: 'blur(4px)',
                           fontWeight: 700, fontSize: 'var(--text-sm)',
-                          padding: '8px 16px', border: '1px solid var(--color-borde)', borderRadius: '8px',
+                          padding: '8px 16px', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px',
                           cursor: 'pointer', transition: 'background var(--transition-fast)', flexShrink: 0
                         }}
-                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
-                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.8)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0.6)'}
                       >
                         Invitar Colaborador
                       </button>
@@ -280,13 +281,13 @@ export const BibliotecaPage: React.FC = () => {
                       window.location.reload()
                     }}
                     style={{
-                      background: 'transparent', color: 'var(--color-texto)',
+                      background: 'rgba(0,0,0,0.6)', color: 'var(--color-texto)', backdropFilter: 'blur(4px)',
                       fontWeight: 700, fontSize: 'var(--text-sm)',
-                      padding: '8px 16px', border: '1px solid var(--color-borde)', borderRadius: '8px',
+                      padding: '8px 16px', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px',
                       cursor: 'pointer', transition: 'background var(--transition-fast)', flexShrink: 0
                     }}
-                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.8)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0.6)'}
                   >
                     Dejar de guardar
                   </button>
