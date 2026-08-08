@@ -628,9 +628,17 @@ export const PerfilPage: React.FC = () => {
                                     entrada.anime.estadoEmision
                                   }</span>
                                 )}
-                                <span><strong>Episodios:</strong> {entrada.anime?.episodios || '?'}</span>
+                                <span><strong>Episodios:</strong> {
+                                  entrada.anime?.titulo?.toLowerCase().includes('one piece') ? '+1000' :
+                                  (entrada.anime?.episodios ? entrada.anime.episodios : '?')
+                                }</span>
                                 {entrada.anime?.demografia && <span><strong>Demografía:</strong> {entrada.anime.demografia}</span>}
-                                <span><strong>Nota General:</strong> <span style={{ color: '#f1c40f' }}>★</span> {Number(entrada.anime?.calificacionPromedio) > 0 ? Number(entrada.anime.calificacionPromedio).toFixed(1) + '/10' : '?'}</span>
+                                <span><strong>Nota General:</strong> <span style={{ color: '#f1c40f' }}>★</span> {Number(entrada.anime?.calificacionPromedio) > 0 ? Number(entrada.anime.calificacionPromedio).toFixed(1) : '?'}</span>
+                                {resena?.calificacion && (
+                                  <span style={{ fontSize: '1rem', color: 'var(--color-texto)', marginTop: '4px' }}>
+                                    <strong>Tu Calificación:</strong> <span style={{ color: '#f1c40f' }}>★</span> <strong>{resena.calificacion}</strong>
+                                  </span>
+                                )}
                                 {entrada.episodiosVistos > 0 && <span><strong>Vistos:</strong> {entrada.episodiosVistos}</span>}
                               </div>
                             </div>
