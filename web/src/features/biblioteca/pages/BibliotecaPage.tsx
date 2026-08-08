@@ -415,7 +415,7 @@ export const BibliotecaPage: React.FC = () => {
                     />
                   </div>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', fontSize: '0.75rem', color: '#b0b3b8', padding: '0 2px', position: 'relative' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', fontSize: '0.75rem', color: '#b0b3b8', padding: '0 2px', position: 'relative', width: '100%' }}>
                     <button
                       onClick={(e) => {
                         e.stopPropagation()
