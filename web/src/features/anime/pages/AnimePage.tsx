@@ -202,7 +202,6 @@ export const AnimePage: React.FC = () => {
                 <div className={styles.statItem} title="Nota general">
                   <span className={styles.statIconTextStar} style={{ color: '#f1c40f' }}>★</span>
                   <span style={{ color: '#f1c40f', fontWeight: 800 }}>{promedioVisual}</span>
-                  <span style={{ color: 'var(--color-texto-muted)', fontSize: '10px', marginLeft: '1px' }}>/10</span>
                 </div>
                 {miCalificacion !== null && (
                   <div className={styles.statItem} title="Tu calificación">
