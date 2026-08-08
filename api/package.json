@@ -5,6 +5,7 @@
     "dev": "tsx watch src/server.ts",
     "worker": "tsx src/worker.ts",
     "sync:ranking": "tsx scripts/sync-mal-ranking.ts",
+    "sync:sinopsis": "tsx scripts/retraducir-sinopsis.ts",
     "build": "tsc",
     "start": "node dist/server.js",
     "lint": "eslint .",
