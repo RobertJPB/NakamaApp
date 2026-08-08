@@ -17,9 +17,9 @@ type Tab = 'resenas' | 'listas' | 'actividad' | 'medallas'
 
 const tipoAnimeLabel = (tipo: string) => {
   const map: Record<string, string> = {
-    'TV': 'TV', 'MOVIE': 'Película', 'OVA': 'OVA', 'ONA': 'ONA', 'SPECIAL': 'Especial', 'MUSIC': 'Música'
+    'TV': 'Anime', 'TV_SHORT': 'Corto', 'MOVIE': 'Película', 'OVA': 'OVA', 'ONA': 'ONA', 'SPECIAL': 'Especial', 'MUSIC': 'Música'
   }
-  return map[tipo] || tipo
+  return map[tipo.toUpperCase()] || tipo
 }
 
 export const PerfilPage: React.FC = () => {
@@ -588,32 +588,13 @@ export const PerfilPage: React.FC = () => {
                   ) : (
                     listaPublica.filter((e: any) => e.estados?.includes(listaSeleccionada.nombre)).map((entrada: any) => {
                       const resena = resenas.find(r => r.anime?.externalId === entrada.anime?.externalId || r.animeId === entrada.animeId)
-                      const tipoLabel = entrada.anime?.tipo?.toLowerCase() === 'tv' ? 'Anime' :
-                        entrada.anime?.tipo?.toLowerCase() === 'movie' ? 'Película' :
-                        entrada.anime?.tipo?.toLowerCase() === 'ova' ? 'OVA' :
-                        entrada.anime?.tipo?.toLowerCase() === 'ona' ? 'ONA' :
-                        entrada.anime?.tipo?.toLowerCase() === 'special' ? 'Especial' :
-                        entrada.anime?.tipo || ''
+                      const tipoLabel = tipoAnimeLabel(entrada.anime?.tipo || '')
                       return (
                         <div key={entrada.animeId} className={styles.listRow}
-                          style={{ flexDirection: 'column', gap: '4px', padding: '10px', cursor: 'pointer', position: 'relative' }}
+                          style={{ flexDirection: 'column', gap: '4px', padding: '8px', cursor: 'pointer' }}
                           onClick={() => window.location.href = `/anime/${entrada.anime?.externalId}`}
                         >
-                          {esMiPerfil && (
-                            <button
-                              className={styles.btnEliminarItem}
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                setConfirmModal({ animeId: entrada.animeId, listaNombre: listaSeleccionada.nombre })
-                              }}
-                              title="Eliminar de la lista"
-                              style={{ position: 'absolute', top: 4, right: 4, zIndex: 10, color: '#aaa', background: 'none', border: 'none', padding: 0, cursor: 'pointer', lineHeight: 1 }}
-                            >
-                              <X size={14} />
-                            </button>
-                          )}
-
-                          <div style={{ width: '100%', marginTop: '18px' }}>
+                          <div style={{ width: '100%' }}>
                             <AnimeCard
                               externalId={entrada.anime?.externalId}
                               titulo={entrada.anime?.titulo}
@@ -625,13 +606,27 @@ export const PerfilPage: React.FC = () => {
                           </div>
 
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', fontSize: '0.75rem', color: '#b0b3b8', padding: '0 2px' }}>
-                            <span>
-                              <span style={{ color: '#f1c40f' }}>★</span>{' '}
-                              {Number(entrada.anime?.calificacionPromedio) > 0 ? Number(entrada.anime.calificacionPromedio).toFixed(1) : '—'}
-                              {entrada.anime?.estadoEmision && (
-                                <span style={{ marginLeft: '6px', opacity: 0.7 }}>
-                                  · {entrada.anime.estadoEmision === 'RELEASING' ? 'En emisión' : entrada.anime.estadoEmision === 'FINISHED' ? 'Finalizado' : entrada.anime.estadoEmision === 'NOT_YET_RELEASED' ? 'Próx.' : ''}
-                                </span>
+                            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                              <span>
+                                <span style={{ color: '#f1c40f' }}>★</span>{' '}
+                                {Number(entrada.anime?.calificacionPromedio) > 0 ? Number(entrada.anime.calificacionPromedio).toFixed(1) : '—'}
+                                {entrada.anime?.estadoEmision && (
+                                  <span style={{ marginLeft: '6px', opacity: 0.7 }}>
+                                    · {entrada.anime.estadoEmision === 'RELEASING' ? 'En emisión' : entrada.anime.estadoEmision === 'FINISHED' ? 'Finalizado' : entrada.anime.estadoEmision === 'NOT_YET_RELEASED' ? 'Próx.' : ''}
+                                  </span>
+                                )}
+                              </span>
+                              {esMiPerfil && (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    setConfirmModal({ animeId: entrada.animeId, listaNombre: listaSeleccionada.nombre })
+                                  }}
+                                  style={{ background: 'none', border: 'none', color: '#666', cursor: 'pointer', padding: 0, lineHeight: 1, flexShrink: 0 }}
+                                  title="Eliminar de la lista"
+                                >
+                                  <Trash2 size={13} />
+                                </button>
                               )}
                             </span>
 

@@ -10,7 +10,7 @@ const TIPO_LABELS: Record<string, string> = {
 
 export function tipoAnimeLabel(tipo?: string | null): string {
   if (!tipo) return ''
-  return TIPO_LABELS[tipo] ?? tipo
+  return TIPO_LABELS[tipo.toUpperCase()] ?? tipo
 }
 
 const GENERO_MAP: Record<string, string> = {
