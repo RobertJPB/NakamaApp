@@ -76,10 +76,7 @@ export const FastScroll = () => {
         }
         
         const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
-        window.scrollTo({
-          top: percentage * scrollHeight,
-          behavior: 'auto'
-        });
+        window.scrollTo(0, percentage * scrollHeight);
       });
     };
 

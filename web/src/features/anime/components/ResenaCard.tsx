@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { api }             from '../../../lib/axios'
 import styles              from './ResenaCard.module.css'
 import { Star, StarHalf }  from 'lucide-react'
@@ -11,6 +11,14 @@ export const ResenaCard: React.FC<ResenaCardProps> = ({ resena }) => {
   const [liked,   setLiked]   = useState(false)
   const [spoiler, setSpoiler] = useState(false)
   const [expanded, setExpanded] = useState(false)
+  const [showVerMas, setShowVerMas] = useState(false)
+  const textRef = useRef<HTMLParagraphElement>(null)
+
+  useEffect(() => {
+    if (textRef.current && !expanded) {
+      setShowVerMas(textRef.current.scrollHeight > textRef.current.clientHeight)
+    }
+  }, [resena.contenido, spoiler])
 
   const toggleLike = async () => {
     try {
@@ -62,10 +70,10 @@ export const ResenaCard: React.FC<ResenaCardProps> = ({ resena }) => {
               </div>
             ) : (
               <>
-                <p className={`${styles.entradaResena} ${expanded ? styles.expanded : ''}`}>
+                <p ref={textRef} className={`${styles.entradaResena} ${expanded ? styles.expanded : ''}`}>
                   {resena.contenido}
                 </p>
-                {(resena.contenido.length > 150 || resena.contenido.split('\n').length > 4) && !expanded && (
+                {showVerMas && !expanded && (
                   <button className={styles.verMasTextBtn} onClick={() => setExpanded(true)}>
                     Ver más
                   </button>
