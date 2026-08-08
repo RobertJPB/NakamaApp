@@ -140,16 +140,22 @@ export class BibliotecaController {
         targetUserId = propietarioId
       }
 
+      let animeIdEnDb = animeId
+      if (animeIdEnDb && !animeIdEnDb.includes('-')) {
+        const { anime } = await container.obtenerDetalleAnime.execute(String(animeIdEnDb))
+        animeIdEnDb = anime.id
+      }
+
       const entrada = await container.agregarALista.execute({
         usuarioId: targetUserId,
-        animeId: animeId,
+        animeId: animeIdEnDb,
         estado: estado,
         episodiosVistos: episodiosVistos,
         esPrivada: esPrivada,
         notasPrivadas: notasPrivadas,
       })
 
-      const animeDb = await prisma.anime.findUnique({ where: { id: animeId }, select: { externalId: true } })
+      const animeDb = await prisma.anime.findUnique({ where: { id: animeIdEnDb }, select: { externalId: true } })
       if (animeDb?.externalId) invalidateDetalleAnimeCache(animeDb.externalId)
 
       res.status(201).json(entrada)
@@ -166,9 +172,15 @@ export class BibliotecaController {
       // Note: For actualizar, we might need to check if the anime is in a collaborated list.
       // But usually 'actualizar' is for episodes/score, which is more complex in shared lists.
       // For now, allow it if it's their own or they specify propietarioId.
+      let animeIdEnDb = req.params.animeId
+      if (animeIdEnDb && !animeIdEnDb.includes('-')) {
+        const { anime } = await container.obtenerDetalleAnime.execute(String(animeIdEnDb))
+        animeIdEnDb = anime.id
+      }
+
       const entrada = await container.agregarALista.execute({
         usuarioId: targetUserId,
-        animeId: req.params.animeId,
+        animeId: animeIdEnDb,
         ...req.body,
       })
       res.json(entrada)
@@ -192,12 +204,18 @@ export class BibliotecaController {
         targetUserId = propietarioId
       }
 
+      let animeIdEnDb = req.params.animeId
+      if (animeIdEnDb && !animeIdEnDb.includes('-')) {
+        const { anime } = await container.obtenerDetalleAnime.execute(String(animeIdEnDb))
+        animeIdEnDb = anime.id
+      }
+
       await container.eliminarDeLista.execute({
         usuarioId: targetUserId,
-        animeId: req.params.animeId,
+        animeId: animeIdEnDb,
       })
 
-      const animeDb = await prisma.anime.findUnique({ where: { id: req.params.animeId }, select: { externalId: true } })
+      const animeDb = await prisma.anime.findUnique({ where: { id: animeIdEnDb }, select: { externalId: true } })
       if (animeDb?.externalId) invalidateDetalleAnimeCache(animeDb.externalId)
 
       res.status(204).send()

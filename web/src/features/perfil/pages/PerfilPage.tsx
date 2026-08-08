@@ -751,15 +751,21 @@ export const PerfilPage: React.FC = () => {
               {isSearching ? (
                 <p style={{ color: 'var(--color-texto-muted)', textAlign: 'center' }}>Buscando...</p>
               ) : searchResults.length > 0 ? (
-                searchResults.map(anime => (
+                searchResults.map(anime => {
+                  const yaEsta = listaSeleccionada ? lista.some(e => 
+                    (e.animeId === (anime.externalId || anime.id) || e.anime?.externalId === (anime.externalId || anime.id)) &&
+                    e.estados?.includes(listaSeleccionada.nombre)
+                  ) : false;
+
+                  return (
                   <div 
                     key={anime.id || anime.externalId || anime.titulo}
                     style={{
                       display: 'flex', gap: '12px', padding: '8px', borderRadius: '4px',
-                      background: 'rgba(0,0,0,0.4)', cursor: 'pointer', alignItems: 'center'
+                      background: 'rgba(0,0,0,0.4)', cursor: yaEsta ? 'default' : 'pointer', alignItems: 'center'
                     }}
-                    onClick={() => handleAgregarAnime(anime)}
-                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(0,0,0,0.6)')}
+                    onClick={() => !yaEsta && handleAgregarAnime(anime)}
+                    onMouseEnter={e => !yaEsta && (e.currentTarget.style.background = 'rgba(0,0,0,0.6)')}
                     onMouseLeave={e => (e.currentTarget.style.background = 'rgba(0,0,0,0.4)')}
                   >
                     <img 
@@ -768,20 +774,22 @@ export const PerfilPage: React.FC = () => {
                       style={{ width: '40px', height: '56px', objectFit: 'cover', borderRadius: '4px' }} 
                       onError={(e) => { e.currentTarget.src = 'https://placehold.co/40x56/1e2023/5c6066?text=?' }}
                     />
-                    <div style={{ flex: 1 }}>
-                      <h4 style={{ fontSize: '0.9rem', margin: 0 }}>{anime.titulo || anime.title?.romaji}</h4>
-                    </div>
-                    {addingStates[anime.id || anime.externalId || anime.titulo] === 'adding' ? (
+                      <div style={{ flex: 1 }}>
+                        <h4 style={{ fontSize: '0.9rem', margin: 0 }}>{anime.titulo || anime.title?.romaji}</h4>
+                      </div>
+                      {yaEsta ? (
+                        <span style={{ color: 'var(--color-texto-muted)', fontSize: '0.8rem', fontWeight: 'bold' }}>En lista</span>
+                    ) : addingStates[anime.id || anime.externalId || anime.titulo] === 'adding' ? (
                       <span style={{ color: '#b0b3b8', fontSize: '0.8rem' }}>Añadiendo...</span>
                     ) : addingStates[anime.id || anime.externalId || anime.titulo] === 'added' ? (
                       <span style={{ color: '#27ae60', fontSize: '0.8rem', fontWeight: 'bold' }}>Añadido</span>
                     ) : addingStates[anime.id || anime.externalId || anime.titulo] === 'error' ? (
-                      <span style={{ color: '#e74c3c', fontSize: '0.8rem', fontWeight: 'bold' }}>Error / Ya está</span>
+                      <span style={{ color: '#e74c3c', fontSize: '0.8rem', fontWeight: 'bold' }}>Error</span>
                     ) : (
                       <span style={{ color: 'var(--color-acento)', fontSize: '0.8rem', fontWeight: 'bold' }}>+ Añadir</span>
                     )}
                   </div>
-                ))
+                )})
               ) : searchQuery ? (
                 <p style={{ color: 'var(--color-texto-muted)', textAlign: 'center' }}>No se encontraron resultados</p>
               ) : null}
