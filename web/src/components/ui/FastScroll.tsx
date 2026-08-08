@@ -13,7 +13,7 @@ export const FastScroll = () => {
 
     let startY = 0;
     let startX = 0;
-    let longPressTimer: NodeJS.Timeout | null = null;
+    let longPressTimer: ReturnType<typeof setTimeout> | null = null;
     let isMonitoring = false;
 
     const handleTouchStart = (e: TouchEvent) => {
