@@ -53,6 +53,7 @@
 }
 
 .commentsSection {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
@@ -60,6 +61,19 @@
   padding: var(--space-4) 0 0 0;
   margin-top: var(--space-3);
   border-top: 1px solid var(--color-borde-suave);
+}
+
+/* Conector: la línea sale desde la publicación hacia el primer comentario */
+.commentsSection.hasThread::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 15px;
+  width: 2px;
+  height: var(--space-4);
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 2px;
+  pointer-events: none;
 }
 
 .loading, .noComments {
@@ -80,18 +94,6 @@
   gap: var(--space-3);
   position: relative;
   width: 100%;
-}
-
-/* Thread line connecting avatars */
-.comment:not(:last-child)::before {
-  content: '';
-  position: absolute;
-  top: 36px; /* Just below the avatar */
-  bottom: calc(-1 * var(--space-4)); /* Stretch through the gap to the next comment */
-  left: 15px; /* Center of 32px avatar */
-  width: 2px;
-  background-color: var(--color-surface-2);
-  z-index: 0;
 }
 
 .commentAvatarWrap {
@@ -272,42 +274,52 @@
 }
 
 .commentNode {
+  --thread-color: rgba(255, 255, 255, 0.18);
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
   position: relative;
 }
 
+/* Línea vertical de este comentario: baja desde su avatar y atraviesa sus respuestas */
+.commentNode::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 15px; /* centro del avatar de 32px */
+  width: 2px;
+  background: var(--thread-color);
+  border-radius: 2px;
+  pointer-events: none;
+  transition: background 0.2s;
+}
+
 .repliesContainer {
-  --thread-color: var(--color-borde);
+  --thread-indent: 28px;
   position: relative;
-  border-left: 2px solid var(--thread-color);
-  margin-left: 14px; /* lines up with middle of a 28px avatar */
-  padding-left: 14px;
+  margin-top: var(--space-2);
+  padding-left: var(--thread-indent);
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  margin-top: var(--space-2);
-  transition: border-color 0.2s;
 }
 
-/* Codo horizontal estilo Reddit que conecta la línea vertical del padre con esta respuesta */
+/* Codo horizontal: une la línea del padre con la primera respuesta */
 .repliesContainer::before {
   content: '';
   position: absolute;
   top: 0;
-  left: -2px;
-  width: 16px;
+  left: 15px;
+  width: calc(var(--thread-indent) - 13px);
   height: 2px;
-  background: var(--thread-color);
+  background: var(--thread-color, var(--color-borde));
   border-radius: 2px;
+  pointer-events: none;
   transition: background 0.2s;
 }
 
-.repliesContainer:hover {
-  border-left-color: var(--color-acento);
-}
-
+.commentNode:hover::before,
 .repliesContainer:hover::before {
   background: var(--color-acento);
 }
@@ -335,6 +347,10 @@
 
 /* ─── Móvil: separar el menú de 3 puntos del contenido del comentario ─── */
 @media (max-width: 600px) {
+  .repliesContainer {
+    --thread-indent: 24px;
+  }
+
   .commentHeader {
     align-items: flex-start;
   }

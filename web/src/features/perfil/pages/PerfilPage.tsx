@@ -52,6 +52,11 @@ export const PerfilPage: React.FC = () => {
     const cachedResenas = getCached(`/api/resenas/usuario/${cachedPerfil.id}`)
     return !cachedResenas
   })
+  const [cargandoListas, setCargandoListas] = useState(() => {
+    const cachedPerfil = getCached(`/api/usuarios/${usernameLimpio}`)
+    if (!cachedPerfil) return true
+    return !getCached(`/api/biblioteca/${cachedPerfil.id}/columnas`)
+  })
   
   const [actividadFeed, setActividadFeed] = useState<any[]>([])
   const [cargandoActividad, setCargandoActividad] = useState(false)
@@ -116,31 +121,43 @@ export const PerfilPage: React.FC = () => {
   useEffect(() => {
     if (!username) return
     let cancelled = false
-    
-    // Solo reseteamos errorNotFound si vamos a buscar de nuevo
-    if (!getCached(`/api/usuarios/${usernameLimpio}`)) {
-      setErrorNotFound(false)
-    }
 
-    // Fetch perfil first, then immediately fetch lista + resenas in parallel
+    // Reset con caché: al navegar entre perfiles no debe quedar el perfil anterior visible
+    const cachedPerfil = getCached(`/api/usuarios/${usernameLimpio}`)
+    setPerfil(cachedPerfil)
+    setSiguiendo(cachedPerfil?.esSeguido ?? false)
+    if (cachedPerfil) {
+      setLista(getCached(`/api/biblioteca/${cachedPerfil.id}`)?.lista ?? [])
+      setColumnas(getCached(`/api/biblioteca/${cachedPerfil.id}/columnas`)?.columnas ?? [])
+      setResenas(getCached(`/api/resenas/usuario/${cachedPerfil.id}`)?.resenas ?? [])
+    } else {
+      setLista([])
+      setColumnas([])
+      setResenas([])
+    }
+    setCargandoResenas(cachedPerfil ? !getCached(`/api/resenas/usuario/${cachedPerfil.id}`) : true)
+    setCargandoListas(cachedPerfil ? !getCached(`/api/biblioteca/${cachedPerfil.id}/columnas`) : true)
+    setErrorNotFound(false)
+
+    // Fetch perfil; apenas llega renderizamos el header y cargamos el resto en paralelo
     api.get(`/api/usuarios/${usernameLimpio}`)
-      .then(async ({ data: perfilData }) => {
+      .then(({ data: perfilData }) => {
         if (cancelled) return
         setSiguiendo(perfilData.esSeguido ?? false)
-        
-        // Fetch lista + resenas + columnas in parallel using perfil.id
-        const [listaRes, resenasRes, columnasRes] = await Promise.all([
+        setPerfil(perfilData)
+
+        return Promise.all([
           api.get(`/api/biblioteca/${perfilData.id}`).catch(() => ({ data: { lista: [] } })),
           api.get(`/api/resenas/usuario/${perfilData.id}`).catch(() => ({ data: { resenas: [] } })),
           api.get(`/api/biblioteca/${perfilData.id}/columnas`).catch(() => ({ data: [] }))
-        ])
-        
-        if (cancelled) return
-        setLista(listaRes.data.lista ?? [])
-        setResenas(resenasRes.data.resenas ?? [])
-        setColumnas(columnasRes.data.columnas ?? [])
-        setCargandoResenas(false)
-        setPerfil(perfilData) // Set perfil LAST so page renders once everything is ready
+        ]).then(([listaRes, resenasRes, columnasRes]) => {
+          if (cancelled) return
+          setLista(listaRes.data.lista ?? [])
+          setResenas(resenasRes.data.resenas ?? [])
+          setColumnas(columnasRes.data.columnas ?? [])
+          setCargandoResenas(false)
+          setCargandoListas(false)
+        })
       })
       .catch((err) => {
         console.error("Error loading profile:", err)
@@ -294,6 +311,10 @@ export const PerfilPage: React.FC = () => {
   // Show skeleton while loading all data (perfil + lista + resenas together)
   if (!perfil) return (
     <Layout>
+      <div className={styles.loadingIndicator}>
+        <div className={styles.spinner} />
+        <span>Cargando perfil...</span>
+      </div>
       <div className={styles.bannerWrap}><div className={styles.bannerDefault} /></div>
       <div className={styles.header}>
         <div className={styles.avatarWrap}>
@@ -469,7 +490,11 @@ export const PerfilPage: React.FC = () => {
                 </div>
 
                 <div className={styles.folderGrid}>
-                  {columnasVisibles.length === 0 ? (
+                  {cargandoListas ? (
+                    Array.from({ length: 4 }).map((_, i) => (
+                      <div key={i} className={styles.folderCard} style={{ minHeight: 150, cursor: 'default', pointerEvents: 'none', animation: 'pulse 1.5s ease-in-out infinite', animationDelay: `${i * 0.15}s` }} />
+                    ))
+                  ) : columnasVisibles.length === 0 ? (
                     <div className={styles.vacioWrap} style={{ gridColumn: '1 / -1' }}>
                       <p className={styles.vacio}>Aún no hay listas creadas.</p>
                     </div>

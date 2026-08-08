@@ -15,8 +15,8 @@ interface FeedItemInteractionsProps {
   onDeleted: (id: string) => void
 }
 
-// Paleta de líneas de hilo estilo Reddit: cada nivel de anidamiento usa un color distinto
-const THREAD_COLORS = ['#4f8cff', '#4fca76', '#f2a33c', '#ee4e6a', '#9b6cf0', '#2bb3a3']
+// Líneas de hilo estilo Reddit: primer nivel neutro, niveles profundos con colores suaves (sin verde)
+const THREAD_COLORS = ['#5f8cd6', '#a07ad9', '#d9a25f', '#d97a7a', '#5fa8a0']
 
 export const FeedItemInteractions: React.FC<FeedItemInteractionsProps> = ({
   itemId,
@@ -37,6 +37,7 @@ export const FeedItemInteractions: React.FC<FeedItemInteractionsProps> = ({
   const [newComment, setNewComment] = useState('')
   const [loadingComments, setLoadingComments] = useState(false)
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
+  const [commentToDelete, setCommentToDelete] = useState<string | null>(null)
   const [openMenuId, setOpenMenuId] = useState<string | null>(null)
 
   const menuRef = useRef<HTMLDivElement | null>(null)
@@ -190,10 +191,10 @@ export const FeedItemInteractions: React.FC<FeedItemInteractionsProps> = ({
 
   const renderCommentNode = (c: any, depth = 0) => {
     const isReplying = replyingTo === c.id
-    const threadColor = THREAD_COLORS[(depth + 1) % THREAD_COLORS.length]
-    
+    const spineColor = depth === 0 ? undefined : THREAD_COLORS[(depth - 1) % THREAD_COLORS.length]
+
     return (
-      <div key={c.id} className={styles.commentNode}>
+      <div key={c.id} className={styles.commentNode} style={{ '--thread-color': spineColor } as React.CSSProperties}>
         <div className={styles.comment}>
           <div className={styles.commentAvatarWrap}>
             <img src={c.usuario?.avatarUrl || `https://ui-avatars.com/api/?name=${c.usuario?.username}`} alt="avatar" className={styles.commentAvatar} />
@@ -218,7 +219,7 @@ export const FeedItemInteractions: React.FC<FeedItemInteractionsProps> = ({
                   {openMenuId === c.id && (
                     <div className={styles.dropdown}>
                       {c.usuario?.id === usuario.id && (
-                        <button className={`${styles.dropdownItem} ${styles.dropdownDanger}`} onClick={() => { setOpenMenuId(null); handleDeleteComment(c.id); }}>
+                        <button className={`${styles.dropdownItem} ${styles.dropdownDanger}`} onClick={() => { setOpenMenuId(null); setCommentToDelete(c.id); }}>
                           <Trash2 size={14} /> Eliminar
                         </button>
                       )}
@@ -270,7 +271,7 @@ export const FeedItemInteractions: React.FC<FeedItemInteractionsProps> = ({
 
         {/* Hijos recursively */}
         {c.respuestas && c.respuestas.length > 0 && (
-          <div className={styles.repliesContainer} style={{ '--thread-color': threadColor } as React.CSSProperties}>
+          <div className={styles.repliesContainer} style={{ '--thread-color': THREAD_COLORS[depth % THREAD_COLORS.length] } as React.CSSProperties}>
             {c.respuestas.map((r: any) => renderCommentNode(r, depth + 1))}
           </div>
         )}
@@ -296,7 +297,7 @@ export const FeedItemInteractions: React.FC<FeedItemInteractionsProps> = ({
       </div>
 
       {!showComments && commentTree.length > 0 && (
-        <div className={styles.commentsSection} style={{ borderTop: 'none', paddingTop: '12px', marginTop: '4px' }}>
+        <div className={`${styles.commentsSection} ${styles.hasThread}`} style={{ borderTop: 'none', paddingTop: '12px', marginTop: '4px' }}>
           <div className={styles.commentsList}>
             {commentTree.slice(0, 2).map(c => renderCommentNode(c))}
           </div>
@@ -312,7 +313,7 @@ export const FeedItemInteractions: React.FC<FeedItemInteractionsProps> = ({
       )}
 
       {showComments && (
-        <div className={styles.commentsSection}>
+        <div className={`${styles.commentsSection} ${comments.length > 0 ? styles.hasThread : ''}`}>
           {loadingComments ? (
             <div className={styles.loading}>Cargando comentarios...</div>
           ) : (
@@ -345,6 +346,28 @@ export const FeedItemInteractions: React.FC<FeedItemInteractionsProps> = ({
             <div className={styles.modalActions}>
               <button className={styles.modalBtnCancel} onClick={() => setShowConfirmDelete(false)}>Cancelar</button>
               <button className={styles.modalBtnDelete} onClick={handleDelete}>Eliminar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {commentToDelete && (
+        <div className={styles.modalOverlay} onClick={() => setCommentToDelete(null)}>
+          <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
+            <h3 className={styles.modalTitle}>¿Eliminar este comentario?</h3>
+            <p className={styles.modalText}>Esta acción no se puede deshacer.</p>
+            <div className={styles.modalActions}>
+              <button className={styles.modalBtnCancel} onClick={() => setCommentToDelete(null)}>Cancelar</button>
+              <button
+                className={styles.modalBtnDelete}
+                onClick={() => {
+                  const id = commentToDelete
+                  setCommentToDelete(null)
+                  handleDeleteComment(id)
+                }}
+              >
+                Eliminar
+              </button>
             </div>
           </div>
         </div>
