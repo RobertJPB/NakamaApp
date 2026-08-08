@@ -1372,10 +1372,10 @@
     margin-top: 0;
   }
 
-  /* ── Anime Grid: 2 columnas en móvil ── */
+  /* ── Anime Grid: 3 columnas en móvil para que se vean más pequeños ── */
   .animeGrid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 10px;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px;
   }
 
   /* ── Sección header ── */
