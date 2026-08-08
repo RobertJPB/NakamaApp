@@ -182,9 +182,10 @@ export const BibliotecaPage: React.FC = () => {
                         <img src={col.imagenUrl} alt={col.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       </div>
                     )}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                      <div className={styles.folderName}>
-                        {getIconForList(col.nombre)} {col.nombre}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', gap: '12px' }}>
+                      <div className={styles.folderName} style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <span style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>{getIconForList(col.nombre)}</span>
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', marginLeft: '8px' }}>{col.nombre}</span>
                       </div>
                       <span className={styles.folderCount}>{animesEnColumna.length}</span>
                     </div>
