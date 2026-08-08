@@ -65,7 +65,7 @@ export const ResenaCard: React.FC<ResenaCardProps> = ({ resena }) => {
                 <p className={`${styles.entradaResena} ${expanded ? styles.expanded : ''}`}>
                   {resena.contenido}
                 </p>
-                {resena.contenido.length > 300 && !expanded && (
+                {(resena.contenido.length > 150 || resena.contenido.split('\n').length > 4) && !expanded && (
                   <button className={styles.verMasTextBtn} onClick={() => setExpanded(true)}>
                     Ver más
                   </button>
