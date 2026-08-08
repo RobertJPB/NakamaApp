@@ -10,6 +10,7 @@ export const ResenaCard: React.FC<ResenaCardProps> = ({ resena }) => {
   const [likes,   setLikes]   = useState<number>(resena.totalLikes ?? 0)
   const [liked,   setLiked]   = useState(false)
   const [spoiler, setSpoiler] = useState(false)
+  const [expanded, setExpanded] = useState(false)
 
   const toggleLike = async () => {
     try {
@@ -60,7 +61,16 @@ export const ResenaCard: React.FC<ResenaCardProps> = ({ resena }) => {
                 </button>
               </div>
             ) : (
-              <p className={styles.entradaResena}>{resena.contenido}</p>
+              <>
+                <p className={`${styles.entradaResena} ${expanded ? styles.expanded : ''}`}>
+                  {resena.contenido}
+                </p>
+                {resena.contenido.length > 300 && !expanded && (
+                  <button className={styles.verMasTextBtn} onClick={() => setExpanded(true)}>
+                    Ver más
+                  </button>
+                )}
+              </>
             )}
           </div>
         )}
