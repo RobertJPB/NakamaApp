@@ -31,6 +31,8 @@
   border-radius: 0;
   transition: border-color var(--transition-fast), background var(--transition-fast);
   position: relative;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 120px;
 }
 .entrada:hover { border-color: rgba(255, 255, 255, 0.05); background: transparent; }
 

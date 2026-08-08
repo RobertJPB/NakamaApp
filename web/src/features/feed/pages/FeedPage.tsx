@@ -271,7 +271,7 @@ export const FeedPage: React.FC = () => {
                     <div className={styles.entradaAvatarWrap}>
                       <div className={styles.entradaAvatar}>
                         {entrada.actorAvatar
-                          ? <img src={entrada.actorAvatar} alt={entrada.actorUsername} />
+                          ? <img src={entrada.actorAvatar} alt={entrada.actorUsername} loading="lazy" />
                           : <span>{entrada.actorUsername?.[0]?.toUpperCase()}</span>
                         }
                       </div>
@@ -441,11 +441,11 @@ export const FeedPage: React.FC = () => {
                       <div className={styles.entradaMedia}>
                         {entrada.tipo === 'resena_personaje' && entrada.resenaPersonaje?.personajeImagen ? (
                           <Link to={`/anime/${entrada.resenaPersonaje.externalId}`} className={styles.entradaThumb}>
-                            <img src={entrada.resenaPersonaje.personajeImagen} alt={entrada.resenaPersonaje.personajeNombre} />
+                            <img src={entrada.resenaPersonaje.personajeImagen} alt={entrada.resenaPersonaje.personajeNombre} loading="lazy" />
                           </Link>
                         ) : entrada.animeImagen && (
                           <Link to={`/anime/${entrada.externalId}`} className={styles.entradaThumb}>
-                            <img src={entrada.animeImagen} alt={entrada.animeTitulo} />
+                            <img src={entrada.animeImagen} alt={entrada.animeTitulo} loading="lazy" />
                           </Link>
                         )}
                         
