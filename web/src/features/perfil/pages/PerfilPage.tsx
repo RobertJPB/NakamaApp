@@ -10,7 +10,7 @@ import { FeedItemInteractions } from '../../feed/components/FeedItemInteractions
 import { FollowListModal } from '../components/FollowListModal'
 import { CrearListaModal } from '../../biblioteca/components/CrearListaModal'
 import { EditarListaModal } from '../../biblioteca/components/EditarListaModal'
-import { Heart, Clock, Eye, CheckSquare, Layers, PlusCircle, ArrowLeft, Folder, Trash2, Settings } from 'lucide-react'
+import { Heart, Clock, Eye, CheckSquare, Layers, PlusCircle, ArrowLeft, Folder, Trash2, X, Settings } from 'lucide-react'
 import styles           from './PerfilPage.module.css'
 
 type Tab = 'resenas' | 'listas' | 'actividad' | 'medallas'
@@ -607,9 +607,9 @@ export const PerfilPage: React.FC = () => {
                                 setConfirmModal({ animeId: entrada.animeId, listaNombre: listaSeleccionada.nombre })
                               }}
                               title="Eliminar de la lista"
-                              style={{ position: 'absolute', top: 6, right: 6, zIndex: 2 }}
+                              style={{ position: 'absolute', top: 6, right: 6, zIndex: 2, color: '#fff', background: 'rgba(0,0,0,0.45)', borderRadius: '50%', width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, border: 'none', cursor: 'pointer' }}
                             >
-                              <Trash2 size={14} />
+                              <X size={14} />
                             </button>
                           )}
 

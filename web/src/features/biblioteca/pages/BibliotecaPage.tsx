@@ -10,7 +10,7 @@ import { AnimeCard }       from '../../../components/ui/AnimeCard'
 import { ReviewModal }     from '../../anime/components/ReviewModal'
 import { CrearListaModal } from '../components/CrearListaModal'
 import { EditarListaModal } from '../components/EditarListaModal'
-import { Heart, Clock, Eye, CheckSquare, Tv, Film, Trash2, ChevronLeft, Settings } from 'lucide-react'
+import { Heart, Clock, Eye, CheckSquare, Tv, Film, Trash2, X, ChevronLeft, Settings } from 'lucide-react'
 
 // Función para determinar el ícono según el nombre de la lista
 const getIconForList = (nombre: string) => {
@@ -412,9 +412,9 @@ export const BibliotecaPage: React.FC = () => {
                       setConfirmBiblModal({ animeId: entrada.animeId, propietarioId: listaSeleccionada?.propietario?.id, listaNombre: listaSeleccionada?.nombre })
                     }}
                     title="Eliminar de la lista"
-                    style={{ position: 'absolute', top: 6, right: 6, zIndex: 2 }}
+                    style={{ position: 'absolute', top: 6, right: 6, zIndex: 2, color: '#fff', background: 'rgba(0,0,0,0.45)', borderRadius: '50%', width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, border: 'none', cursor: 'pointer' }}
                   >
-                    <Trash2 size={14} />
+                    <X size={14} />
                   </button>
 
                   <div style={{ width: '100%' }}>
