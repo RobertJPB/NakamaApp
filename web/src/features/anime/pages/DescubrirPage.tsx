@@ -273,7 +273,7 @@ export const DescubrirPage: React.FC = () => {
         <div className={styles.layout}>
           {/* Grid de resultados o Categorías */}
           <div className={styles.resultados}>
-            {hayFiltros || query.trim() ? (
+            {hayFiltros || query ? (
               <>
                 <div className={styles.resultadosHeader}>
                   <h2 className={styles.resultadosTitulo}>
@@ -346,7 +346,7 @@ export const DescubrirPage: React.FC = () => {
               // Vista de Categorías (Netflix style)
               <div className={styles.categoriasWrap}>
                 <Categoria layout="grid" titulo="Recomendado para ti"   animes={recomendados} onVerMas={() => handleSetGenero('Action')} />
-                <Categoria layout="grid" titulo="Animes Populares"      animes={populares} />
+                <Categoria layout="grid" titulo="Animes Populares"    animes={populares} onVerMas={() => { setQuery(' '); setPage(1); }} />
                 <Categoria layout="grid" titulo="Acción"                animes={accion}    onVerMas={() => handleSetGenero('Action')} />
                 <Categoria layout="grid" titulo="Comedia"               animes={comedia}   onVerMas={() => handleSetGenero('Comedy')} />
                 <Categoria layout="grid" titulo="Fantasía"              animes={fantasia}  onVerMas={() => handleSetGenero('Fantasy')} />
