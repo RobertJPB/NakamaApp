@@ -397,13 +397,13 @@ export const BibliotecaPage: React.FC = () => {
             <p>Esta lista está vacía.</p>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
             {animesEnColumna.map((entrada: any) => {
               const resena = resenas.find(r => r.anime?.externalId === entrada.anime?.externalId || r.animeId === entrada.animeId)
               
               return (
-                <div key={entrada.animeId} className={styles.listRow}>
-                  <div className={styles.listRowLeft}>
+                <div key={entrada.animeId} className={styles.listRow} style={{ flexDirection: 'column', gap: '8px', padding: '10px' }}>
+                  <div className={styles.listRowLeft} style={{ width: '100%' }}>
                     <AnimeCard
                       externalId={entrada.anime?.externalId}
                       titulo={entrada.anime?.titulo}
@@ -412,86 +412,42 @@ export const BibliotecaPage: React.FC = () => {
                     />
                   </div>
                   
-                  <div className={styles.listRowRight}>
-                    <div className={styles.listRowDetails} style={{ paddingRight: 0, position: 'relative' }}>
-                      <button
-                        className={styles.btnEliminarItem}
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setConfirmBiblModal({ animeId: entrada.animeId, propietarioId: listaSeleccionada?.propietario?.id, listaNombre: listaSeleccionada?.nombre })
-                        }}
-                        title="Eliminar de la lista"
-                        style={{ position: 'absolute', top: 0, right: 0 }}
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                      
-                      <div className={styles.listRowMetadata} style={{ display: 'flex', flexDirection: 'column', gap: '6px', color: '#b0b3b8', fontSize: '0.8rem', marginTop: '4px' }}>
-                        {entrada.anime?.tipo && (
-                          <span><strong>Formato:</strong> {entrada.anime.tipo.toLowerCase() === 'tv' ? 'Anime' : entrada.anime.tipo.toLowerCase() === 'movie' ? 'Película' : tipoAnimeLabel(entrada.anime.tipo)}</span>
-                        )}
-                        {entrada.anime?.estadoEmision && (
-                          <span><strong>Estado:</strong> {
-                            entrada.anime.estadoEmision === 'RELEASING' ? 'En Emisión' :
-                            entrada.anime.estadoEmision === 'FINISHED' ? 'Finalizado' :
-                            entrada.anime.estadoEmision === 'NOT_YET_RELEASED' ? 'Próximamente' :
-                            entrada.anime.estadoEmision === 'CANCELLED' ? 'Cancelado' :
-                            entrada.anime.estadoEmision
-                          }</span>
-                        )}
-                        <span><strong>Episodios:</strong> {
-                          entrada.anime?.titulo?.toLowerCase().includes('one piece') ? '+1000' :
-                          (entrada.anime?.episodios ? entrada.anime.episodios : '?')
-                        }</span>
-                        {entrada.anime?.demografia && <span><strong>Demografía:</strong> {entrada.anime.demografia}</span>}
-                        <span><strong>Nota General:</strong> <span style={{ color: '#f1c40f' }}>★</span> {Number(entrada.anime?.calificacionPromedio) > 0 ? Number(entrada.anime.calificacionPromedio).toFixed(1) : '?'}</span>
-                        {resena?.calificacion && (
-                          <span style={{ fontSize: '1rem', color: 'var(--color-texto)', marginTop: '4px' }}>
-                            <strong>Tu Calificación:</strong> <span style={{ color: '#f1c40f' }}>★</span> <strong>{resena.calificacion}</strong>
-                          </span>
-                        )}
-                        {entrada.episodiosVistos > 0 && <span><strong>Vistos:</strong> {entrada.episodiosVistos}</span>}
-                      </div>
-                    </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.75rem', color: '#b0b3b8', position: 'relative' }}>
+                    <button
+                      className={styles.btnEliminarItem}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setConfirmBiblModal({ animeId: entrada.animeId, propietarioId: listaSeleccionada?.propietario?.id, listaNombre: listaSeleccionada?.nombre })
+                      }}
+                      title="Eliminar de la lista"
+                      style={{ position: 'absolute', top: 0, right: 0 }}
+                    >
+                      <Trash2 size={14} />
+                    </button>
 
-                    {/* Reseña */}
-                    <div className={styles.listRowReview}>
-                      <h3 style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--color-texto)', marginBottom: '12px', display: 'flex', justifyContent: 'space-between' }}>
-                        Mi Reseña
-                      </h3>
-                      {resena ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                          <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                            <span style={{ color: '#f1c40f', fontWeight: '900', fontSize: '2rem', lineHeight: 1 }}>★ {resena.calificacion}<span style={{ fontSize: '1rem', color: 'var(--color-texto-muted)' }}>/10</span></span>
-                            <span style={{ color: 'var(--color-texto-muted)', fontSize: '0.85rem', marginLeft: '8px' }}>
-                              {new Date(resena.creadoEn).toLocaleDateString()}
-                            </span>
-                          </div>
-                          {resena.contenido ? (
-                            <p style={{ margin: 0, color: 'var(--color-texto-suave)', fontSize: '1rem', lineHeight: 1.6, maxWidth: '600px' }}>
-                              {resena.contenido}
-                            </p>
-                          ) : (
-                            <p style={{ margin: 0, color: 'var(--color-texto-muted)', fontSize: '0.9rem' }}>
-                              Solo calificación
-                            </p>
-                          )}
-                        </div>
-                      ) : (
-                        <p style={{ color: 'var(--color-texto-muted)', fontSize: '0.9rem', margin: 0 }}>
-                          <span>No has escrito ninguna reseña.</span>{' '}
-                          <button 
-                            onClick={() => setReviewingAnime(entrada.anime)}
-                            style={{ 
-                              background: 'none', border: 'none', padding: 0, 
-                              color: 'var(--color-acento)', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem' 
-                            }}
-                          >
-                            ¿Quieres escribir una?
-                          </button>
-                        </p>
+                    <span style={{ fontWeight: 700, fontSize: '0.8rem', color: 'var(--color-texto)', paddingRight: '20px', lineHeight: 1.2 }}>
+                      {entrada.anime?.titulo}
+                    </span>
+
+                    <span>
+                      <span style={{ color: '#f1c40f' }}>★</span>{' '}
+                      {Number(entrada.anime?.calificacionPromedio) > 0 ? Number(entrada.anime.calificacionPromedio).toFixed(1) : '—'}
+                      {entrada.anime?.estadoEmision && (
+                        <span style={{ marginLeft: '6px', opacity: 0.7 }}>
+                          · {entrada.anime.estadoEmision === 'RELEASING' ? 'En emisión' : entrada.anime.estadoEmision === 'FINISHED' ? 'Finalizado' : entrada.anime.estadoEmision === 'NOT_YET_RELEASED' ? 'Próx.' : ''}
+                        </span>
                       )}
-                    </div>
+                    </span>
+
+                    {(entrada.anime?.episodios || entrada.anime?.titulo?.toLowerCase().includes('one piece')) && (
+                      <span>
+                        {entrada.anime?.titulo?.toLowerCase().includes('one piece') ? '+1000' : entrada.anime.episodios} ep.
+                      </span>
+                    )}
+
+                    {resena?.calificacion && (
+                      <span style={{ color: '#f1c40f', fontWeight: 700 }}>Tu nota: {resena.calificacion}</span>
+                    )}
                   </div>
                 </div>
               )
