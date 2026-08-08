@@ -431,6 +431,7 @@ export const FeedPage: React.FC = () => {
                           initialLikes={entrada.totalLikes || 0}
                           initialHasLiked={entrada.hasLiked || false}
                           initialCommentsCount={entrada.totalComentarios || 0}
+                          initialComments={entrada.comentarios}
                           onDeleted={(id) => setFeed(prev => prev.filter(e => e.id !== id))}
                         />
                       )}

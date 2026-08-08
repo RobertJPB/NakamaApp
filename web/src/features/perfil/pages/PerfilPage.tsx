@@ -580,7 +580,7 @@ export const PerfilPage: React.FC = () => {
                   )}
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '12px' }}>
                   {listaPublica.filter((e: any) => e.estados?.includes(listaSeleccionada.nombre)).length === 0 ? (
                     <div className={styles.vacioWrap} style={{ gridColumn: '1 / -1' }}>
                       <p className={styles.vacio}>No hay animes en esta lista.</p>

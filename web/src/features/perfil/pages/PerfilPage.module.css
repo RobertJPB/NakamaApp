@@ -305,6 +305,22 @@
   background: rgba(255, 71, 87, 0.1);
 }
 
+.btnPrimarioPequeño {
+  background: var(--color-acento);
+  color: #1f2124;
+  font-weight: 700;
+  font-size: var(--text-sm);
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  white-space: nowrap;
+}
+.btnPrimarioPequeño:hover {
+  background: var(--color-acento-hover);
+}
+
 /* ══════════════════════════════════════════
    MÓVIL ≤ 768px
    ══════════════════════════════════════════ */

@@ -180,6 +180,10 @@ export class PrismaResenaRepository implements IResenaRepository {
         },
         anime: { select: { titulo: true, externalId: true, imagenUrl: true } },
         reacciones: { where: { usuarioId } },
+        comentarios: {
+          include: { usuario: { select: { id: true, nombreDisplay: true, username: true, avatarUrl: true } } },
+          orderBy: { creadoEn: 'asc' },
+        },
       },
     })
 
@@ -211,6 +215,10 @@ export class PrismaResenaRepository implements IResenaRepository {
             personaje: { select: { nombre: true, imagenUrl: true } }
           }
         },
+        comentarios: {
+          include: { usuario: { select: { id: true, nombreDisplay: true, username: true, avatarUrl: true } } },
+          orderBy: { creadoEn: 'asc' },
+        },
       },
     })
 
@@ -233,6 +241,7 @@ export class PrismaResenaRepository implements IResenaRepository {
       totalLikes: r.totalLikes,
       totalComentarios: r.totalComentarios,
       hasLiked: r.reacciones.length > 0,
+      comentarios: r.comentarios,
     }))
 
     const mappedPublicaciones = publicaciones.map((p: any) => ({
@@ -281,6 +290,7 @@ export class PrismaResenaRepository implements IResenaRepository {
       totalLikes: p.totalLikes,
       totalComentarios: p.totalComentarios,
       hasLiked: p.reacciones.length > 0,
+      comentarios: p.comentarios,
     }))
 
     const feed = [...mappedResenas, ...mappedPublicaciones]

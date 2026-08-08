@@ -162,6 +162,10 @@ export class PrismaComunidadRepository implements IComunidadRepository {
         usuario: { select: { id: true, username: true, nombreDisplay: true, avatarUrl: true } },
         opciones: { include: { votosUsuarios: { select: { usuarioId: true } } } },
         resena: { include: { anime: { select: { id: true, titulo: true, imagenUrl: true } } } },
+        comentarios: {
+          include: { usuario: { select: { id: true, nombreDisplay: true, username: true, avatarUrl: true } } },
+          orderBy: { creadoEn: 'asc' },
+        },
         reacciones: usuarioId ? { where: { usuarioId }, select: { usuarioId: true } } : false,
       },
       orderBy: { creadoEn: 'desc' },
