@@ -33,10 +33,7 @@ const ListaComunidades: React.FC = () => {
   return (
     <div className={styles.listaWrap}>
       <div className={styles.premiumHeader}>
-        <div className={styles.headerTextGroup}>
-          <h1 className={styles.tituloPremium}>Comunidades</h1>
-          <p className={styles.subtituloPremium}>Descubre teorías, fanarts y comparte tu pasión con otros fans.</p>
-        </div>
+
         {estaAutenticado && (
           <button className={styles.btnCrearPremium} onClick={() => setModalAbierto(true)}>
             <Users size={16} /> Crear nueva comunidad
