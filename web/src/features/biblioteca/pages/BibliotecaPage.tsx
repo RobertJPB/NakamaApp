@@ -412,7 +412,7 @@ export const BibliotecaPage: React.FC = () => {
                       setConfirmBiblModal({ animeId: entrada.animeId, propietarioId: listaSeleccionada?.propietario?.id, listaNombre: listaSeleccionada?.nombre })
                     }}
                     title="Eliminar de la lista"
-                    style={{ position: 'absolute', top: 6, right: 6, zIndex: 2, color: '#fff', background: 'rgba(0,0,0,0.45)', borderRadius: '50%', width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, border: 'none', cursor: 'pointer' }}
+                    style={{ position: 'absolute', top: 4, right: 4, zIndex: 2, color: '#fff', background: 'none', border: 'none', padding: 2, cursor: 'pointer', lineHeight: 1 }}
                   >
                     <X size={14} />
                   </button>
