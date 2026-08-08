@@ -405,19 +405,18 @@ export const BibliotecaPage: React.FC = () => {
                 <div key={entrada.animeId} className={styles.listRow}
                   style={{ flexDirection: 'column', gap: '4px', padding: '10px', position: 'relative' }}>
                   
-                  <button
-                    className={styles.btnEliminarItem}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setConfirmBiblModal({ animeId: entrada.animeId, propietarioId: listaSeleccionada?.propietario?.id, listaNombre: listaSeleccionada?.nombre })
-                    }}
-                    title="Eliminar de la lista"
-                    style={{ position: 'absolute', top: 4, right: 4, zIndex: 2, color: '#fff', background: 'none', border: 'none', padding: 2, cursor: 'pointer', lineHeight: 1 }}
-                  >
-                    <X size={14} />
-                  </button>
-
-                  <div style={{ width: '100%' }}>
+                  <div style={{ width: '100%', position: 'relative' }}>
+                    <button
+                      className={styles.btnEliminarItem}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setConfirmBiblModal({ animeId: entrada.animeId, propietarioId: listaSeleccionada?.propietario?.id, listaNombre: listaSeleccionada?.nombre })
+                      }}
+                      title="Eliminar de la lista"
+                      style={{ position: 'absolute', top: 6, right: 6, zIndex: 10, color: '#fff', background: 'none', border: 'none', padding: 2, cursor: 'pointer', lineHeight: 1 }}
+                    >
+                      <X size={16} />
+                    </button>
                     <AnimeCard
                       externalId={entrada.anime?.externalId}
                       titulo={entrada.anime?.titulo}
