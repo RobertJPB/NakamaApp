@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Sidebar } from './Sidebar'
 import { Header } from './Header'
 import { BottomNav } from './BottomNav'
+import { FastScroll } from '../ui/FastScroll'
 import styles from './Layout.module.css'
 
 interface LayoutProps { 
@@ -16,6 +17,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, hideNav }) => {
         <main className={styles.mainContent}>
           {children}
         </main>
+        <FastScroll />
       </div>
     )
   }
@@ -28,6 +30,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, hideNav }) => {
         {children}
       </main>
       <BottomNav />
+      <FastScroll />
     </div>
   )
 }

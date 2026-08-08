@@ -1403,30 +1403,19 @@
     padding: 8px 10px;
   }
 
-  /* ── Reseñas Recientes (Carrusel horizontal) ── */
+  /* ── Reseñas Recientes (Stack vertical) ── */
   .resenasGrid {
     display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    gap: 12px;
-    padding-bottom: 8px;
-    -webkit-overflow-scrolling: touch;
-    margin: 0 -16px;
-    padding-left: 16px;
-    padding-right: 16px;
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE */
+    flex-direction: column;
+    gap: 16px;
+    margin: 0;
+    padding: 0;
   }
   
-  .resenasGrid::-webkit-scrollbar {
-    display: none;
-  }
-
   .resenaCard {
-    min-width: 260px;
-    max-width: 80vw;
-    scroll-snap-align: center;
-    flex-shrink: 0;
+    width: 100%;
+    min-width: unset;
+    max-width: unset;
   }
 }
 

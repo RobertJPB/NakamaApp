@@ -1,0 +1,26 @@
+.indicator {
+  position: fixed;
+  right: 16px;
+  transform: translateY(-50%);
+  z-index: 99999;
+  pointer-events: none;
+  animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.thumb {
+  width: 44px;
+  height: 44px;
+  background-color: rgba(30, 30, 30, 0.95);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+@keyframes popIn {
+  0% { transform: translateY(-50%) scale(0.5); opacity: 0; }
+  100% { transform: translateY(-50%) scale(1); opacity: 1; }
+}
