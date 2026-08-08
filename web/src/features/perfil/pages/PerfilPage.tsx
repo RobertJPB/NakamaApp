@@ -774,7 +774,7 @@ export const PerfilPage: React.FC = () => {
                     {addingStates[anime.id || anime.externalId || anime.titulo] === 'adding' ? (
                       <span style={{ color: '#b0b3b8', fontSize: '0.8rem' }}>Añadiendo...</span>
                     ) : addingStates[anime.id || anime.externalId || anime.titulo] === 'added' ? (
-                      <span style={{ color: '#27ae60', fontSize: '0.8rem', fontWeight: 'bold' }}>✓ Añadido</span>
+                      <span style={{ color: '#27ae60', fontSize: '0.8rem', fontWeight: 'bold' }}>Añadido</span>
                     ) : addingStates[anime.id || anime.externalId || anime.titulo] === 'error' ? (
                       <span style={{ color: '#e74c3c', fontSize: '0.8rem', fontWeight: 'bold' }}>Error / Ya está</span>
                     ) : (
