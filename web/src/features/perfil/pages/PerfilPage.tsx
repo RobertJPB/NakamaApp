@@ -596,40 +596,38 @@ export const PerfilPage: React.FC = () => {
                         entrada.anime?.tipo || ''
                       return (
                         <div key={entrada.animeId} className={styles.listRow}
-                          style={{ flexDirection: 'column', gap: '8px', padding: '10px', cursor: 'pointer' }}
+                          style={{ flexDirection: 'column', gap: '4px', padding: '10px', cursor: 'pointer', position: 'relative' }}
                           onClick={() => window.location.href = `/anime/${entrada.anime?.externalId}`}
                         >
+                          {esMiPerfil && (
+                            <button
+                              className={styles.btnEliminarItem}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setConfirmModal({ animeId: entrada.animeId, listaNombre: listaSeleccionada.nombre })
+                              }}
+                              title="Eliminar de la lista"
+                              style={{ position: 'absolute', top: 6, right: 6, zIndex: 2 }}
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          )}
+
                           <div style={{ width: '100%' }}>
                             <AnimeCard
                               externalId={entrada.anime?.externalId}
                               titulo={entrada.anime?.titulo}
                               imagenUrl={entrada.anime?.imagenUrl}
+                              tipo={entrada.anime?.tipo}
                               estado={""}
                               calificacion={0}
                             />
                           </div>
 
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.75rem', color: '#b0b3b8', position: 'relative' }}>
-                            {esMiPerfil && (
-                              <button
-                                className={styles.btnEliminarItem}
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  setConfirmModal({ animeId: entrada.animeId, listaNombre: listaSeleccionada.nombre })
-                                }}
-                                title="Eliminar de la lista"
-                                style={{ position: 'absolute', top: 0, right: 0 }}
-                              >
-                                <Trash2 size={14} />
-                              </button>
-                            )}
-
-                            <span style={{ fontWeight: 700, fontSize: '0.8rem', color: 'var(--color-texto)', paddingRight: '20px', lineHeight: 1.2 }}>
-                              {entrada.anime?.titulo}
-                            </span>
-
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', fontSize: '0.75rem', color: '#b0b3b8', padding: '0 2px' }}>
                             <span>
-                              {tipoLabel && <span style={{ opacity: 0.8 }}>{tipoLabel}</span>}
+                              <span style={{ color: '#f1c40f' }}>★</span>{' '}
+                              {Number(entrada.anime?.calificacionPromedio) > 0 ? Number(entrada.anime.calificacionPromedio).toFixed(1) : '—'}
                               {entrada.anime?.estadoEmision && (
                                 <span style={{ marginLeft: '6px', opacity: 0.7 }}>
                                   · {entrada.anime.estadoEmision === 'RELEASING' ? 'En emisión' : entrada.anime.estadoEmision === 'FINISHED' ? 'Finalizado' : entrada.anime.estadoEmision === 'NOT_YET_RELEASED' ? 'Próx.' : ''}
@@ -637,15 +635,11 @@ export const PerfilPage: React.FC = () => {
                               )}
                             </span>
 
-                            <span>
-                              <span style={{ color: '#f1c40f' }}>★</span>{' '}
-                              {Number(entrada.anime?.calificacionPromedio) > 0 ? Number(entrada.anime.calificacionPromedio).toFixed(1) : '—'}
-                              {(entrada.anime?.episodios || entrada.anime?.titulo?.toLowerCase().includes('one piece')) && (
-                                <span style={{ marginLeft: '6px', opacity: 0.7 }}>
-                                  · {entrada.anime?.titulo?.toLowerCase().includes('one piece') ? '+1000' : entrada.anime.episodios} ep.
-                                </span>
-                              )}
-                            </span>
+                            {(entrada.anime?.episodios || entrada.anime?.titulo?.toLowerCase().includes('one piece')) && (
+                              <span style={{ opacity: 0.7 }}>
+                                {entrada.anime?.titulo?.toLowerCase().includes('one piece') ? '+1000' : entrada.anime.episodios} ep.
+                              </span>
+                            )}
 
                             {resena?.calificacion && (
                               <span style={{ color: '#f1c40f', fontWeight: 700 }}>Tu nota: {resena.calificacion}</span>

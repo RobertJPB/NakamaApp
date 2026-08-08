@@ -402,33 +402,32 @@ export const BibliotecaPage: React.FC = () => {
               const resena = resenas.find(r => r.anime?.externalId === entrada.anime?.externalId || r.animeId === entrada.animeId)
               
               return (
-                <div key={entrada.animeId} className={styles.listRow} style={{ flexDirection: 'column', gap: '8px', padding: '10px' }}>
-                  <div className={styles.listRowLeft} style={{ width: '100%' }}>
+                <div key={entrada.animeId} className={styles.listRow}
+                  style={{ flexDirection: 'column', gap: '4px', padding: '10px', position: 'relative' }}>
+                  
+                  <button
+                    className={styles.btnEliminarItem}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setConfirmBiblModal({ animeId: entrada.animeId, propietarioId: listaSeleccionada?.propietario?.id, listaNombre: listaSeleccionada?.nombre })
+                    }}
+                    title="Eliminar de la lista"
+                    style={{ position: 'absolute', top: 6, right: 6, zIndex: 2 }}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+
+                  <div style={{ width: '100%' }}>
                     <AnimeCard
                       externalId={entrada.anime?.externalId}
                       titulo={entrada.anime?.titulo}
                       imagenUrl={entrada.anime?.imagenUrl}
+                      tipo={entrada.anime?.tipo}
                       onClick={() => entrada.anime?.externalId && navigate(`/anime/${entrada.anime.externalId}`, { state: { initialAnime: entrada.anime } })}
                     />
                   </div>
-                  
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.75rem', color: '#b0b3b8', position: 'relative' }}>
-                    <button
-                      className={styles.btnEliminarItem}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setConfirmBiblModal({ animeId: entrada.animeId, propietarioId: listaSeleccionada?.propietario?.id, listaNombre: listaSeleccionada?.nombre })
-                      }}
-                      title="Eliminar de la lista"
-                      style={{ position: 'absolute', top: 0, right: 0 }}
-                    >
-                      <Trash2 size={14} />
-                    </button>
 
-                    <span style={{ fontWeight: 700, fontSize: '0.8rem', color: 'var(--color-texto)', paddingRight: '20px', lineHeight: 1.2 }}>
-                      {entrada.anime?.titulo}
-                    </span>
-
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', fontSize: '0.75rem', color: '#b0b3b8', padding: '0 2px' }}>
                     <span>
                       <span style={{ color: '#f1c40f' }}>★</span>{' '}
                       {Number(entrada.anime?.calificacionPromedio) > 0 ? Number(entrada.anime.calificacionPromedio).toFixed(1) : '—'}
@@ -440,7 +439,7 @@ export const BibliotecaPage: React.FC = () => {
                     </span>
 
                     {(entrada.anime?.episodios || entrada.anime?.titulo?.toLowerCase().includes('one piece')) && (
-                      <span>
+                      <span style={{ opacity: 0.7 }}>
                         {entrada.anime?.titulo?.toLowerCase().includes('one piece') ? '+1000' : entrada.anime.episodios} ep.
                       </span>
                     )}
