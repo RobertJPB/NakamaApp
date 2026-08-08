@@ -580,17 +580,26 @@ export const PerfilPage: React.FC = () => {
                   )}
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
                   {listaPublica.filter((e: any) => e.estados?.includes(listaSeleccionada.nombre)).length === 0 ? (
-                    <div className={styles.vacioWrap}>
+                    <div className={styles.vacioWrap} style={{ gridColumn: '1 / -1' }}>
                       <p className={styles.vacio}>No hay animes en esta lista.</p>
                     </div>
                   ) : (
                     listaPublica.filter((e: any) => e.estados?.includes(listaSeleccionada.nombre)).map((entrada: any) => {
                       const resena = resenas.find(r => r.anime?.externalId === entrada.anime?.externalId || r.animeId === entrada.animeId)
+                      const tipoLabel = entrada.anime?.tipo?.toLowerCase() === 'tv' ? 'Anime' :
+                        entrada.anime?.tipo?.toLowerCase() === 'movie' ? 'Película' :
+                        entrada.anime?.tipo?.toLowerCase() === 'ova' ? 'OVA' :
+                        entrada.anime?.tipo?.toLowerCase() === 'ona' ? 'ONA' :
+                        entrada.anime?.tipo?.toLowerCase() === 'special' ? 'Especial' :
+                        entrada.anime?.tipo || ''
                       return (
-                        <div key={entrada.animeId} className={styles.listRow} onClick={() => window.location.href = `/anime/${entrada.anime?.externalId}`}>
-                          <div className={styles.listRowLeft}>
+                        <div key={entrada.animeId} className={styles.listRow}
+                          style={{ flexDirection: 'column', gap: '8px', padding: '10px', cursor: 'pointer' }}
+                          onClick={() => window.location.href = `/anime/${entrada.anime?.externalId}`}
+                        >
+                          <div style={{ width: '100%' }}>
                             <AnimeCard
                               externalId={entrada.anime?.externalId}
                               titulo={entrada.anime?.titulo}
@@ -599,73 +608,55 @@ export const PerfilPage: React.FC = () => {
                               calificacion={0}
                             />
                           </div>
-                          <div className={styles.listRowRight}>
-                            <div className={styles.listRowDetails} style={{ paddingRight: 0, position: 'relative' }}>
-                              {esMiPerfil && (
-                                <button
-                                  className={styles.btnEliminarItem}
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    setConfirmModal({ animeId: entrada.animeId, listaNombre: listaSeleccionada.nombre })
-                                  }}
-                                  title="Eliminar de la lista"
-                                  style={{ position: 'absolute', top: 0, right: 0 }}
-                                >
-                                  <Trash2 size={16} />
-                                </button>
+
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.75rem', color: '#b0b3b8', position: 'relative' }}>
+                            {esMiPerfil && (
+                              <button
+                                className={styles.btnEliminarItem}
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setConfirmModal({ animeId: entrada.animeId, listaNombre: listaSeleccionada.nombre })
+                                }}
+                                title="Eliminar de la lista"
+                                style={{ position: 'absolute', top: 0, right: 0 }}
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            )}
+
+                            <span style={{ fontWeight: 700, fontSize: '0.8rem', color: 'var(--color-texto)', paddingRight: '20px', lineHeight: 1.2 }}>
+                              {entrada.anime?.titulo}
+                            </span>
+
+                            <span>
+                              {tipoLabel && <span style={{ opacity: 0.8 }}>{tipoLabel}</span>}
+                              {entrada.anime?.estadoEmision && (
+                                <span style={{ marginLeft: '6px', opacity: 0.7 }}>
+                                  · {entrada.anime.estadoEmision === 'RELEASING' ? 'En emisión' : entrada.anime.estadoEmision === 'FINISHED' ? 'Finalizado' : entrada.anime.estadoEmision === 'NOT_YET_RELEASED' ? 'Próx.' : ''}
+                                </span>
                               )}
-                              
-                              <div className={styles.listRowMetadata} style={{ display: 'flex', flexDirection: 'column', gap: '6px', color: '#b0b3b8', fontSize: '0.8rem', marginTop: '4px' }}>
-                                {entrada.anime?.tipo && (
-                                  <span><strong>Formato:</strong> {entrada.anime.tipo.toLowerCase() === 'tv' ? 'Anime' : entrada.anime.tipo.toLowerCase() === 'movie' ? 'Película' : tipoAnimeLabel(entrada.anime.tipo)}</span>
-                                )}
-                                {entrada.anime?.estadoEmision && (
-                                  <span><strong>Estado:</strong> {
-                                    entrada.anime.estadoEmision === 'RELEASING' ? 'En Emisión' :
-                                    entrada.anime.estadoEmision === 'FINISHED' ? 'Finalizado' :
-                                    entrada.anime.estadoEmision === 'NOT_YET_RELEASED' ? 'Próximamente' :
-                                    entrada.anime.estadoEmision === 'CANCELLED' ? 'Cancelado' :
-                                    entrada.anime.estadoEmision
-                                  }</span>
-                                )}
-                                <span><strong>Episodios:</strong> {
-                                  entrada.anime?.titulo?.toLowerCase().includes('one piece') ? '+1000' :
-                                  (entrada.anime?.episodios ? entrada.anime.episodios : '?')
-                                }</span>
-                                {entrada.anime?.demografia && <span><strong>Demografía:</strong> {entrada.anime.demografia}</span>}
-                                <span><strong>Nota General:</strong> <span style={{ color: '#f1c40f' }}>★</span> {Number(entrada.anime?.calificacionPromedio) > 0 ? Number(entrada.anime.calificacionPromedio).toFixed(1) : '?'}</span>
-                                {resena?.calificacion && (
-                                  <span style={{ fontSize: '1rem', color: 'var(--color-texto)', marginTop: '4px' }}>
-                                    <strong>Tu Calificación:</strong> <span style={{ color: '#f1c40f' }}>★</span> <strong>{resena.calificacion}</strong>
-                                  </span>
-                                )}
-                                {entrada.episodiosVistos > 0 && <span><strong>Vistos:</strong> {entrada.episodiosVistos}</span>}
-                              </div>
-                            </div>
-                            <div className={styles.listRowReview}>
-                              <h3 style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--color-texto)', marginBottom: '8px' }}>Mi Reseña</h3>
-                              {resena ? (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-                                    <span style={{ color: '#f1c40f', fontWeight: '900', fontSize: '1.25rem', lineHeight: 1 }}>★ {resena.calificacion}<span style={{ fontSize: '0.8rem', color: 'var(--color-texto-muted)' }}>/10</span></span>
-                                    <span style={{ color: 'var(--color-texto-muted)', fontSize: '0.75rem', marginLeft: '4px' }}>{new Date(resena.creadoEn).toLocaleDateString()}</span>
-                                  </div>
-                                  {resena.contenido ? (
-                                    <p style={{ margin: 0, color: 'var(--color-texto-suave)', fontSize: '0.85rem', lineHeight: 1.4, maxWidth: '600px' }}>{resena.contenido}</p>
-                                  ) : (
-                                    <p style={{ margin: 0, color: 'var(--color-texto-muted)', fontSize: '0.8rem' }}>Solo calificación</p>
-                                  )}
-                                </div>
-                              ) : (
-                                <p style={{ color: 'var(--color-texto-muted)', fontSize: '0.8rem', margin: 0 }}>No has escrito ninguna reseña.</p>
+                            </span>
+
+                            <span>
+                              <span style={{ color: '#f1c40f' }}>★</span>{' '}
+                              {Number(entrada.anime?.calificacionPromedio) > 0 ? Number(entrada.anime.calificacionPromedio).toFixed(1) : '—'}
+                              {(entrada.anime?.episodios || entrada.anime?.titulo?.toLowerCase().includes('one piece')) && (
+                                <span style={{ marginLeft: '6px', opacity: 0.7 }}>
+                                  · {entrada.anime?.titulo?.toLowerCase().includes('one piece') ? '+1000' : entrada.anime.episodios} ep.
+                                </span>
                               )}
-                            </div>
+                            </span>
+
+                            {resena?.calificacion && (
+                              <span style={{ color: '#f1c40f', fontWeight: 700 }}>Tu nota: {resena.calificacion}</span>
+                            )}
                           </div>
                         </div>
                       )
                     })
                   )}
                 </div>
+
               </div>
             )}
           </div>
