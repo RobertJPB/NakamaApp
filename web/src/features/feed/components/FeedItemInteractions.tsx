@@ -194,7 +194,7 @@ export const FeedItemInteractions: React.FC<FeedItemInteractionsProps> = ({
     const spineColor = depth === 0 ? undefined : THREAD_COLORS[(depth - 1) % THREAD_COLORS.length]
 
     return (
-      <div key={c.id} className={styles.commentNode} style={{ '--thread-color': spineColor } as React.CSSProperties}>
+      <div key={c.id} className={`${styles.commentNode} ${depth > 0 ? styles.replyNode : ''}`} style={{ '--thread-color': spineColor } as React.CSSProperties}>
         <div className={styles.comment}>
           <div className={styles.commentAvatarWrap}>
             <img src={c.usuario?.avatarUrl || `https://ui-avatars.com/api/?name=${c.usuario?.username}`} alt="avatar" className={styles.commentAvatar} />

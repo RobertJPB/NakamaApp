@@ -306,17 +306,27 @@
   gap: var(--space-4);
 }
 
-/* Codo horizontal: une la línea del padre con la primera respuesta (termina en su borde) */
+/* Codo suave de 90°: sale de la línea del padre (x=15), va en horizontal,
+   curva hacia abajo y forma la columna continua de la rama. La columna baja
+   escondida detrás de los avatares (z-index 0 < avatar) y reaparece debajo. */
 .repliesContainer::before {
   content: '';
   position: absolute;
   top: 0;
-  left: 15px;
-  width: calc(var(--thread-indent) - 15px);
-  height: 2px;
-  background: var(--thread-color, var(--color-borde));
-  border-radius: 2px;
+  bottom: 0;
+  left: 15px; /* línea del padre */
+  width: var(--thread-indent); /* hasta el centro del avatar del primer hijo */
+  border-top: 2px solid var(--thread-color, var(--color-borde));
+  border-right: 2px solid var(--thread-color, var(--color-borde));
+  border-top-right-radius: 12px; /* curva suave de 90° */
   pointer-events: none;
+  z-index: 0;
+}
+
+/* Los hijos no dibujan spine propio: la columna de su contenedor padre ya
+   pasa por su avatar, evitando líneas duplicadas. */
+.replyNode::before {
+  display: none;
 }
 
 .replyForm {
