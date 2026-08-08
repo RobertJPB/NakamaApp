@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { ComunidadController } from '../controllers/ComunidadController'
-import { authMiddleware } from '../../infrastructure/auth/SupabaseAuthMiddleware'
+import { authMiddleware, authOpcional } from '../../infrastructure/auth/SupabaseAuthMiddleware'
 import { validate } from '../middlewares/validate.middleware'
 import { crearComunidadSchema, postFeedSchema } from '../validations/schemas'
 
@@ -16,7 +16,7 @@ router.post('/votar-encuesta', authMiddleware, ctrl.votarEncuesta)
 
 // Rutas dinámicas con :id deben ir debajo
 router.get('/:id', ctrl.detalle)
-router.get('/:id/publicaciones', ctrl.publicaciones)
+router.get('/:id/publicaciones', authOpcional, ctrl.publicaciones)
 router.put('/:id', authMiddleware, validate(crearComunidadSchema), ctrl.editar)
 router.delete('/:id', authMiddleware, ctrl.eliminar)
 router.post('/:id/unirse', authMiddleware, ctrl.unirse)

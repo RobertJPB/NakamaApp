@@ -149,23 +149,31 @@ export class PrismaComunidadRepository implements IComunidadRepository {
     comunidadId: string,
     seccion?: string,
     page = 1,
-    limit = 20
+    limit = 20,
+    usuarioId?: string
   ): Promise<any[]> {
     const skip = (page - 1) * limit
     const whereClause: any = { comunidadId }
     if (seccion) whereClause.tema = seccion
 
-    return prisma.publicacion.findMany({
+    const posts = await prisma.publicacion.findMany({
       where: whereClause,
       include: {
         usuario: { select: { id: true, username: true, nombreDisplay: true, avatarUrl: true } },
         opciones: { include: { votosUsuarios: { select: { usuarioId: true } } } },
         resena: { include: { anime: { select: { id: true, titulo: true, imagenUrl: true } } } },
+        reacciones: usuarioId ? { where: { usuarioId }, select: { usuarioId: true } } : false,
       },
       orderBy: { creadoEn: 'desc' },
       skip,
       take: limit,
     })
+
+    return posts.map((p: any) => ({
+      ...p,
+      hasLiked: usuarioId ? (p.reacciones?.length ?? 0) > 0 : false,
+      reacciones: undefined,
+    }))
   }
 
   async crearPublicacion(dto: any): Promise<any> {

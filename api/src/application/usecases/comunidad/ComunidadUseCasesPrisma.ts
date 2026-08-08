@@ -9,8 +9,8 @@ export class BuscarComunidades {
 
 export class ListarPublicacionesComunidadDirecto {
   constructor(private readonly comunidadRepo: IComunidadRepository) {}
-  async execute(comunidadId: string, seccion?: string, page = 1, limit = 20) {
-    return this.comunidadRepo.listarPublicaciones(comunidadId, seccion, page, limit)
+  async execute(comunidadId: string, seccion?: string, page = 1, limit = 20, usuarioId?: string) {
+    return this.comunidadRepo.listarPublicaciones(comunidadId, seccion, page, limit, usuarioId)
   }
 }
 

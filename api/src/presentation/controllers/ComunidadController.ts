@@ -37,7 +37,7 @@ export class ComunidadController {
     }
   }
 
-  publicaciones = async (req: Request, res: Response, next: NextFunction) => {
+  publicaciones = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const page = Number(req.query.page) || 1
       const limit = Number(req.query.limit) || 20
@@ -46,7 +46,8 @@ export class ComunidadController {
         req.params.id,
         seccion,
         page,
-        limit
+        limit,
+        req.userId
       )
       res.json({ comunidadId: req.params.id, publicaciones: posts })
     } catch (err) {

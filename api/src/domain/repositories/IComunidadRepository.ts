@@ -15,7 +15,8 @@ export interface IComunidadRepository {
     comunidadId: string,
     seccion?: string,
     page?: number,
-    limit?: number
+    limit?: number,
+    usuarioId?: string
   ): Promise<any[]>
   crearPublicacion(dto: any): Promise<any>
   eliminarPublicacion(pubId: string, usuarioId: string): Promise<void>
