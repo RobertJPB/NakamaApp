@@ -599,21 +599,20 @@ export const PerfilPage: React.FC = () => {
                           style={{ flexDirection: 'column', gap: '4px', padding: '10px', cursor: 'pointer', position: 'relative' }}
                           onClick={() => window.location.href = `/anime/${entrada.anime?.externalId}`}
                         >
-                          {esMiPerfil && (
-                            <button
-                              className={styles.btnEliminarItem}
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                setConfirmModal({ animeId: entrada.animeId, listaNombre: listaSeleccionada.nombre })
-                              }}
-                              title="Eliminar de la lista"
-                              style={{ position: 'absolute', top: 4, right: 4, zIndex: 2, color: '#fff', background: 'none', border: 'none', padding: 2, cursor: 'pointer', lineHeight: 1 }}
-                            >
-                              <X size={14} />
-                            </button>
-                          )}
-
-                          <div style={{ width: '100%' }}>
+                          <div style={{ width: '100%', position: 'relative' }}>
+                            {esMiPerfil && (
+                              <button
+                                className={styles.btnEliminarItem}
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setConfirmModal({ animeId: entrada.animeId, listaNombre: listaSeleccionada.nombre })
+                                }}
+                                title="Eliminar de la lista"
+                                style={{ position: 'absolute', top: 6, right: 6, zIndex: 10, color: '#fff', background: 'none', border: 'none', padding: 2, cursor: 'pointer', lineHeight: 1 }}
+                              >
+                                <X size={16} />
+                              </button>
+                            )}
                             <AnimeCard
                               externalId={entrada.anime?.externalId}
                               titulo={entrada.anime?.titulo}
