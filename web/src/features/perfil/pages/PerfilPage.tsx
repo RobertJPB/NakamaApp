@@ -777,17 +777,15 @@ export const PerfilPage: React.FC = () => {
                       <div style={{ flex: 1 }}>
                         <h4 style={{ fontSize: '0.9rem', margin: 0 }}>{anime.titulo || anime.title?.romaji}</h4>
                       </div>
-                      {yaEsta ? (
+                      {addingStates[anime.id || anime.externalId || anime.titulo] === 'adding' ? (
+                        <span style={{ color: '#b0b3b8', fontSize: '0.8rem' }}>Añadiendo...</span>
+                      ) : addingStates[anime.id || anime.externalId || anime.titulo] === 'error' ? (
+                        <span style={{ color: '#e74c3c', fontSize: '0.8rem', fontWeight: 'bold' }}>Error</span>
+                      ) : yaEsta ? (
                         <span style={{ color: 'var(--color-texto-muted)', fontSize: '0.8rem', fontWeight: 'bold' }}>En lista</span>
-                    ) : addingStates[anime.id || anime.externalId || anime.titulo] === 'adding' ? (
-                      <span style={{ color: '#b0b3b8', fontSize: '0.8rem' }}>Añadiendo...</span>
-                    ) : addingStates[anime.id || anime.externalId || anime.titulo] === 'added' ? (
-                      <span style={{ color: '#27ae60', fontSize: '0.8rem', fontWeight: 'bold' }}>Añadido</span>
-                    ) : addingStates[anime.id || anime.externalId || anime.titulo] === 'error' ? (
-                      <span style={{ color: '#e74c3c', fontSize: '0.8rem', fontWeight: 'bold' }}>Error</span>
-                    ) : (
-                      <span style={{ color: 'var(--color-acento)', fontSize: '0.8rem', fontWeight: 'bold' }}>+ Añadir</span>
-                    )}
+                      ) : (
+                        <span style={{ color: 'var(--color-acento)', fontSize: '0.8rem', fontWeight: 'bold' }}>+ Añadir</span>
+                      )}
                   </div>
                 )})
               ) : searchQuery ? (

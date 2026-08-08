@@ -262,8 +262,8 @@ export const BibliotecaPage: React.FC = () => {
                         onClick={handleInvitar}
                         style={{
                           background: 'rgba(0,0,0,0.6)', color: 'var(--color-texto)', backdropFilter: 'blur(4px)',
-                          fontWeight: 700, fontSize: 'var(--text-sm)',
-                          padding: '8px 16px', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px',
+                          fontWeight: 700, fontSize: '0.85rem',
+                          padding: '6px 12px', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '6px',
                           cursor: 'pointer', transition: 'background var(--transition-fast)', flexShrink: 0
                         }}
                         onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.8)'}
@@ -282,8 +282,8 @@ export const BibliotecaPage: React.FC = () => {
                     }}
                     style={{
                       background: 'rgba(0,0,0,0.6)', color: 'var(--color-texto)', backdropFilter: 'blur(4px)',
-                      fontWeight: 700, fontSize: 'var(--text-sm)',
-                      padding: '8px 16px', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px',
+                      fontWeight: 700, fontSize: '0.85rem',
+                      padding: '6px 12px', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '6px',
                       cursor: 'pointer', transition: 'background var(--transition-fast)', flexShrink: 0
                     }}
                     onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.8)'}
@@ -296,8 +296,8 @@ export const BibliotecaPage: React.FC = () => {
                     onClick={() => setShowSearch(true)}
                     style={{
                       background: 'var(--color-acento)', color: '#1f2124',
-                      fontWeight: 700, fontSize: 'var(--text-sm)',
-                      padding: '8px 16px', border: 'none', borderRadius: '8px',
+                      fontWeight: 700, fontSize: '0.85rem',
+                      padding: '6px 12px', border: 'none', borderRadius: '6px',
                       cursor: 'pointer', transition: 'background var(--transition-fast)', flexShrink: 0
                     }}
                     onMouseEnter={e => e.currentTarget.style.background = 'var(--color-acento-hover)'}
@@ -344,7 +344,7 @@ export const BibliotecaPage: React.FC = () => {
                         onClick={handleInvitar}
                         style={{
                           background: 'transparent', color: 'var(--color-texto)',
-                          fontWeight: 700, fontSize: 'var(--text-sm)',
+                          fontWeight: 700, fontSize: '0.85rem',
                           padding: '6px 12px', border: '1px solid var(--color-borde)', borderRadius: '6px',
                           cursor: 'pointer', transition: 'background var(--transition-fast)'
                         }}
@@ -364,7 +364,7 @@ export const BibliotecaPage: React.FC = () => {
                       }}
                       style={{
                         background: 'transparent', color: 'var(--color-texto)',
-                        fontWeight: 700, fontSize: 'var(--text-sm)',
+                        fontWeight: 700, fontSize: '0.85rem',
                         padding: '6px 12px', border: '1px solid var(--color-borde)', borderRadius: '6px',
                         cursor: 'pointer', transition: 'background var(--transition-fast)'
                       }}
@@ -378,7 +378,7 @@ export const BibliotecaPage: React.FC = () => {
                       onClick={() => setShowSearch(true)}
                       style={{
                         background: 'var(--color-acento)', color: '#1f2124',
-                        fontWeight: 700, fontSize: 'var(--text-sm)',
+                        fontWeight: 700, fontSize: '0.85rem',
                         padding: '6px 12px', border: 'none', borderRadius: '6px',
                         cursor: 'pointer', transition: 'background var(--transition-fast)'
                       }}
@@ -552,14 +552,12 @@ export const BibliotecaPage: React.FC = () => {
                       <div style={{ flex: 1 }}>
                         <h4 style={{ fontSize: '0.9rem', margin: 0 }}>{anime.titulo || anime.title?.romaji}</h4>
                       </div>
-                      {yaEsta ? (
-                        <span style={{ color: 'var(--color-texto-muted)', fontSize: '0.8rem', fontWeight: 'bold' }}>En lista</span>
-                      ) : addingStates[anime.id || anime.externalId || anime.titulo] === 'adding' ? (
+                      {addingStates[anime.id || anime.externalId || anime.titulo] === 'adding' ? (
                         <span style={{ color: '#b0b3b8', fontSize: '0.8rem' }}>Añadiendo...</span>
-                      ) : addingStates[anime.id || anime.externalId || anime.titulo] === 'added' ? (
-                        <span style={{ color: '#27ae60', fontSize: '0.8rem', fontWeight: 'bold' }}>Añadido</span>
                       ) : addingStates[anime.id || anime.externalId || anime.titulo] === 'error' ? (
                         <span style={{ color: '#e74c3c', fontSize: '0.8rem', fontWeight: 'bold' }}>Error</span>
+                      ) : yaEsta ? (
+                        <span style={{ color: 'var(--color-texto-muted)', fontSize: '0.8rem', fontWeight: 'bold' }}>En lista</span>
                       ) : (
                         <span style={{ color: 'var(--color-acento)', fontSize: '0.8rem', fontWeight: 'bold' }}>+ Añadir</span>
                       )}
