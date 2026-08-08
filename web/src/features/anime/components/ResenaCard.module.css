@@ -1,10 +1,14 @@
 .entrada {
   display: flex; gap: var(--space-4); align-items: flex-start;
-  background: rgba(0, 0, 0, 0.2); border-radius: var(--radius-lg);
-  padding: var(--space-4); border: 1px solid var(--color-borde-suave);
+  background: transparent;
+  padding: var(--space-4); border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 0;
   transition: border-color var(--transition-fast), background var(--transition-fast);
+  content-visibility: auto;
+  contain-intrinsic-size: auto 120px;
 }
-.entrada:hover { border-color: var(--color-borde); background: rgba(0, 0, 0, 0.3); }
+.entrada:hover { border-color: rgba(255, 255, 255, 0.05); background: transparent; }
 
 .entradaAvatarWrap { position: relative; width: 42px; height: 42px; flex-shrink: 0; }
 .entradaAvatar {

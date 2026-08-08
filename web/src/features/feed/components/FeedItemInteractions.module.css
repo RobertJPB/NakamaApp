@@ -279,7 +279,9 @@
 }
 
 .repliesContainer {
-  border-left: 2px solid var(--color-borde);
+  --thread-color: var(--color-borde);
+  position: relative;
+  border-left: 2px solid var(--thread-color);
   margin-left: 14px; /* lines up with middle of a 28px avatar */
   padding-left: 14px;
   display: flex;
@@ -289,8 +291,25 @@
   transition: border-color 0.2s;
 }
 
+/* Codo horizontal estilo Reddit que conecta la línea vertical del padre con esta respuesta */
+.repliesContainer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -2px;
+  width: 16px;
+  height: 2px;
+  background: var(--thread-color);
+  border-radius: 2px;
+  transition: background 0.2s;
+}
+
 .repliesContainer:hover {
   border-left-color: var(--color-acento);
+}
+
+.repliesContainer:hover::before {
+  background: var(--color-acento);
 }
 
 .replyForm {

@@ -15,6 +15,9 @@ interface FeedItemInteractionsProps {
   onDeleted: (id: string) => void
 }
 
+// Paleta de líneas de hilo estilo Reddit: cada nivel de anidamiento usa un color distinto
+const THREAD_COLORS = ['#4f8cff', '#4fca76', '#f2a33c', '#ee4e6a', '#9b6cf0', '#2bb3a3']
+
 export const FeedItemInteractions: React.FC<FeedItemInteractionsProps> = ({
   itemId,
   tipo,
@@ -185,8 +188,9 @@ export const FeedItemInteractions: React.FC<FeedItemInteractionsProps> = ({
     return roots
   }, [comments])
 
-  const renderCommentNode = (c: any) => {
+  const renderCommentNode = (c: any, depth = 0) => {
     const isReplying = replyingTo === c.id
+    const threadColor = THREAD_COLORS[(depth + 1) % THREAD_COLORS.length]
     
     return (
       <div key={c.id} className={styles.commentNode}>
@@ -266,8 +270,8 @@ export const FeedItemInteractions: React.FC<FeedItemInteractionsProps> = ({
 
         {/* Hijos recursively */}
         {c.respuestas && c.respuestas.length > 0 && (
-          <div className={styles.repliesContainer}>
-            {c.respuestas.map((r: any) => renderCommentNode(r))}
+          <div className={styles.repliesContainer} style={{ '--thread-color': threadColor } as React.CSSProperties}>
+            {c.respuestas.map((r: any) => renderCommentNode(r, depth + 1))}
           </div>
         )}
       </div>
