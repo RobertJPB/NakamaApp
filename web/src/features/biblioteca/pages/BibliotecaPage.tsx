@@ -444,7 +444,7 @@ export const BibliotecaPage: React.FC = () => {
                     )}
 
                     {resena?.calificacion && (
-                      <span style={{ color: '#f1c40f', fontWeight: 700 }}>Tu nota: {resena.calificacion}</span>
+                      <span style={{ color: '#f1c40f', fontWeight: 700 }}><span>★</span> Tu nota: {resena.calificacion}</span>
                     )}
                   </div>
                 </div>
