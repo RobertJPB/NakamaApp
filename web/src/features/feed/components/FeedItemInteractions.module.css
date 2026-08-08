@@ -315,3 +315,26 @@
 .cancelReplyBtn:hover {
   color: var(--color-texto);
 }
+
+/* ─── Móvil: separar el menú de 3 puntos del contenido del comentario ─── */
+@media (max-width: 600px) {
+  .commentHeader {
+    align-items: flex-start;
+  }
+
+  .commentMeta {
+    min-width: 0;
+    padding-right: var(--space-2);
+  }
+
+  .menuWrap {
+    margin-left: var(--space-3);
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+
+  .btnMore {
+    padding: 8px;
+    margin-right: -4px;
+  }
+}

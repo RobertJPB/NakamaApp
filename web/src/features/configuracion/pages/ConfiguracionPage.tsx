@@ -255,19 +255,16 @@ export const ConfiguracionPage: React.FC = () => {
               <h2 className={styles.sectionTitle}>Banner de perfil</h2>
               <p className={styles.sectionDesc}>Elige un color para la cabecera de tu perfil</p>
               
-              <div style={{ display: 'flex', gap: '12px', marginTop: '16px', flexWrap: 'wrap' }}>
+              <div className={styles.bannerRow}>
                 {COLORES_BANNER.map(color => (
                   <div
                     key={color}
+                    className={styles.bannerSwatch}
                     onClick={() => setForm(f => ({ ...f, bannerUrl: color }))}
                     style={{
-                      width: '60px',
-                      height: '40px',
                       background: (color.startsWith('/') || color.startsWith('http')) ? `url('${color}') center / cover no-repeat` : color,
-                      borderRadius: '8px',
-                      cursor: 'pointer',
-                      border: form.bannerUrl === color ? '3px solid #ffc107' : '1px solid rgba(255,255,255,0.1)',
-                      boxShadow: form.bannerUrl === color ? '0 0 0 2px rgba(255, 193, 7, 0.3)' : 'none'
+                      border: form.bannerUrl === color ? '3px solid var(--color-acento)' : '1px solid var(--color-borde)',
+                      boxShadow: form.bannerUrl === color ? '0 0 0 2px rgba(255, 184, 0, 0.3)' : 'none'
                     }}
                   />
                 ))}
