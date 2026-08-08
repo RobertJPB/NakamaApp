@@ -63,14 +63,15 @@
   border-top: 1px solid var(--color-borde-suave);
 }
 
-/* Conector: la línea sale desde la publicación hacia el primer comentario */
+/* Conector: la línea sale desde la publicación hacia el primer comentario
+   (baja escondida detrás del avatar y reaparece debajo, sin atravesarlo) */
 .commentsSection.hasThread::before {
   content: '';
   position: absolute;
   top: 0;
   left: 15px;
   width: 2px;
-  height: var(--space-4);
+  height: calc(var(--space-4) + 34px);
   background: rgba(255, 255, 255, 0.18);
   border-radius: 2px;
   pointer-events: none;
@@ -281,18 +282,18 @@
   position: relative;
 }
 
-/* Línea vertical de este comentario: baja desde su avatar y atraviesa sus respuestas */
+/* Línea vertical de este comentario: baja desde debajo de su avatar y atraviesa sus respuestas */
 .commentNode::before {
   content: '';
   position: absolute;
-  top: 0;
+  top: 34px; /* debajo del avatar de 32px, sin atravesar la imagen */
   bottom: 0;
   left: 15px; /* centro del avatar de 32px */
   width: 2px;
   background: var(--thread-color);
   border-radius: 2px;
   pointer-events: none;
-  transition: background 0.2s;
+  z-index: 0;
 }
 
 .repliesContainer {
@@ -305,23 +306,17 @@
   gap: var(--space-4);
 }
 
-/* Codo horizontal: une la línea del padre con la primera respuesta */
+/* Codo horizontal: une la línea del padre con la primera respuesta (termina en su borde) */
 .repliesContainer::before {
   content: '';
   position: absolute;
   top: 0;
   left: 15px;
-  width: calc(var(--thread-indent) - 13px);
+  width: calc(var(--thread-indent) - 15px);
   height: 2px;
   background: var(--thread-color, var(--color-borde));
   border-radius: 2px;
   pointer-events: none;
-  transition: background 0.2s;
-}
-
-.commentNode:hover::before,
-.repliesContainer:hover::before {
-  background: var(--color-acento);
 }
 
 .replyForm {
